@@ -1,0 +1,294 @@
+ERD Percetakan
+
+CREATE TABLE role (
+    id_role INT PRIMARY KEY AUTO_INCREMENT,
+    nama_role VARCHAR(50) NOT NULL UNIQUE,
+    deskripsi TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- Tabel Status Pesanan (Master)
+CREATE TABLE status_pesanan (
+    id_status INT PRIMARY KEY AUTO_INCREMENT,
+    nama_status VARCHAR(50) NOT NULL UNIQUE,
+    urutan INT NOT NULL COMMENT 'Urutan tahapan proses',
+    warna_badge VARCHAR(20) COMMENT 'Untuk UI: success, warning, danger, info',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- Tabel Status Desain (Master)
+CREATE TABLE status_desain (
+    id_status_desain INT PRIMARY KEY AUTO_INCREMENT,
+    nama_status VARCHAR(50) NOT NULL UNIQUE,
+    deskripsi TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- Tabel Jenis Layanan (Master)
+CREATE TABLE jenis_layanan (
+    id_layanan INT PRIMARY KEY AUTO_INCREMENT,
+    nama_layanan VARCHAR(100) NOT NULL,
+    deskripsi TEXT,
+    harga_dasar DECIMAL(15,2) NOT NULL DEFAULT 0,
+    satuan VARCHAR(20) DEFAULT 'pcs' COMMENT 'pcs, lembar, set, dll',
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- Tabel Metode Pembayaran (Master) - FIXED VERSION
+CREATE TABLE metode_pembayaran (
+    id_metode INT PRIMARY KEY AUTO_INCREMENT,
+    nama_metode VARCHAR(50) NOT NULL,
+    tipe ENUM('bank_transfer', 'e_wallet', 'cash') NOT NULL,
+    nomor_rekening VARCHAR(50) COMMENT 'Untuk bank_transfer',
+    atas_nama VARCHAR(100) COMMENT 'Nama penerima',
+    logo_path VARCHAR(255) COMMENT 'Path logo payment method',
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- Tabel Kendala Produksi (Master)
+CREATE TABLE master_kendala (
+    id_kendala_type INT PRIMARY KEY AUTO_INCREMENT,
+    nama_kendala VARCHAR(100) NOT NULL,
+    kategori ENUM('mesin', 'bahan', 'tenaga_kerja', 'lainnya') NOT NULL,
+    solusi_umum TEXT COMMENT 'Panduan penanganan',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- ============================================
+-- MAIN ENTITY TABLES
+-- ============================================
+
+-- Tabel User - FIXED VERSION
+CREATE TABLE user (
+    id_user INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL COMMENT 'BCrypt hash',
+    email VARCHAR(100) NOT NULL UNIQUE,
+    nama_lengkap VARCHAR(100) NOT NULL,
+    id_role INT NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    last_login DATETIME NULL,
+    failed_login_attempts INT DEFAULT 0,
+    locked_until DATETIME NULL COMMENT 'Auto unlock setelah waktu ini',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_role) REFERENCES role(id_role) ON DELETE RESTRICT,
+    INDEX idx_username (username),
+    INDEX idx_email (email),
+    INDEX idx_active (is_active)
+) ENGINE=InnoDB;
+
+-- Tabel Pelanggan
+CREATE TABLE pelanggan (
+    id_pelanggan INT PRIMARY KEY AUTO_INCREMENT,
+    nama VARCHAR(100) NOT NULL,
+    email VARCHAR(100),
+    no_telepon VARCHAR(20) NOT NULL,
+    alamat TEXT,
+    media_komunikasi ENUM('whatsapp', 'email', 'telepon', 'website') DEFAULT 'whatsapp',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_nama (nama),
+    INDEX idx_telepon (no_telepon)
+) ENGINE=InnoDB;
+
+-- Tabel Pesanan - FIXED VERSION
+CREATE TABLE pesanan (
+    id_pesanan INT PRIMARY KEY AUTO_INCREMENT,
+    nomor_pesanan VARCHAR(50) NOT NULL UNIQUE COMMENT 'Format: PO-YYYYMMDD-0001',
+    id_pelanggan INT NOT NULL,
+    id_user_admin INT NOT NULL COMMENT 'Admin yang input',
+    id_status INT NOT NULL,
+    tanggal_pesanan DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deadline DATE COMMENT 'Target selesai',
+    catatan TEXT,
+    total_biaya DECIMAL(15,2) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_pelanggan) REFERENCES pelanggan(id_pelanggan) ON DELETE RESTRICT,
+    FOREIGN KEY (id_user_admin) REFERENCES user(id_user) ON DELETE RESTRICT,
+    FOREIGN KEY (id_status) REFERENCES status_pesanan(id_status) ON DELETE RESTRICT,
+    INDEX idx_nomor (nomor_pesanan),
+    INDEX idx_pelanggan (id_pelanggan),
+    INDEX idx_status (id_status),
+    INDEX idx_tanggal (tanggal_pesanan)
+) ENGINE=InnoDB;
+
+-- Tabel Detail Pesanan (Composite)
+CREATE TABLE detail_pesanan (
+    id_detail INT PRIMARY KEY AUTO_INCREMENT,
+    id_pesanan INT NOT NULL,
+    id_layanan INT NOT NULL,
+    jumlah INT NOT NULL DEFAULT 1,
+    harga_satuan DECIMAL(15,2) NOT NULL,
+    subtotal DECIMAL(15,2) NOT NULL,
+    spesifikasi TEXT COMMENT 'Ukuran, warna, finishing, dll',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_pesanan) REFERENCES pesanan(id_pesanan) ON DELETE CASCADE,
+    FOREIGN KEY (id_layanan) REFERENCES jenis_layanan(id_layanan) ON DELETE RESTRICT,
+    INDEX idx_pesanan (id_pesanan)
+) ENGINE=InnoDB;
+
+-- Tabel Pembayaran - FIXED VERSION (KRITIS!)
+CREATE TABLE pembayaran (
+    id_pembayaran INT PRIMARY KEY AUTO_INCREMENT,
+    id_pesanan INT NOT NULL,
+    id_metode INT NOT NULL,
+    jumlah DECIMAL(15,2) NOT NULL,
+    status_pembayaran ENUM('pending', 'verified', 'failed', 'cancelled') DEFAULT 'pending',
+    bukti_pembayaran_path VARCHAR(255) COMMENT 'Path ke file bukti transfer',
+    tanggal_pembayaran DATETIME NOT NULL,
+    tanggal_verifikasi DATETIME NULL,
+    verified_by INT NULL COMMENT 'User yang verifikasi',
+    catatan TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_pesanan) REFERENCES pesanan(id_pesanan) ON DELETE CASCADE,
+    FOREIGN KEY (id_metode) REFERENCES metode_pembayaran(id_metode) ON DELETE RESTRICT,
+    FOREIGN KEY (verified_by) REFERENCES user(id_user) ON DELETE SET NULL,
+    INDEX idx_pesanan (id_pesanan),
+    INDEX idx_status (status_pembayaran),
+    INDEX idx_tanggal (tanggal_pembayaran)
+) ENGINE=InnoDB;
+
+-- Tabel Desain - FIXED VERSION (KRITIS!)
+CREATE TABLE desain (
+    id_desain INT PRIMARY KEY AUTO_INCREMENT,
+    id_pesanan INT NOT NULL,
+    id_designer INT NOT NULL COMMENT 'User yang mengerjakan desain',
+    id_status_desain INT NOT NULL,
+    file_desain_path VARCHAR(255),
+    revisi_ke INT DEFAULT 1,
+    tanggal_dibuat DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    tanggal_disetujui DATETIME NULL,
+    catatan TEXT COMMENT 'Instruksi atau feedback',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_pesanan) REFERENCES pesanan(id_pesanan) ON DELETE CASCADE,
+    FOREIGN KEY (id_designer) REFERENCES user(id_user) ON DELETE RESTRICT,
+    FOREIGN KEY (id_status_desain) REFERENCES status_desain(id_status_desain) ON DELETE RESTRICT,
+    INDEX idx_pesanan (id_pesanan),
+    INDEX idx_designer (id_designer),
+    INDEX idx_status (id_status_desain)
+) ENGINE=InnoDB;
+
+-- Tabel Revisi Desain (BARU - untuk track history)
+CREATE TABLE revisi_desain (
+    id_revisi INT PRIMARY KEY AUTO_INCREMENT,
+    id_desain INT NOT NULL,
+    revisi_ke INT NOT NULL,
+    file_path VARCHAR(255) NOT NULL,
+    catatan_revisi TEXT,
+    direvisi_oleh INT NOT NULL COMMENT 'Designer yang revisi',
+    tanggal_revisi DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_desain) REFERENCES desain(id_desain) ON DELETE CASCADE,
+    FOREIGN KEY (direvisi_oleh) REFERENCES user(id_user) ON DELETE RESTRICT,
+    INDEX idx_desain (id_desain)
+) ENGINE=InnoDB;
+
+-- Tabel Produksi - FIXED VERSION (KRITIS!)
+CREATE TABLE produksi (
+    id_produksi INT PRIMARY KEY AUTO_INCREMENT,
+    id_pesanan INT NOT NULL,
+    id_operator INT NOT NULL COMMENT 'User produksi yang handle',
+    tanggal_mulai DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    tanggal_selesai DATETIME NULL,
+    progres_persen INT DEFAULT 0 CHECK (progres_persen >= 0 AND progres_persen <= 100),
+    status_produksi ENUM('antrian', 'proses', 'selesai', 'terkendala') DEFAULT 'antrian',
+    mesin_digunakan VARCHAR(100) COMMENT 'Nama mesin cetak',
+    catatan TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_pesanan) REFERENCES pesanan(id_pesanan) ON DELETE CASCADE,
+    FOREIGN KEY (id_operator) REFERENCES user(id_user) ON DELETE RESTRICT,
+    INDEX idx_pesanan (id_pesanan),
+    INDEX idx_operator (id_operator),
+    INDEX idx_status (status_produksi)
+) ENGINE=InnoDB;
+
+-- Tabel Kendala Produksi
+CREATE TABLE kendala_produksi (
+    id_kendala INT PRIMARY KEY AUTO_INCREMENT,
+    id_produksi INT NOT NULL,
+    id_kendala_type INT NULL,
+    deskripsi TEXT NOT NULL,
+    solusi TEXT,
+    status ENUM('open', 'in_progress', 'resolved') DEFAULT 'open',
+    dilaporkan_oleh INT NOT NULL,
+    tanggal_lapor DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    tanggal_selesai DATETIME NULL,
+    FOREIGN KEY (id_produksi) REFERENCES produksi(id_produksi) ON DELETE CASCADE,
+    FOREIGN KEY (id_kendala_type) REFERENCES master_kendala(id_kendala_type) ON DELETE SET NULL,
+    FOREIGN KEY (dilaporkan_oleh) REFERENCES user(id_user) ON DELETE RESTRICT,
+    INDEX idx_produksi (id_produksi),
+    INDEX idx_status (status)
+) ENGINE=InnoDB;
+
+-- Tabel Log Aktivitas - FIXED VERSION (KRITIS!)
+CREATE TABLE log_aktivitas (
+    id_log INT PRIMARY KEY AUTO_INCREMENT,
+    id_user INT NOT NULL COMMENT 'User yang melakukan aksi',
+    aksi VARCHAR(255) NOT NULL COMMENT 'login, logout, create_pesanan, dll',
+    tabel_terkait VARCHAR(50) COMMENT 'Nama tabel yang diubah',
+    id_record INT COMMENT 'ID record yang diubah',
+    detail_perubahan TEXT COMMENT 'JSON data sebelum/sesudah',
+    ip_address VARCHAR(45) COMMENT 'IP address user',
+    user_agent VARCHAR(255) COMMENT 'Browser/device info',
+    timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_user) REFERENCES user(id_user) ON DELETE CASCADE,
+    INDEX idx_user (id_user),
+    INDEX idx_timestamp (timestamp),
+    INDEX idx_aksi (aksi)
+) ENGINE=InnoDB;
+
+-- Tabel Laporan
+CREATE TABLE laporan (
+    id_laporan INT PRIMARY KEY AUTO_INCREMENT,
+    jenis_laporan ENUM('mingguan', 'bulanan', 'kustom') NOT NULL,
+    tanggal_mulai DATE NOT NULL,
+    tanggal_selesai DATE NOT NULL,
+    file_path VARCHAR(255) COMMENT 'Path ke file Excel/PDF',
+    total_pesanan INT DEFAULT 0,
+    total_pendapatan DECIMAL(15,2) DEFAULT 0,
+    generated_by INT NOT NULL,
+    generated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (generated_by) REFERENCES user(id_user) ON DELETE RESTRICT,
+    INDEX idx_tanggal (tanggal_mulai, tanggal_selesai),
+    INDEX idx_jenis (jenis_laporan)
+) ENGINE=InnoDB;
+
+-- ============================================
+-- OFFLINE MODE SUPPORT (BARU - KRITIS!)
+-- ============================================
+
+-- Tabel Sync Queue untuk Offline Mode
+CREATE TABLE sync_queue (
+    id_sync INT PRIMARY KEY AUTO_INCREMENT,
+    table_name VARCHAR(50) NOT NULL COMMENT 'Tabel yang diubah',
+    operation ENUM('INSERT', 'UPDATE', 'DELETE') NOT NULL,
+    record_id INT NOT NULL COMMENT 'ID record yang diubah',
+    data_json TEXT NOT NULL COMMENT 'Snapshot data dalam JSON',
+    synced BOOLEAN DEFAULT FALSE,
+    sync_priority INT DEFAULT 1 COMMENT '1=low, 5=high',
+    created_by INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    synced_at TIMESTAMP NULL,
+    error_message TEXT COMMENT 'Jika gagal sync',
+    retry_count INT DEFAULT 0,
+    FOREIGN KEY (created_by) REFERENCES user(id_user) ON DELETE CASCADE,
+    INDEX idx_synced (synced),
+    INDEX idx_table (table_name),
+    INDEX idx_created_at (created_at)
+) ENGINE=InnoDB;
+
+-- Tabel Connection Log (monitoring online/offline)
+CREATE TABLE connection_log (
+    id_log INT PRIMARY KEY AUTO_INCREMENT,
+    status ENUM('online', 'offline') NOT NULL,
+    timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    duration_seconds INT COMMENT 'Berapa lama dalam status tersebut',
+    INDEX idx_timestamp (timestamp)
+) ENGINE=InnoDB;

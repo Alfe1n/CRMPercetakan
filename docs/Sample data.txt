@@ -1,0 +1,203 @@
+Sample data
+
+-- ============================================
+-- SAMPLE DATA
+-- ============================================
+
+-- Insert Master: Role
+INSERT INTO role (nama_role, deskripsi) VALUES
+('Admin', 'Administrator sistem dengan full access'),
+('Desain', 'Tim desain untuk handle pembuatan/revisi desain'),
+('Produksi', 'Operator produksi untuk cetak'),
+('Manajemen', 'Pimpinan untuk monitoring dan laporan');
+
+-- Insert Master: Status Pesanan
+INSERT INTO status_pesanan (nama_status, urutan, warna_badge) VALUES
+('Baru Dibuat', 1, 'info'),
+('Menunggu Pembayaran', 2, 'warning'),
+('Pembayaran Verified', 3, 'success'),
+('Menunggu Desain', 4, 'info'),
+('Desain Direvisi', 5, 'warning'),
+('Desain Disetujui', 6, 'success'),
+('Antrian Produksi', 7, 'info'),
+('Sedang Diproduksi', 8, 'primary'),
+('Produksi Selesai', 9, 'success'),
+('Siap Dikirim', 10, 'success'),
+('Selesai', 11, 'success'),
+('Dibatalkan', 12, 'danger');
+
+-- Insert Master: Status Desain
+INSERT INTO status_desain (nama_status, deskripsi) VALUES
+('Menunggu Dikerjakan', 'Desain belum dimulai'),
+('Dalam Pengerjaan', 'Desainer sedang mengerjakan'),
+('Menunggu Approval', 'Menunggu persetujuan pelanggan'),
+('Perlu Revisi', 'Customer minta revisi'),
+('Disetujui (ACC)', 'Desain final disetujui'),
+('Ditolak', 'Desain ditolak/dibatalkan');
+
+-- Insert Master: Jenis Layanan
+INSERT INTO jenis_layanan (nama_layanan, deskripsi, harga_dasar, satuan) VALUES
+('Digital Printing A4', 'Cetak digital ukuran A4 full color', 2000, 'lembar'),
+('Digital Printing A3', 'Cetak digital ukuran A3 full color', 5000, 'lembar'),
+('Offset Printing', 'Cetak offset untuk jumlah banyak', 1500, 'lembar'),
+('Sablon Kaos', 'Sablon untuk kaos/tekstil', 25000, 'pcs'),
+('Cetak Undangan', 'Cetak undangan pernikahan', 3000, 'pcs'),
+('Banner Indoor', 'Cetak banner untuk indoor', 50000, 'm2'),
+('Banner Outdoor', 'Cetak banner tahan cuaca', 75000, 'm2'),
+('Cetak Sticker', 'Cetak sticker vinyl', 15000, 'lembar');
+
+-- Insert Master: Metode Pembayaran
+INSERT INTO metode_pembayaran (nama_metode, tipe, nomor_rekening, atas_nama, is_active) VALUES
+('Transfer BCA', 'bank_transfer', '1234567890', 'CV Percetakan Jaya', TRUE),
+('Transfer Mandiri', 'bank_transfer', '0987654321', 'CV Percetakan Jaya', TRUE),
+('OVO', 'e_wallet', '081234567890', 'Percetakan Jaya', TRUE),
+('GoPay', 'e_wallet', '081234567890', 'Percetakan Jaya', TRUE),
+('Dana', 'e_wallet', '081234567890', 'Percetakan Jaya', TRUE),
+('Cash/Tunai', 'cash', NULL, NULL, TRUE);
+
+-- Insert Master: Kendala
+INSERT INTO master_kendala (nama_kendala, kategori, solusi_umum) VALUES
+('Mesin Rusak', 'mesin', 'Hubungi teknisi, gunakan mesin backup'),
+('Tinta Habis', 'bahan', 'Restock tinta dari supplier'),
+('Kertas Habis', 'bahan', 'Pesan kertas ke supplier'),
+('Operator Sakit', 'tenaga_kerja', 'Ganti shift dengan operator lain'),
+('Listrik Mati', 'lainnya', 'Gunakan genset, tunggu listrik kembali');
+
+-- Insert Sample Users (Password: "password123" - sudah di-hash BCrypt)
+-- Hash BCrypt untuk "password123": $2a$10$N9qo8uLOickgx2ZMRZoMye5lxrp4lJH8FxKbUxDXdqWpFKGdXqjQu
+-- Insert Sample Users (Password: "password123" - BCrypt hash)
+INSERT INTO user (username, password_hash, email, nama_lengkap, id_role, is_active) VALUES
+('admin', '$2a$10$N9qo8uLOickgx2ZMRZoMye5lxrp4lJH8FxKbUxDXdqWpFKGdXqjQu', 'admin@percetakan.com', 'Administrator Sistem', 1, TRUE),
+('designer1', '$2a$10$N9qo8uLOickgx2ZMRZoMye5lxrp4lJH8FxKbUxDXdqWpFKGdXqjQu', 'design@percetakan.com', 'Budi Santoso', 2, TRUE),
+('designer2', '$2a$10$N9qo8uLOickgx2ZMRZoMye5lxrp4lJH8FxKbUxDXdqWpFKGdXqjQu', 'design2@percetakan.com', 'Siti Aminah', 2, TRUE),
+('operator1', '$2a$10$N9qo8uLOickgx2ZMRZoMye5lxrp4lJH8FxKbUxDXdqWpFKGdXqjQu', 'produksi@percetakan.com', 'Joko Widodo', 3, TRUE),
+('operator2', '$2a$10$N9qo8uLOickgx2ZMRZoMye5lxrp4lJH8FxKbUxDXdqWpFKGdXqjQu', 'produksi2@percetakan.com', 'Ahmad Yani', 3, TRUE),
+('manager', '$2a$10$N9qo8uLOickgx2ZMRZoMye5lxrp4lJH8FxKbUxDXdqWpFKGdXqjQu', 'manager@percetakan.com', 'Direktur Utama', 4, TRUE);
+
+-- Insert Sample Pelanggan
+INSERT INTO pelanggan (nama, email, no_telepon, alamat, media_komunikasi) VALUES
+('PT Maju Jaya', 'info@majujaya.com', '081234567890', 'Jl. Sudirman No. 123, Jakarta', 'email'),
+('Yayasan Pendidikan Harapan', 'yayasan@harapan.com', '082345678901', 'Jl. Imam Bonjol No. 45, Bandung', 'whatsapp'),
+('Toko Buku Cerdas', 'tokobuku@cerdas.com', '083456789012', 'Jl. Asia Afrika No. 78, Bandung', 'whatsapp'),
+('Wedding Organizer Elegan', 'wo@elegan.com', '084567890123', 'Jl. Braga No. 56, Bandung', 'whatsapp'),
+('Cafe Kopi Nikmat', 'info@kopinikmat.com', '085678901234', 'Jl. Dago No. 12, Bandung', 'telepon'),
+('Rumah Sakit Sehat Sentosa', 'info@sehatsentosa.com', '086789012345', 'Jl. Pasteur No. 34, Bandung', 'email');
+
+-- Insert Sample Pesanan
+INSERT INTO pesanan (id_pelanggan, id_user_admin, id_status, tanggal_pesanan, deadline, catatan, total_biaya) VALUES
+(1, 1, 3, '2025-01-15 09:00:00', '2025-01-25', 'Pesanan brosur company profile', 5000000),
+(2, 1, 6, '2025-01-16 10:30:00', '2025-01-28', 'Cetak buku panduan siswa', 3500000),
+(3, 1, 8, '2025-01-17 11:00:00', '2025-01-22', 'Urgent - catalog produk', 7500000),
+(4, 1, 4, '2025-01-18 14:00:00', '2025-02-05', 'Undangan pernikahan 500 pcs', 4500000),
+(5, 1, 2, '2025-01-19 15:30:00', '2025-01-30', 'Menu makanan dan sticker', 2000000);
+
+-- Insert Sample Detail Pesanan
+-- Pesanan 1: PT Maju Jaya
+INSERT INTO detail_pesanan (id_pesanan, id_layanan, jumlah, harga_satuan, subtotal, spesifikasi) VALUES
+(1, 2, 1000, 5000, 5000000, 'A3 full color, art paper 150gsm, laminasi glossy');
+
+-- Pesanan 2: Yayasan Pendidikan
+INSERT INTO detail_pesanan (id_pesanan, id_layanan, jumlah, harga_satuan, subtotal, spesifikasi) VALUES
+(2, 1, 2000, 1500, 3000000, 'A4 BW, HVS 80gsm'),
+(2, 5, 100, 5000, 500000, 'Cover hardcover full color');
+
+-- Pesanan 3: Toko Buku
+INSERT INTO detail_pesanan (id_pesanan, id_layanan, jumlah, harga_satuan, subtotal, spesifikasi) VALUES
+(3, 2, 1500, 5000, 7500000, 'A3 full color, art carton 260gsm');
+
+-- Pesanan 4: Wedding Organizer
+INSERT INTO detail_pesanan (id_pesanan, id_layanan, jumlah, harga_satuan, subtotal, spesifikasi) VALUES
+(4, 5, 500, 3000, 1500000, 'Undangan softcover 14x20cm'),
+(4, 8, 200, 15000, 3000000, 'Sticker nama tamu');
+
+-- Pesanan 5: Cafe Kopi
+INSERT INTO detail_pesanan (id_pesanan, id_layanan, jumlah, harga_satuan, subtotal, spesifikasi) VALUES
+(5, 1, 500, 2000, 1000000, 'Menu A4 full color, laminasi'),
+(5, 8, 100, 10000, 1000000, 'Sticker logo cafe diameter 10cm');
+
+-- Insert Sample Pembayaran
+INSERT INTO pembayaran (id_pesanan, id_metode, jumlah, status_pembayaran, bukti_pembayaran_path, tanggal_pembayaran, tanggal_verifikasi, verified_by, catatan) VALUES
+-- Pesanan 1: Lunas
+(1, 1, 5000000, 'verified', 'uploads/bukti/2025/01/bukti_001.jpg', '2025-01-15 10:00:00', '2025-01-15 10:30:00', 1, 'Transfer BCA - Lunas'),
+
+-- Pesanan 2: Lunas (2 kali bayar - DP + Pelunasan)
+(2, 2, 1750000, 'verified', 'uploads/bukti/2025/01/bukti_002.jpg', '2025-01-16 11:00:00', '2025-01-16 11:30:00', 1, 'DP 50% - Transfer Mandiri'),
+(2, 2, 1750000, 'verified', 'uploads/bukti/2025/01/bukti_003.jpg', '2025-01-20 14:00:00', '2025-01-20 14:15:00', 1, 'Pelunasan 50%'),
+
+-- Pesanan 3: Sudah DP, sisa belum dibayar
+(3, 3, 3750000, 'verified', 'uploads/bukti/2025/01/bukti_004.jpg', '2025-01-17 12:00:00', '2025-01-17 12:30:00', 1, 'DP 50% via OVO'),
+
+-- Pesanan 4: Belum bayar sama sekali (hanya pending)
+(4, 1, 4500000, 'pending', NULL, '2025-01-18 14:30:00', NULL, NULL, 'Menunggu transfer'),
+
+-- Pesanan 5: Pending - menunggu verifikasi
+(5, 4, 2000000, 'pending', 'uploads/bukti/2025/01/bukti_005.jpg', '2025-01-19 16:00:00', NULL, NULL, 'Bukti sudah diupload, menunggu verifikasi');
+
+-- Insert Sample Desain
+INSERT INTO desain (id_pesanan, id_designer, id_status_desain, file_desain_path, revisi_ke, tanggal_dibuat, tanggal_disetujui, catatan) VALUES
+-- Pesanan 1: Desain sudah ACC
+(1, 2, 5, 'uploads/desain/2025/01/desain_pesanan_1_final.pdf', 2, '2025-01-16 09:00:00', '2025-01-17 15:00:00', 'Revisi 1x - ganti warna background'),
+
+-- Pesanan 2: Desain sudah ACC
+(2, 2, 5, 'uploads/desain/2025/01/desain_pesanan_2_final.pdf', 1, '2025-01-17 10:00:00', '2025-01-18 14:00:00', 'Approved langsung tanpa revisi'),
+
+-- Pesanan 3: Desain dalam pengerjaan
+(3, 3, 2, NULL, 1, '2025-01-18 08:00:00', NULL, 'Target selesai besok sore'),
+
+-- Pesanan 4: Menunggu approval customer
+(4, 2, 3, 'uploads/desain/2025/01/desain_pesanan_4_v1.pdf', 1, '2025-01-19 09:00:00', NULL, 'Draft pertama, menunggu feedback customer');
+
+-- Insert Sample Revisi Desain (untuk pesanan 1 yang ada revisi)
+INSERT INTO revisi_desain (id_desain, revisi_ke, file_path, catatan_revisi, direvisi_oleh, tanggal_revisi) VALUES
+(1, 1, 'uploads/desain/2025/01/desain_pesanan_1_v1.pdf', 'Draft pertama', 2, '2025-01-16 09:00:00'),
+(1, 2, 'uploads/desain/2025/01/desain_pesanan_1_final.pdf', 'Revisi: ganti background dari biru ke hijau sesuai request client', 2, '2025-01-17 10:00:00');
+
+-- Insert Sample Produksi
+INSERT INTO produksi (id_pesanan, id_operator, tanggal_mulai, tanggal_selesai, progres_persen, status_produksi, mesin_digunakan, catatan) VALUES
+-- Pesanan 1: Sudah selesai
+(1, 4, '2025-01-18 08:00:00', '2025-01-19 16:00:00', 100, 'selesai', 'Mesin Digital Printing Canon iPF-8400', 'Produksi lancar tanpa kendala'),
+
+-- Pesanan 2: Sedang proses
+(2, 4, '2025-01-19 08:00:00', NULL, 60, 'proses', 'Mesin Offset Heidelberg', 'Progress normal, estimasi selesai besok'),
+
+-- Pesanan 3: Sedang proses tapi ada kendala
+(3, 5, '2025-01-19 09:00:00', NULL, 30, 'terkendala', 'Mesin Digital Printing HP Latex 560', 'Ada masalah dengan print head');
+
+-- Insert Sample Kendala Produksi
+INSERT INTO kendala_produksi (id_produksi, id_kendala_type, deskripsi, solusi, status, dilaporkan_oleh, tanggal_lapor, tanggal_selesai) VALUES
+(3, 1, 'Print head mesin HP Latex macet, hasil print bergaris', 'Lakukan head cleaning, jika tidak berhasil ganti print head', 'in_progress', 5, '2025-01-19 11:00:00', NULL);
+
+-- Insert Sample Log Aktivitas
+INSERT INTO log_aktivitas (id_user, aksi, tabel_terkait, id_record, detail_perubahan, ip_address, user_agent) VALUES
+(1, 'login', NULL, NULL, 'Login berhasil', '192.168.1.100', 'JavaFX Desktop App 1.0'),
+(1, 'create_pesanan', 'pesanan', 1, 'Pesanan baru: PO-20250115-0001 untuk PT Maju Jaya', '192.168.1.100', 'JavaFX Desktop App 1.0'),
+(1, 'verify_pembayaran', 'pembayaran', 1, 'Verifikasi pembayaran sebesar Rp 5.000.000', '192.168.1.100', 'JavaFX Desktop App 1.0'),
+(2, 'login', NULL, NULL, 'Login berhasil', '192.168.1.101', 'JavaFX Desktop App 1.0'),
+(2, 'upload_desain', 'desain', 1, 'Upload desain untuk pesanan PO-20250115-0001', '192.168.1.101', 'JavaFX Desktop App 1.0'),
+(2, 'update_status_desain', 'desain', 1, 'Status desain diubah menjadi: Disetujui (ACC)', '192.168.1.101', 'JavaFX Desktop App 1.0'),
+(4, 'login', NULL, NULL, 'Login berhasil', '192.168.1.102', 'JavaFX Desktop App 1.0'),
+(4, 'start_produksi', 'produksi', 1, 'Mulai produksi untuk pesanan PO-20250115-0001', '192.168.1.102', 'JavaFX Desktop App 1.0'),
+(4, 'update_progres', 'produksi', 1, 'Update progres produksi menjadi 100%', '192.168.1.102', 'JavaFX Desktop App 1.0'),
+(5, 'report_kendala', 'kendala_produksi', 1, 'Laporan kendala: Print head macet pada mesin HP Latex', '192.168.1.103', 'JavaFX Desktop App 1.0');
+
+-- Insert Sample Sync Queue (simulasi data offline)
+INSERT INTO sync_queue (table_name, operation, record_id, data_json, synced, sync_priority, created_by, created_at, synced_at) VALUES
+-- Data yang sudah di-sync
+('pesanan', 'INSERT', 5, '{"id_pesanan":5,"nomor_pesanan":"PO-20250119-0005","id_pelanggan":5}', TRUE, 3, 1, '2025-01-19 15:30:00', '2025-01-19 15:31:00'),
+('pembayaran', 'INSERT', 5, '{"id_pembayaran":5,"id_pesanan":5,"jumlah":2000000}', TRUE, 5, 1, '2025-01-19 16:00:00', '2025-01-19 16:01:00'),
+
+-- Data yang belum di-sync (pending)
+('produksi', 'UPDATE', 2, '{"id_produksi":2,"progres_persen":60}', FALSE, 3, 4, '2025-01-19 17:00:00', NULL),
+('log_aktivitas', 'INSERT', 11, '{"id_user":4,"aksi":"update_progres"}', FALSE, 1, 4, '2025-01-19 17:01:00', NULL);
+
+-- Insert Sample Connection Log
+INSERT INTO connection_log (status, timestamp, duration_seconds) VALUES
+('online', '2025-01-19 08:00:00', 28800),  -- 8 jam online
+('offline', '2025-01-19 16:00:00', 3600),  -- 1 jam offline
+('online', '2025-01-19 17:00:00', NULL);   -- Masih online sekarang
+
+-- Insert Sample Laporan
+INSERT INTO laporan (jenis_laporan, tanggal_mulai, tanggal_selesai, file_path, total_pesanan, total_pendapatan, generated_by) VALUES
+('mingguan', '2025-01-13', '2025-01-19', 'reports/laporan_mingguan_2025-01-13.xlsx', 5, 22500000, 6),
+('mingguan', '2025-01-06', '2025-01-12', 'reports/laporan_mingguan_2025-01-06.xlsx', 8, 35000000, 6),
+('bulanan', '2025-01-01', '2025-01-31', 'reports/laporan_bulanan_2025-01.xlsx', 23, 78000000, 6);

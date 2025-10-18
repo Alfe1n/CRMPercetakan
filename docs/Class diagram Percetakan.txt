@@ -1,0 +1,1021 @@
+Class diagram Percetakan
+
+@startuml Class Diagram - Sistema Percetakan JavaFX
+
+' ============================================
+' STYLING
+' ============================================
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #FEFEFE
+skinparam class {
+    BackgroundColor<<Controller>> #E3F2FD
+    BackgroundColor<<Service>> #FFF3E0
+    BackgroundColor<<DAO>> #E8F5E9
+    BackgroundColor<<Model>> #F3E5F5
+    BackgroundColor<<Utility>> #FFF9C4
+    BorderColor Black
+    ArrowColor Black
+}
+
+' ============================================
+' LAYER 1: CONTROLLER (JavaFX Controllers)
+' ============================================
+package "Controller Layer" <<Rectangle>> {
+    
+    class LoginController <<Controller>> {
+        - txtUsername: TextField
+        - txtPassword: PasswordField
+        - btnLogin: Button
+        - authService: AuthService
+        - sessionManager: SessionManager
+        --
+        + initialize(): void
+        + handleLogin(): void
+        + handleForgotPassword(): void
+        - validateInput(): boolean
+        - showAlert(message: String): void
+    }
+    
+    class DashboardController <<Controller>> {
+        - lblUsername: Label
+        - lblRole: Label
+        - containerStats: VBox
+        - pesananService: PesananService
+        - sessionManager: SessionManager
+        --
+        + initialize(): void
+        + loadStatistics(): void
+        + refreshDashboard(): void
+        + handleLogout(): void
+        - setupRoleBasedView(): void
+    }
+    
+    class PesananController <<Controller>> {
+        - tblPesanan: TableView<Pesanan>
+        - txtSearch: TextField
+        - cmbFilterStatus: ComboBox<StatusPesanan>
+        - pesananService: PesananService
+        - pelangganService: PelangganService
+        --
+        + initialize(): void
+        + loadPesanan(): void
+        + handleTambahPesanan(): void
+        + handleEditPesanan(): void
+        + handleDetailPesanan(): void
+        + handleSearch(): void
+        + handleFilter(): void
+        - openFormDialog(): void
+        - refreshTable(): void
+    }
+    
+    class PembayaranController <<Controller>> {
+        - tblPembayaran: TableView<Pembayaran>
+        - imgBuktiTransfer: ImageView
+        - pembayaranService: PembayaranService
+        --
+        + initialize(): void
+        + loadPembayaranPending(): void
+        + handleVerifikasi(): void
+        + handleTolak(): void
+        + handleViewBukti(): void
+        - refreshTable(): void
+    }
+    
+    class DesainController <<Controller>> {
+        - tblAntrian: TableView<Desain>
+        - txtCatatan: TextArea
+        - desainService: DesainService
+        - fileChooser: FileChooser
+        --
+        + initialize(): void
+        + loadAntrianDesain(): void
+        + handleUploadDesain(): void
+        + handleSetujuiDesain(): void
+        + handleRevisiDesain(): void
+        + handleDownloadDesain(): void
+    }
+    
+    class ProduksiController <<Controller>> {
+        - tblProduksi: TableView<Produksi>
+        - progressBar: ProgressBar
+        - produksiService: ProduksiService
+        --
+        + initialize(): void
+        + loadAntrianProduksi(): void
+        + handleMulaiProduksi(): void
+        + handleUpdateProgres(): void
+        + handleSelesaiProduksi(): void
+        + handleLaporkanKendala(): void
+    }
+    
+    class LaporanController <<Controller>> {
+        - dpTanggalMulai: DatePicker
+        - dpTanggalSelesai: DatePicker
+        - cmbJenisLaporan: ComboBox<String>
+        - laporanService: LaporanService
+        --
+        + initialize(): void
+        + handleGenerateLaporan(): void
+        + handleDownloadExcel(): void
+        + handleDownloadPDF(): void
+        + handlePreviewLaporan(): void
+    }
+    
+    class ManajemenUserController <<Controller>> {
+        - tblUser: TableView<User>
+        - userService: UserService
+        - roleService: RoleService
+        --
+        + initialize(): void
+        + loadUsers(): void
+        + handleTambahUser(): void
+        + handleEditUser(): void
+        + handleNonaktifkanUser(): void
+        + handleResetPassword(): void
+    }
+}
+
+' ============================================
+' LAYER 2: SERVICE (Business Logic)
+' ============================================
+package "Service Layer" <<Rectangle>> {
+    
+    class AuthService <<Service>> {
+        - userDAO: UserDAO
+        - logDAO: LogAktivitasDAO
+        --
+        + login(username: String, password: String): User
+        + logout(user: User): void
+        + changePassword(userId: int, oldPass: String, newPass: String): boolean
+        + resetPassword(userId: int, newPass: String): void
+        - verifyPassword(plain: String, hash: String): boolean
+        - hashPassword(plain: String): String
+        - recordLogin(user: User): void
+        - handleFailedLogin(username: String): void
+    }
+    
+    class PesananService <<Service>> {
+        - pesananDAO: PesananDAO
+        - detailPesananDAO: DetailPesananDAO
+        - validationService: ValidationService
+        --
+        + createPesanan(pesanan: Pesanan): Pesanan
+        + updatePesanan(pesanan: Pesanan): void
+        + deletePesanan(id: int): void
+        + findById(id: int): Pesanan
+        + findAll(): List<Pesanan>
+        + findByStatus(status: String): List<Pesanan>
+        + findByDateRange(start: Date, end: Date): List<Pesanan>
+        + hitungTotalBiaya(pesanan: Pesanan): BigDecimal
+        + updateStatus(id: int, status: StatusPesanan): void
+    }
+    
+    class PembayaranService <<Service>> {
+        - pembayaranDAO: PembayaranDAO
+        - pesananDAO: PesananDAO
+        --
+        + createPembayaran(pembayaran: Pembayaran): Pembayaran
+        + verifikasiPembayaran(id: int, userId: int): void
+        + tolakPembayaran(id: int, alasan: String): void
+        + getPembayaranByPesanan(pesananId: int): List<Pembayaran>
+        + getTotalDibayar(pesananId: int): BigDecimal
+        + getSisaPembayaran(pesananId: int): BigDecimal
+        + uploadBuktiTransfer(id: int, filePath: String): void
+    }
+    
+    class DesainService <<Service>> {
+        - desainDAO: DesainDAO
+        - revisiDesainDAO: RevisiDesainDAO
+        --
+        + createDesain(desain: Desain): Desain
+        + updateDesain(desain: Desain): void
+        + uploadFileDesain(id: int, filePath: String): void
+        + setujuiDesain(id: int): void
+        + revisiDesain(id: int, catatan: String): void
+        + getDesainByPesanan(pesananId: int): Desain
+        + getHistoryRevisi(desainId: int): List<RevisiDesain>
+    }
+    
+    class ProduksiService <<Service>> {
+        - produksiDAO: ProduksiDAO
+        - kendalaDAO: KendalaProduksiDAO
+        --
+        + createProduksi(produksi: Produksi): Produksi
+        + updateProgres(id: int, progres: int): void
+        + selesaiProduksi(id: int): void
+        + laporkanKendala(kendala: KendalaProduksi): void
+        + resolveKendala(kendalaId: int, solusi: String): void
+        + getAntrianProduksi(): List<Produksi>
+        + getProduksiByOperator(operatorId: int): List<Produksi>
+    }
+    
+    class LaporanService <<Service>> {
+        - pesananDAO: PesananDAO
+        - excelGenerator: ExcelGenerator
+        - pdfGenerator: PDFGenerator
+        --
+        + generateLaporanMingguan(start: Date, end: Date): File
+        + generateLaporanBulanan(month: int, year: int): File
+        + generateLaporanKustom(start: Date, end: Date): File
+        + exportToExcel(data: List<Pesanan>): File
+        + exportToPDF(data: List<Pesanan>): File
+        + getStatistikPerLayanan(start: Date, end: Date): Map<String, Integer>
+    }
+    
+    class UserService <<Service>> {
+        - userDAO: UserDAO
+        - roleDAO: RoleDAO
+        --
+        + createUser(user: User): User
+        + updateUser(user: User): void
+        + nonaktifkanUser(id: int): void
+        + aktivasiUser(id: int): void
+        + getAllUsers(): List<User>
+        + getUsersByRole(roleId: int): List<User>
+        + resetPassword(userId: int): String
+    }
+    
+    class ValidationService <<Service>> {
+        --
+        + validatePesanan(pesanan: Pesanan): List<String>
+        + validatePembayaran(pembayaran: Pembayaran): List<String>
+        + validateUser(user: User): List<String>
+        + validateEmail(email: String): boolean
+        + validatePhone(phone: String): boolean
+        + isNullOrEmpty(value: String): boolean
+    }
+    
+    class SyncService <<Service>> {
+        - syncQueueDAO: SyncQueueDAO
+        - connectionChecker: ConnectionChecker
+        --
+        + addToSyncQueue(table: String, operation: String, data: String): void
+        + syncPendingData(): void
+        + processSyncQueue(): void
+        + resolveConflict(local: Object, remote: Object): Object
+        - isOnline(): boolean
+    }
+}
+
+' ============================================
+' LAYER 3: DAO (Data Access Objects)
+' ============================================
+package "DAO Layer" <<Rectangle>> {
+    
+    interface IBaseDAO<T> <<DAO>> {
+        + save(entity: T): void
+        + update(entity: T): void
+        + delete(id: int): void
+        + findById(id: int): T
+        + findAll(): List<T>
+    }
+    
+    class UserDAO <<DAO>> {
+        - connection: Connection
+        --
+        + save(user: User): void
+        + update(user: User): void
+        + delete(id: int): void
+        + findById(id: int): User
+        + findAll(): List<User>
+        + findByUsername(username: String): User
+        + findByEmail(email: String): User
+        + findByRole(roleId: int): List<User>
+        + updateLastLogin(userId: int): void
+        + updateFailedAttempts(userId: int): void
+        - mapResultSetToUser(rs: ResultSet): User
+    }
+    
+    class PesananDAO <<DAO>> {
+        - connection: Connection
+        --
+        + save(pesanan: Pesanan): void
+        + update(pesanan: Pesanan): void
+        + delete(id: int): void
+        + findById(id: int): Pesanan
+        + findAll(): List<Pesanan>
+        + findByStatus(statusId: int): List<Pesanan>
+        + findByPelanggan(pelangganId: int): List<Pesanan>
+        + findByDateRange(start: Date, end: Date): List<Pesanan>
+        + search(keyword: String): List<Pesanan>
+        - mapResultSetToPesanan(rs: ResultSet): Pesanan
+    }
+    
+    class DetailPesananDAO <<DAO>> {
+        - connection: Connection
+        --
+        + save(detail: DetailPesanan): void
+        + update(detail: DetailPesanan): void
+        + delete(id: int): void
+        + findByPesanan(pesananId: int): List<DetailPesanan>
+        - mapResultSetToDetail(rs: ResultSet): DetailPesanan
+    }
+    
+    class PembayaranDAO <<DAO>> {
+        - connection: Connection
+        --
+        + save(pembayaran: Pembayaran): void
+        + update(pembayaran: Pembayaran): void
+        + findById(id: int): Pembayaran
+        + findByPesanan(pesananId: int): List<Pembayaran>
+        + findPending(): List<Pembayaran>
+        + updateStatus(id: int, status: String): void
+        - mapResultSetToPembayaran(rs: ResultSet): Pembayaran
+    }
+    
+    class DesainDAO <<DAO>> {
+        - connection: Connection
+        --
+        + save(desain: Desain): void
+        + update(desain: Desain): void
+        + findById(id: int): Desain
+        + findByPesanan(pesananId: int): Desain
+        + findByDesigner(designerId: int): List<Desain>
+        + updateStatus(id: int, statusId: int): void
+        - mapResultSetToDesain(rs: ResultSet): Desain
+    }
+    
+    class RevisiDesainDAO <<DAO>> {
+        - connection: Connection
+        --
+        + save(revisi: RevisiDesain): void
+        + findByDesain(desainId: int): List<RevisiDesain>
+        - mapResultSetToRevisi(rs: ResultSet): RevisiDesain
+    }
+    
+    class ProduksiDAO <<DAO>> {
+        - connection: Connection
+        --
+        + save(produksi: Produksi): void
+        + update(produksi: Produksi): void
+        + findById(id: int): Produksi
+        + findByPesanan(pesananId: int): Produksi
+        + findByOperator(operatorId: int): List<Produksi>
+        + findAntrian(): List<Produksi>
+        + updateProgres(id: int, progres: int): void
+        - mapResultSetToProduksi(rs: ResultSet): Produksi
+    }
+    
+    class KendalaProduksiDAO <<DAO>> {
+        - connection: Connection
+        --
+        + save(kendala: KendalaProduksi): void
+        + update(kendala: KendalaProduksi): void
+        + findByProduksi(produksiId: int): List<KendalaProduksi>
+        + findOpen(): List<KendalaProduksi>
+        - mapResultSetToKendala(rs: ResultSet): KendalaProduksi
+    }
+    
+    class PelangganDAO <<DAO>> {
+        - connection: Connection
+        --
+        + save(pelanggan: Pelanggan): void
+        + update(pelanggan: Pelanggan): void
+        + delete(id: int): void
+        + findById(id: int): Pelanggan
+        + findAll(): List<Pelanggan>
+        + search(keyword: String): List<Pelanggan>
+        - mapResultSetToPelanggan(rs: ResultSet): Pelanggan
+    }
+    
+    class LogAktivitasDAO <<DAO>> {
+        - connection: Connection
+        --
+        + save(log: LogAktivitas): void
+        + findByUser(userId: int): List<LogAktivitas>
+        + findByDateRange(start: Date, end: Date): List<LogAktivitas>
+        - mapResultSetToLog(rs: ResultSet): LogAktivitas
+    }
+    
+    class SyncQueueDAO <<DAO>> {
+        - connection: Connection
+        --
+        + save(sync: SyncQueue): void
+        + update(sync: SyncQueue): void
+        + findPending(): List<SyncQueue>
+        + markAsSynced(id: int): void
+        - mapResultSetToSync(rs: ResultSet): SyncQueue
+    }
+    
+    class RoleDAO <<DAO>> {
+        - connection: Connection
+        --
+        + findAll(): List<Role>
+        + findById(id: int): Role
+        - mapResultSetToRole(rs: ResultSet): Role
+    }
+    
+    class StatusPesananDAO <<DAO>> {
+        - connection: Connection
+        --
+        + findAll(): List<StatusPesanan>
+        + findById(id: int): StatusPesanan
+        - mapResultSetToStatus(rs: ResultSet): StatusPesanan
+    }
+    
+    class JenisLayananDAO <<DAO>> {
+        - connection: Connection
+        --
+        + findAll(): List<JenisLayanan>
+        + findById(id: int): JenisLayanan
+        + findActive(): List<JenisLayanan>
+        - mapResultSetToJenisLayanan(rs: ResultSet): JenisLayanan
+    }
+    
+    class DatabaseConnection <<DAO>> {
+        - {static} instance: DatabaseConnection
+        - connection: Connection
+        - DB_URL: String
+        - DB_USER: String
+        - DB_PASSWORD: String
+        --
+        - DatabaseConnection()
+        + {static} getInstance(): DatabaseConnection
+        + getConnection(): Connection
+        + closeConnection(): void
+        + testConnection(): boolean
+    }
+}
+
+' ============================================
+' LAYER 4: MODEL (Entity/POJO Classes)
+' ============================================
+package "Model Layer" <<Rectangle>> {
+    
+    class User <<Model>> {
+        - idUser: int
+        - username: String
+        - passwordHash: String
+        - email: String
+        - namaLengkap: String
+        - role: Role
+        - isActive: boolean
+        - lastLogin: LocalDateTime
+        - failedLoginAttempts: int
+        - lockedUntil: LocalDateTime
+        - createdAt: LocalDateTime
+        --
+        + getters/setters...
+        + verifyPassword(plain: String): boolean
+        + setPassword(plain: String): void
+        + hasPermission(permission: String): boolean
+        + isLocked(): boolean
+        + incrementFailedAttempts(): void
+        + resetFailedAttempts(): void
+    }
+    
+    class Role <<Model>> {
+        - idRole: int
+        - namaRole: String
+        - deskripsi: String
+        - permissions: List<String>
+        --
+        + getters/setters...
+        + hasPermission(permission: String): boolean
+    }
+    
+    class Pelanggan <<Model>> {
+        - idPelanggan: int
+        - nama: String
+        - email: String
+        - noTelepon: String
+        - alamat: String
+        - mediaKomunikasi: String
+        - createdAt: LocalDateTime
+        --
+        + getters/setters...
+        + getDisplayName(): String
+    }
+    
+    class Pesanan <<Model>> {
+        - idPesanan: int
+        - nomorPesanan: String
+        - pelanggan: Pelanggan
+        - userAdmin: User
+        - status: StatusPesanan
+        - tanggalPesanan: LocalDateTime
+        - deadline: LocalDate
+        - catatan: String
+        - totalBiaya: BigDecimal
+        - detailPesanan: List<DetailPesanan>
+        --
+        + getters/setters...
+        + hitungTotalBiaya(): BigDecimal
+        + isPembayaranLunas(): boolean
+        + isSiapProduksi(): boolean
+        + getProgresPersentase(): int
+        + getDaysUntilDeadline(): int
+        + isOverdue(): boolean
+    }
+    
+    class DetailPesanan <<Model>> {
+        - idDetail: int
+        - pesanan: Pesanan
+        - jenisLayanan: JenisLayanan
+        - jumlah: int
+        - hargaSatuan: BigDecimal
+        - subtotal: BigDecimal
+        - spesifikasi: String
+        --
+        + getters/setters...
+        + hitungSubtotal(): BigDecimal
+    }
+    
+    class StatusPesanan <<Model>> {
+        - idStatus: int
+        - namaStatus: String
+        - urutan: int
+        - warnaBadge: String
+        --
+        + getters/setters...
+        + getColorStyle(): String
+    }
+    
+    class JenisLayanan <<Model>> {
+        - idLayanan: int
+        - namaLayanan: String
+        - deskripsi: String
+        - hargaDasar: BigDecimal
+        - satuan: String
+        - isActive: boolean
+        --
+        + getters/setters...
+        + getDisplayName(): String
+    }
+    
+    class Pembayaran <<Model>> {
+        - idPembayaran: int
+        - pesanan: Pesanan
+        - metodePembayaran: MetodePembayaran
+        - jumlah: BigDecimal
+        - statusPembayaran: String
+        - buktiPembayaranPath: String
+        - tanggalPembayaran: LocalDateTime
+        - tanggalVerifikasi: LocalDateTime
+        - verifiedBy: User
+        - catatan: String
+        --
+        + getters/setters...
+        + isPending(): boolean
+        + isVerified(): boolean
+        + isFailed(): boolean
+    }
+    
+    class MetodePembayaran <<Model>> {
+        - idMetode: int
+        - namaMetode: String
+        - tipe: String
+        - nomorRekening: String
+        - atasNama: String
+        - logoPath: String
+        - isActive: boolean
+        --
+        + getters/setters...
+        + getDisplayInfo(): String
+    }
+    
+    class Desain <<Model>> {
+        - idDesain: int
+        - pesanan: Pesanan
+        - designer: User
+        - statusDesain: StatusDesain
+        - fileDesainPath: String
+        - revisiKe: int
+        - tanggalDibuat: LocalDateTime
+        - tanggalDisetujui: LocalDateTime
+        - catatan: String
+        - historyRevisi: List<RevisiDesain>
+        --
+        + getters/setters...
+        + isDisetujui(): boolean
+        + perluRevisi(): boolean
+        + getRevisiTerbaru(): RevisiDesain
+    }
+    
+    class StatusDesain <<Model>> {
+        - idStatusDesain: int
+        - namaStatus: String
+        - deskripsi: String
+        --
+        + getters/setters...
+    }
+    
+    class RevisiDesain <<Model>> {
+        - idRevisi: int
+        - desain: Desain
+        - revisiKe: int
+        - filePath: String
+        - catatanRevisi: String
+        - direvisiOleh: User
+        - tanggalRevisi: LocalDateTime
+        --
+        + getters/setters...
+    }
+    
+    class Produksi <<Model>> {
+        - idProduksi: int
+        - pesanan: Pesanan
+        - operator: User
+        - tanggalMulai: LocalDateTime
+        - tanggalSelesai: LocalDateTime
+        - progresPersen: int
+        - statusProduksi: String
+        - mesinDigunakan: String
+        - catatan: String
+        - listKendala: List<KendalaProduksi>
+        --
+        + getters/setters...
+        + updateProgres(progres: int): void
+        + isSelesai(): boolean
+        + isTerkendala(): boolean
+        + getDurasiPengerjaan(): long
+    }
+    
+    class KendalaProduksi <<Model>> {
+        - idKendala: int
+        - produksi: Produksi
+        - jenisKendala: String
+        - deskripsi: String
+        - solusi: String
+        - status: String
+        - dilaporkanOleh: User
+        - tanggalLapor: LocalDateTime
+        - tanggalSelesai: LocalDateTime
+        --
+        + getters/setters...
+        + isOpen(): boolean
+        + isResolved(): boolean
+    }
+    
+    class LogAktivitas <<Model>> {
+        - idLog: int
+        - user: User
+        - aksi: String
+        - tabelTerkait: String
+        - idRecord: int
+        - detailPerubahan: String
+        - ipAddress: String
+        - userAgent: String
+        - timestamp: LocalDateTime
+        --
+        + getters/setters...
+        + getFormattedTimestamp(): String
+    }
+    
+    class SyncQueue <<Model>> {
+        - idSync: int
+        - tableName: String
+        - operation: String
+        - recordId: int
+        - dataJson: String
+        - synced: boolean
+        - syncPriority: int
+        - createdBy: User
+        - createdAt: LocalDateTime
+        - syncedAt: LocalDateTime
+        - errorMessage: String
+        - retryCount: int
+        --
+        + getters/setters...
+        + incrementRetry(): void
+        + markAsSynced(): void
+        + hasFailed(): boolean
+    }
+    
+    class LaporanMingguan <<Model>> {
+        - tanggalMulai: LocalDate
+        - tanggalSelesai: LocalDate
+        - daftarPesanan: List<Pesanan>
+        - totalPendapatan: BigDecimal
+        - jumlahPesananSelesai: int
+        - distribusiPerLayanan: Map<String, Integer>
+        --
+        + getters/setters...
+        + loadData(): void
+        + hitungStatistik(): void
+        + generateExcel(): File
+        + generatePDF(): File
+    }
+}
+
+' ============================================
+' LAYER 5: UTILITY (Helper Classes)
+' ============================================
+package "Utility Layer" <<Rectangle>> {
+    
+    class PasswordUtil <<Utility>> {
+        --
+        + {static} hashPassword(plain: String): String
+        + {static} verifyPassword(plain: String, hash: String): boolean
+        + {static} generateRandomPassword(): String
+    }
+    
+    class SessionManager <<Utility>> {
+        - {static} currentUser: User
+        - {static} loginTime: LocalDateTime
+        --
+        + {static} setCurrentUser(user: User): void
+        + {static} getCurrentUser(): User
+        + {static} clearSession(): void
+        + {static} isLoggedIn(): boolean
+        + {static} getSessionDuration(): long
+    }
+    
+    class AlertUtil <<Utility>> {
+        --
+        + {static} showInfo(title: String, message: String): void
+        + {static} showWarning(title: String, message: String): void
+        + {static} showError(title: String, message: String): void
+        + {static} showSuccess(title: String, message: String): void
+        + {static} showConfirmation(title: String, message: String): boolean
+    }
+    
+    class FileUtil <<Utility>> {
+        --
+        + {static} saveFile(source: File, destination: String): String
+        + {static} deleteFile(path: String): boolean
+        + {static} getFileExtension(filename: String): String
+        + {static} isValidImageFile(file: File): boolean
+        + {static} isValidPDFFile(file: File): boolean
+        + {static} generateUniqueFilename(original: String): String
+    }
+    
+    class DateUtil <<Utility>> {
+        --
+        + {static} formatDate(date: LocalDate): String
+        + {static} formatDateTime(datetime: LocalDateTime): String
+        + {static} parseDate(dateString: String): LocalDate
+        + {static} getDaysBetween(start: LocalDate, end: LocalDate): long
+        + {static} isWeekend(date: LocalDate): boolean
+    }
+    
+    class ExcelGenerator <<Utility>> {
+        --
+        + generateLaporanMingguan(data: List<Pesanan>, filename: String): File
+        + createWorkbook(): Workbook
+        + createHeaderRow(sheet: Sheet, headers: String[]): void
+        + writeDataRows(sheet: Sheet, data: List<?>): void
+        + autoSizeColumns(sheet: Sheet): void
+        + saveWorkbook(workbook: Workbook, filename: String): File
+    }
+    
+    class PDFGenerator <<Utility>> {
+        --
+        + generateLaporanPDF(data: LaporanMingguan, filename: String): File
+        + createDocument(): Document
+        + addHeader(doc: Document, title: String): void
+        + addTable(doc: Document, data: List<?>): void
+        + addFooter(doc: Document): void
+    }
+    
+    class ConnectionChecker <<Utility>> {
+        - isOnline: boolean
+        - checkInterval: int
+        --
+        + startMonitoring(): void
+        + stopMonitoring(): void
+        + checkConnection(): boolean
+        + isOnline(): boolean
+        + addConnectionListener(listener: ConnectionListener): void
+    }
+    
+    class ValidationUtil <<Utility>> {
+        --
+        + {static} isValidEmail(email: String): boolean
+        + {static} isValidPhone(phone: String): boolean
+        + {static} isValidPassword(password: String): boolean
+        + {static} isNotEmpty(value: String): boolean
+        + {static} isNumeric(value: String): boolean
+        + {static} isValidDate(date: String): boolean
+    }
+    
+    class CurrencyUtil <<Utility>> {
+        --
+        + {static} formatRupiah(amount: BigDecimal): String
+        + {static} parseRupiah(formatted: String): BigDecimal
+        + {static} formatNumber(number: int): String
+    }
+}
+
+' ============================================
+' RELATIONSHIPS
+' ============================================
+
+' Controller -> Service Dependencies
+LoginController --> AuthService
+DashboardController --> PesananService
+PesananController --> PesananService
+PesananController --> PelangganDAO
+PembayaranController --> PembayaranService
+DesainController --> DesainService
+ProduksiController --> ProduksiService
+LaporanController --> LaporanService
+ManajemenUserController --> UserService
+
+' Service -> DAO Dependencies
+AuthService --> UserDAO
+AuthService --> LogAktivitasDAO
+PesananService --> PesananDAO
+PesananService --> DetailPesananDAO
+PembayaranService --> PembayaranDAO
+PembayaranService --> PesananDAO
+DesainService --> DesainDAO
+DesainService --> RevisiDesainDAO
+ProduksiService --> ProduksiDAO
+ProduksiService --> KendalaProduksiDAO
+LaporanService --> PesananDAO
+UserService --> UserDAO
+UserService --> RoleDAO
+SyncService --> SyncQueueDAO
+
+' Service -> Utility Dependencies
+LaporanService --> ExcelGenerator
+LaporanService --> PDFGenerator
+SyncService --> ConnectionChecker
+
+' DAO Implementations
+UserDAO ..|> IBaseDAO
+PesananDAO ..|> IBaseDAO
+PelangganDAO ..|> IBaseDAO
+
+' DAO -> DatabaseConnection
+UserDAO --> DatabaseConnection
+PesananDAO --> DatabaseConnection
+DetailPesananDAO --> DatabaseConnection
+PembayaranDAO --> DatabaseConnection
+DesainDAO --> DatabaseConnection
+ProduksiDAO --> DatabaseConnection
+PelangganDAO --> DatabaseConnection
+LogAktivitasDAO --> DatabaseConnection
+SyncQueueDAO --> DatabaseConnection
+
+' Model Relationships
+Pesanan "1" *-- "many" DetailPesanan : contains
+Pesanan "*" --> "1" Pelanggan : belongsTo
+Pesanan "*" --> "1" User : inputBy
+Pesanan "*" --> "1" StatusPesanan : hasStatus
+DetailPesanan "*" --> "1" JenisLayanan : uses
+
+Pembayaran "*" --> "1" Pesanan : forPesanan
+Pembayaran "*" --> "1" MetodePembayaran : usesMethod
+Pembayaran "*" --> "0..1" User : verifiedBy
+
+Desain "1" --> "1" Pesanan : forPesanan
+Desain "*" --> "1" User : designedBy
+Desain "*" --> "1" StatusDesain : hasStatus
+Desain "1" *-- "many" RevisiDesain : hasRevisions
+
+RevisiDesain "*" --> "1" User : revisedBy
+
+Produksi "1" --> "1" Pesanan : forPesanan
+Produksi "*" --> "1" User : operatedBy
+Produksi "1" *-- "many" KendalaProduksi : hasProblems
+
+KendalaProduksi "*" --> "1" User : reportedBy
+
+User "*" --> "1" Role : hasRole
+
+LogAktivitas "*" --> "1" User : performedBy
+
+SyncQueue "*" --> "1" User : createdBy
+
+' Controller -> Utility
+LoginController --> AlertUtil
+PesananController --> AlertUtil
+PesananController --> DateUtil
+DesainController --> FileUtil
+LaporanController --> ExcelGenerator
+LaporanController --> PDFGenerator
+
+' Service -> Utility
+AuthService --> PasswordUtil
+AuthService --> SessionManager
+PesananService --> ValidationService
+UserService --> PasswordUtil
+
+' All Controllers use SessionManager
+DashboardController --> SessionManager
+PesananController --> SessionManager
+PembayaranController --> SessionManager
+DesainController --> SessionManager
+ProduksiController --> SessionManager
+LaporanController --> SessionManager
+
+@enduml
+```
+
+---
+
+## **2. TEXT-BASED ARCHITECTURE DIAGRAM**
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          JAVAFX APPLICATION ARCHITECTURE                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ LAYER 1: PRESENTATION (FXML Views + Controllers)                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  login.fxml ──────────> LoginController                                     │
+│  dashboard.fxml ──────> DashboardController                                 │
+│  pesanan.fxml ────────> PesananController                                   │
+│  pembayaran.fxml ─────> PembayaranController                                │
+│  desain.fxml ─────────> DesainController                                    │
+│  produksi.fxml ───────> ProduksiController                                  │
+│  laporan.fxml ────────> LaporanController                                   │
+│  user.fxml ───────────> ManajemenUserController                             │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ LAYER 2: BUSINESS LOGIC (Service Layer)                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐         │
+│  │  AuthService     │  │ PesananService   │  │ PembayaranService│         │
+│  │  - login()       │  │ - createPesanan()│  │ - verifikasi()   │         │
+│  │  - logout()      │  │ - updateStatus() │  │ - getTotalBayar()│         │
+│  └──────────────────┘  └──────────────────┘  └──────────────────┘         │
+│                                                                              │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐         │
+│  │  DesainService   │  │ ProduksiService  │  │ LaporanService   │         │
+│  │  - uploadDesain()│  │ - updateProgres()│  │ - generateExcel()│         │
+│  │  - setujui()     │  │ - laporKendala() │  │ - generatePDF()  │         │
+│  └──────────────────┘  └──────────────────┘  └──────────────────┘         │
+│                                                                              │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐         │
+│  │  UserService     │  │ ValidationService│  │  SyncService     │         │
+│  │  - createUser()  │  │ - validateEmail()│  │  - syncPending() │         │
+│  │  - resetPassword│  │ - validatePhone()│  │  - addToQueue()  │         │
+│  └──────────────────┘  └──────────────────┘  └──────────────────┘         │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ LAYER 3: DATA ACCESS (DAO Layer)                                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐           │
+│  │  UserDAO   │  │ PesananDAO │  │PembayaranDA│  │  DesainDAO │           │
+│  │            │  │            │  │O           │  │            │           │
+│  │ +save()    │  │ +save()    │  │ +save()    │  │ +save()    │           │
+│  │ +update()  │  │ +findById()│  │ +findPend()│  │ +findByPes │           │
+│  │ +findBy..()│  │ +findAll() │  │ +update()  │  │ +update()  │           │
+│  └────────────┘  └────────────┘  └────────────┘  └────────────┘           │
+│                                                                              │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐           │
+│  │ ProduksiDAO│  │PelangganDAO│  │ LogAktivDAO│  │ SyncQueueDA│           │
+│  │            │  │            │  │            │  │O           │           │
+│  │ +save()    │  │ +save()    │  │ +save()    │  │ +save()    │           │
+│  │ +findAntri│  │ +search()  │  │ +findByUse │  │ +findPendin│           │
+│  │ +updateProg│  │ +findAll() │  │ +findByDate│  │ +markSync()│           │
+│  └────────────┘  └────────────┘  └────────────┘  └────────────┘           │
+│                                                                              │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐                            │
+│  │  RoleDAO   │  │StatusPesDA │  │JenisLayanDA│                            │
+│  │            │  │O           │  │O           │                            │
+│  │ +findAll() │  │ +findAll() │  │ +findAll() │                            │
+│  │ +findById()│  │ +findById()│  │ +findActive│                            │
+│  └────────────┘  └────────────┘  └────────────┘                            │
+│                                                                              │
+│                    ┌─────────────────────────────┐                          │
+│                    │  DatabaseConnection         │                          │
+│                    │  (Singleton Pattern)        │                          │
+│                    │  - instance: static         │                          │
+│                    │  + getInstance(): Connection│                          │
+│                    └─────────────────────────────┘                          │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ LAYER 4: DOMAIN MODEL (Entity/POJO Classes)                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  User, Role, Pelanggan, Pesanan, DetailPesanan, StatusPesanan,             │
+│  JenisLayanan, Pembayaran, MetodePembayaran, Desain, StatusDesain,         │
+│  RevisiDesain, Produksi, KendalaProduksi, LogAktivitas, SyncQueue,         │
+│  LaporanMingguan                                                             │
+│                                                                              │
+│  [Each with: private fields, getters/setters, business methods]             │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ LAYER 5: UTILITIES (Helper Classes)                                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  PasswordUtil, SessionManager, AlertUtil, FileUtil, DateUtil,              │
+│  ExcelGenerator, PDFGenerator, ConnectionChecker, ValidationUtil,          │
+│  CurrencyUtil                                                                │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         MySQL DATABASE                                       │
+│                       (db_percetakan)                                        │
+└─────────────────────────────────────────────────────────────────────────────┘

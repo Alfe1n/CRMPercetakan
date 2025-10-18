@@ -1,0 +1,145 @@
+Struktur folder
+
+percetakan-crm/
+├── src/
+│   └── main/
+│       ├── java/
+│       │   └── com/
+│       │       └── percetakan/
+│       │           ├── controller/
+│       │           │   ├── LoginController.java
+│       │           │   ├── DashboardController.java
+│       │           │   ├── PesananController.java
+│       │           │   ├── PembayaranController.java
+│       │           │   ├── DesainController.java
+│       │           │   ├── ProduksiController.java
+│       │           │   ├── LaporanController.java
+│       │           │   └── ManajemenUserController.java
+│       │           │
+│       │           ├── service/
+│       │           │   ├── AuthService.java
+│       │           │   ├── PesananService.java
+│       │           │   ├── PembayaranService.java
+│       │           │   ├── DesainService.java
+│       │           │   ├── ProduksiService.java
+│       │           │   ├── LaporanService.java
+│       │           │   ├── UserService.java
+│       │           │   ├── ValidationService.java
+│       │           │   └── SyncService.java
+│       │           │
+│       │           ├── dao/
+│       │           │   ├── IBaseDAO.java
+│       │           │   ├── DatabaseConnection.java
+│       │           │   ├── UserDAO.java
+│       │           │   ├── PesananDAO.java
+│       │           │   ├── DetailPesananDAO.java
+│       │           │   ├── PembayaranDAO.java
+│       │           │   ├── DesainDAO.java
+│       │           │   ├── RevisiDesainDAO.java
+│       │           │   ├── ProduksiDAO.java
+│       │           │   ├── KendalaProduksiDAO.java
+│       │           │   ├── PelangganDAO.java
+│       │           │   ├── LogAktivitasDAO
+│       │           │   ├── LogAktivitasDAO.java
+│       │           │   ├── SyncQueueDAO.java
+│       │           │   ├── RoleDAO.java
+│       │           │   ├── StatusPesananDAO.java
+│       │           │   └── JenisLayananDAO.java
+│       │           │
+│       │           ├── model/
+│       │           │   ├── User.java
+│       │           │   ├── Role.java
+│       │           │   ├── Pelanggan.java
+│       │           │   ├── Pesanan.java
+│       │           │   ├── DetailPesanan.java
+│       │           │   ├── StatusPesanan.java
+│       │           │   ├── JenisLayanan.java
+│       │           │   ├── Pembayaran.java
+│       │           │   ├── MetodePembayaran.java
+│       │           │   ├── Desain.java
+│       │           │   ├── StatusDesain.java
+│       │           │   ├── RevisiDesain.java
+│       │           │   ├── Produksi.java
+│       │           │   ├── KendalaProduksi.java
+│       │           │   ├── LogAktivitas.java
+│       │           │   ├── SyncQueue.java
+│       │           │   └── LaporanMingguan.java
+│       │           │
+│       │           ├── util/
+│       │           │   ├── PasswordUtil.java
+│       │           │   ├── SessionManager.java
+│       │           │   ├── AlertUtil.java
+│       │           │   ├── FileUtil.java
+│       │           │   ├── DateUtil.java
+│       │           │   ├── ExcelGenerator.java
+│       │           │   ├── PDFGenerator.java
+│       │           │   ├── ConnectionChecker.java
+│       │           │   ├── ValidationUtil.java
+│       │           │   └── CurrencyUtil.java
+│       │           │
+│       │           ├── exception/
+│       │           │   ├── ServiceException.java
+│       │           │   ├── DAOException.java
+│       │           │   ├── ValidationException.java
+│       │           │   └── AuthenticationException.java
+│       │           │
+│       │           └── Main.java
+│       │
+│       └── resources/
+│           ├── view/
+│           │   ├── login.fxml
+│           │   ├── dashboard.fxml
+│           │   ├── pesanan.fxml
+│           │   ├── pembayaran.fxml
+│           │   ├── desain.fxml
+│           │   ├── produksi.fxml
+│           │   ├── laporan.fxml
+│           │   └── user.fxml
+│           │
+│           ├── css/
+│           │   ├── main.css
+│           │   ├── dashboard.css
+│           │   └── tables.css
+│           │
+│           ├── images/
+│           │   ├── logo.png
+│           │   ├── icons/
+│           │   └── backgrounds/
+│           │
+│           └── config/
+│               ├── database.properties
+│               └── application.properties
+│
+├── uploads/
+│   ├── bukti/
+│   │   └── 2025/
+│   │       └── 01/
+│   ├── desain/
+│   │   └── 2025/
+│   │       └── 01/
+│   └── temp/
+│
+├── reports/
+│   └── generated/
+│
+├── lib/
+│   ├── mysql-connector-java-8.0.x.jar
+│   ├── bcrypt-0.x.x.jar
+│   ├── poi-5.x.x.jar
+│   ├── poi-ooxml-5.x.x.jar
+│   └── jasperreports-6.x.x.jar
+│
+├── docs/
+│   ├── SRS_Original.pdf
+│   ├── SDD_Original.pdf
+│   ├── ClassDiagram_Implementation.pdf
+│   └── ERD_Fixed.pdf
+│
+├── sql/
+│   ├── schema.sql
+│   ├── sample_data.sql
+│   └── maintenance.sql
+│
+├── pom.xml (jika pakai Maven)
+├── build.gradle (jika pakai Gradle)
+└── README.md
