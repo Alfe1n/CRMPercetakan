@@ -1,4 +1,4 @@
-module com.example.CRMPercetakan {
+module com.example.trying3 {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
