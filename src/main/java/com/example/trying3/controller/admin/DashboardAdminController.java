@@ -2,8 +2,10 @@ package com.example.trying3.controller.admin;
 
 import com.example.trying3.MainApplication;
 import com.example.trying3.model.Order;
+import com.example.trying3.model.User;
 import com.example.trying3.util.OrderItemCell;
 import com.example.trying3.dao.UserDAO;
+import com.example.trying3.util.SessionManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -56,6 +58,7 @@ public class DashboardAdminController implements Initializable {
 
     // --- Kontrol untuk Elemen di dalam DashboardPane.fxml ---
     // (Ini diakses setelah pane di-load)
+    @FXML private Label headerTitle;
     private Label totalPesananLabel;
     private ListView<Order> recentOrdersListView;
 
@@ -80,6 +83,29 @@ public class DashboardAdminController implements Initializable {
         // Muat halaman dashboard sebagai default saat pertama kali buka
         loadPane("DashboardPane.fxml");
         setActiveButton(btnDashboard);
+    }
+
+    private void displayUserInfo() {
+        SessionManager session = SessionManager.getInstance();
+
+        if (session.isLoggedIn()) {
+            User currentUser = session.getCurrentUser();
+            String roleName = getRoleName(currentUser.getIdRole());
+
+            // Update header label (tambahkan ke FXML dulu)
+            System.out.println("Welcome: " + currentUser.getNamaLengkap() +
+                    " (" + roleName + ")");
+        }
+    }
+
+    private String getRoleName(int roleId) {
+        return switch (roleId) {
+            case 1 -> "Administrator";
+            case 2 -> "Designer";
+            case 3 -> "Operator Produksi";
+            case 4 -> "Manager";
+            default -> "Unknown";
+        };
     }
 
     private void imageLoad() {

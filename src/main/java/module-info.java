@@ -11,6 +11,7 @@ module com.example.trying3 {
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
     requires java.sql;
+    requires jbcrypt;
 
     opens com.example.trying3 to javafx.fxml;
     exports com.example.trying3;
@@ -26,4 +27,6 @@ module com.example.trying3 {
     opens com.example.trying3.model to javafx.fxml;
     exports com.example.trying3.dao;
     opens com.example.trying3.dao to javafx.fxml;
+//    exports com.example.trying3.service;
+//    opens com.example.trying3.service to javafx.fxml;
 }
