@@ -97,7 +97,7 @@ public class LoginController {
                     fxmlPath = "fxml/designer/Dashboard.fxml"; // Belum ada, pakai admin dulu
                     break;
                 case 3: // Operator
-                    fxmlPath = "fxml/operator/Dashboard.fxml"; // Belum ada, pakai admin dulu
+                    fxmlPath = "fxml/production/DashboardProduction.fxml"; // Belum ada, pakai admin dulu
                     break;
                 case 4: // Manager
                     fxmlPath = "fxml/manager/Dashboard.fxml"; // Belum ada, pakai admin dulu
@@ -106,8 +106,6 @@ public class LoginController {
                     fxmlPath = "fxml/admin/Dashboard.fxml";
             }
 
-            // Untuk sementara, semua role pakai admin dashboard
-            fxmlPath = "fxml/admin/Dashboard.fxml";
 
             // Load dashboard scene
             FXMLLoader fxmlLoader = new FXMLLoader(

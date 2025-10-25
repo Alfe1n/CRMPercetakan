@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+
+<VBox spacing="20.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <padding><Insets top="30" left="30" right="30" bottom="30"/></padding>
+    <children>
+        <Label styleClass="page-title" text="Kelola Proses Produksi Cetak"/>
+
+        <!-- STATUS PRODUKSI -->
+        <HBox spacing="20.0">
+            <children>
+                <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label styleClass="stat-title" text="Menunggu Produksi"/>
+                        <Label fx:id="waitingLabel" styleClass="stat-value" text="0"/>
+                        <Label styleClass="stat-subtitle" text="Siap diproduksi"/>
+                    </children>
+                </VBox>
+
+                <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label styleClass="stat-title" text="Sedang Diproduksi"/>
+                        <Label fx:id="inProgressLabel" styleClass="stat-value" text="0"/>
+                        <Label styleClass="stat-subtitle" text="Dalam proses"/>
+                    </children>
+                </VBox>
+
+                <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label styleClass="stat-title" text="Selesai Produksi"/>
+                        <Label fx:id="completedLabel" styleClass="stat-value" text="0"/>
+                        <Label styleClass="stat-subtitle" text="Siap dikirim"/>
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+
+        <!-- ANTRIAN PRODUKSI -->
+        <VBox styleClass="card">
+            <children>
+                <Label styleClass="card-title" text="Antrian Produksi"/>
+                <VBox fx:id="queueContainer" spacing="10.0"/>
+            </children>
+        </VBox>
+    </children>
+</VBox>
