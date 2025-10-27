@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<HBox minHeight="1080.0" minWidth="1920.0" stylesheets="@../../style.css"
+      xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.trying3.controller.management.DashboardManagementController">
+
+    <children>
+        <!-- SIDEBAR -->
+        <VBox alignment="TOP_CENTER" prefWidth="280.0" styleClass="sidebar">
+            <children>
+                <HBox alignment="CENTER_LEFT" prefHeight="100.0" spacing="10.0">
+                    <children>
+                        <ImageView fitHeight="40.0" fitWidth="40.0" preserveRatio="true"/>
+                        <Label styleClass="sidebar-title" text="Percetakan CRM" />
+                    </children>
+                    <padding><Insets left="20.0" /></padding>
+                </HBox>
+
+                <Label fx:id="btnDashboard" onMouseClicked="#handleDashboardClick" styleClass="nav-button" text="Dashboard"/>
+                <Label fx:id="btnLaporan" onMouseClicked="#handleLaporanClick" styleClass="nav-button" text="Laporan"/>
+                <Label fx:id="btnAnalitik" onMouseClicked="#handleAnalitikClick" styleClass="nav-button" text="Analitik"/>
+                <Label fx:id="btnEksporData" onMouseClicked="#handleEksporDataClick" styleClass="nav-button" text="Ekspor Data"/>
+                <Label fx:id="btnLogout" onMouseClicked="#handleLogoutClick" styleClass="nav-button-logout" text="Logout"/>
+            </children>
+            <padding><Insets top="20.0"/></padding>
+        </VBox>
+
+        <!-- MAIN CONTENT -->
+        <VBox HBox.hgrow="ALWAYS">
+            <children>
+                <HBox alignment="CENTER_LEFT" prefHeight="80.0" styleClass="header">
+                    <padding><Insets left="30.0" right="30.0"/></padding>
+                    <children>
+                        <Label styleClass="header-title" text="Dashboard Manajemen" />
+                    </children>
+                </HBox>
+
+                <StackPane fx:id="contentArea" styleClass="content-area" VBox.vgrow="ALWAYS"/>
+            </children>
+        </VBox>
+    </children>
+</HBox>

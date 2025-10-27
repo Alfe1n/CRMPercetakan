@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+
+<VBox spacing="30.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <padding><Insets top="30" left="30" right="30" bottom="30"/></padding>
+    <children>
+        <Label styleClass="page-title" text="Pemantauan dan Analisis Bisnis"/>
+
+        <!-- METRIC BOXES -->
+        <HBox spacing="20.0">
+            <children>
+                <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label styleClass="stat-title" text="Total Pesanan"/>
+                        <Label fx:id="totalOrderLabel" styleClass="stat-value" text="4"/>
+                        <Label styleClass="stat-subtitle" text="Semua periode"/>
+                    </children>
+                </VBox>
+
+                <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label styleClass="stat-title" text="Tingkat Penyelesaian"/>
+                        <Label fx:id="completionLabel" styleClass="stat-value" text="25%"/>
+                        <Label styleClass="stat-subtitle" text="1 dari 4 pesanan"/>
+                    </children>
+                </VBox>
+
+                <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label styleClass="stat-title" text="Total Pendapatan"/>
+                        <Label fx:id="revenueLabel" styleClass="stat-value" text="Rp 3.750.000"/>
+                        <Label styleClass="stat-subtitle" text="Pembayaran terverifikasi"/>
+                    </children>
+                </VBox>
+
+                <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label styleClass="stat-title" text="Rata-rata Nilai Pesanan"/>
+                        <Label fx:id="avgOrderValueLabel" styleClass="stat-value" text="Rp 1.250.000"/>
+                        <Label styleClass="stat-subtitle" text="Untuk pesanan"/>
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+
+        <!-- DISTRIBUSI & STATUS -->
+        <HBox spacing="20.0">
+            <children>
+                <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label styleClass="card-title" text="Distribusi Layanan"/>
+                        <Label text="Pencetakan Digital"/>
+                        <Label text="Cetak Offset"/>
+                        <Label text="Sablon"/>
+                        <Label text="Cetak Undangan"/>
+                    </children>
+                </VBox>
+
+                <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label styleClass="card-title" text="Status Pesanan"/>
+                        <Label text="Menunggu Konfirmasi"/>
+                        <Label text="Telah Dikonfirmasi"/>
+                        <Label text="Proses Desain"/>
+                        <Label text="Produksi"/>
+                        <Label text="Selesai"/>
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+    </children>
+</VBox>

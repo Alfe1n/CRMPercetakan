@@ -31,4 +31,6 @@ module com.example.trying3 {
 //    opens com.example.trying3.service to javafx.fxml;
     exports com.example.trying3.controller.production;
     opens com.example.trying3.controller.production to javafx.fxml;
+    exports com.example.trying3.controller.management;
+    opens com.example.trying3.controller.management to javafx.fxml;
 }
