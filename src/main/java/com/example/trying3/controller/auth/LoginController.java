@@ -107,7 +107,7 @@ public class LoginController {
             }
 
             // Untuk sementara, semua role pakai admin dashboard
-            fxmlPath = "fxml/admin/Dashboard.fxml";
+//            fxmlPath = "fxml/admin/Dashboard.fxml";
 
             // Load dashboard scene
             FXMLLoader fxmlLoader = new FXMLLoader(

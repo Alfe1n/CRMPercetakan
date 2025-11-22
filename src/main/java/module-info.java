@@ -12,21 +12,23 @@ module com.example.trying3 {
     requires com.almasb.fxgl.all;
     requires java.sql;
     requires jbcrypt;
+    requires mysql.connector.j;
 
-    opens com.example.trying3 to javafx.fxml;
+    opens com.example.trying3 to javafx.fxml, javafx.graphics;
     exports com.example.trying3;
     opens com.example.trying3.controller.auth to javafx.fxml;
     exports com.example.trying3.controller.auth;
-    exports com.example.trying3.controller.admin;
+
     opens com.example.trying3.controller.admin to javafx.fxml;
-    exports com.example.trying3.config;
+    exports com.example.trying3.controller.admin;
     opens com.example.trying3.config to javafx.fxml;
-    exports com.example.trying3.util;
+    exports com.example.trying3.config;
     opens com.example.trying3.util to javafx.fxml;
-    exports com.example.trying3.model;
+    exports com.example.trying3.util;
     opens com.example.trying3.model to javafx.fxml;
-    exports com.example.trying3.dao;
+    exports com.example.trying3.model;
     opens com.example.trying3.dao to javafx.fxml;
-//    exports com.example.trying3.service;
-//    opens com.example.trying3.service to javafx.fxml;
+    exports com.example.trying3.dao;
+    opens com.example.trying3.service to javafx.fxml;
+    exports com.example.trying3.service;
 }

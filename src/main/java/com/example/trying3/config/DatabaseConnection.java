@@ -1,5 +1,7 @@
 package com.example.trying3.config;
 
+import com.example.trying3.util.AlertUtil;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -10,20 +12,16 @@ public class DatabaseConnection {
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
-    public static Connection getConnection() {
+    public static Connection getConnection() throws SQLException {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
             System.out.println("Koneksi database berhasil!");
             return conn;
         } catch (ClassNotFoundException e) {
-            System.err.println("Driver MySQL tidak ditemukan!");
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException("Driver database tidak ditemukan!", e);
         } catch (SQLException e) {
-            System.err.println("Gagal koneksi ke database!");
-            e.printStackTrace();
-            return null;
+            throw e;
         }
     }
 
