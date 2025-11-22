@@ -18,6 +18,7 @@ import java.sql.Statement;
 import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.Optional;
 
 public class KelolaPesananController {
 
@@ -171,6 +172,7 @@ public class KelolaPesananController {
     }
 
     private void loadPesananData() {
+        pesananListView.getSelectionModel().clearSelection();
         pesananList.clear();
 
         StringBuilder query = new StringBuilder(
@@ -539,25 +541,136 @@ public class KelolaPesananController {
         );
 
         if (confirmed) {
-            try (Connection conn = DatabaseConnection.getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(
-                         "UPDATE pesanan SET id_status = 2 WHERE id_pesanan = ?")) {
+            updateStatusPesanan(pesanan.getIdPesanan(), "Menunggu Pembayaran");
+        }
+    }
 
-                pstmt.setInt(1, pesanan.getIdPesanan());
-                int result = pstmt.executeUpdate();
+    private void handleUbahStatus(Pesanan pesanan, String statusBaru, ComboBox<String> statusComboBox) {
+        String statusLama = pesanan.getStatus();
 
-                if (result > 0) {
-                    AlertUtil.showSuccess("Berhasil",
-                            "Pesanan berhasil dikonfirmasi!\nStatus: Menunggu Pembayaran");
-                    loadPesananData(); // Refresh list
-                } else {
-                    AlertUtil.showError("Gagal mengkonfirmasi pesanan.");
-                }
+        // SPECIAL CASE: Pembayaran Verified
+        if (statusBaru.equalsIgnoreCase("Pembayaran Verified")) {
+            showPembayaranVerifiedDialog(pesanan);
+            return;
+        }
 
-            } catch (Exception e) {
-                e.printStackTrace();
-                AlertUtil.showError("Error: " + e.getMessage());
+        // Konfirmasi perubahan status
+        boolean confirmed = AlertUtil.showConfirmation(
+                "Ubah Status Pesanan",
+                "Ubah status pesanan dari " + pesanan.getNamaPelanggan() +
+                        "\ndari '" + statusLama + "' ke '" + statusBaru + "'?"
+        );
+
+        if (confirmed) {
+            updateStatusPesanan(pesanan.getIdPesanan(), statusBaru);
+        }
+    }
+
+    private void updateStatusPesanan(int idPesanan, String namaStatus) {
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(
+                     "UPDATE pesanan SET id_status = (SELECT id_status FROM status_pesanan WHERE nama_status = ?) " +
+                             "WHERE id_pesanan = ?")) {
+
+            pstmt.setString(1, namaStatus);
+            pstmt.setInt(2, idPesanan);
+            int result = pstmt.executeUpdate();
+
+            if (result > 0) {
+                AlertUtil.showSuccess("Berhasil", "Status pesanan berhasil diubah ke: " + namaStatus);
+                loadPesananData(); // Refresh
+            } else {
+                AlertUtil.showError("Gagal mengubah status pesanan.");
             }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            AlertUtil.showError("Error: " + e.getMessage());
+        }
+    }
+
+    private void showPembayaranVerifiedDialog(Pesanan pesanan) {
+        // Create custom dialog
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Verifikasi Pembayaran");
+        dialog.setHeaderText("Tunggu dulu! Masukkan nominal uang yang diterima dan metode pembayarannya.");
+
+        // Dialog content
+        GridPane grid = new GridPane();
+        grid.setHgap(15);
+        grid.setVgap(15);
+        grid.setPadding(new javafx.geometry.Insets(20));
+
+        // Nominal field
+        TextField nominalField = new TextField();
+        nominalField.setPromptText("Contoh: 2500000");
+        Label nominalLabel = new Label("Nominal Diterima (Rp):");
+        nominalLabel.getStyleClass().add("form-label");
+
+        // Metode pembayaran dropdown
+        ComboBox<String> metodeComboBox = new ComboBox<>();
+        metodeComboBox.getItems().addAll("Cash", "Transfer Bank", "E-Wallet", "Kartu Kredit/Debit");
+        metodeComboBox.setPromptText("Pilih metode pembayaran");
+        Label metodeLabel = new Label("Metode Pembayaran:");
+        metodeLabel.getStyleClass().add("form-label");
+
+        // Info pesanan
+        Label infoLabel = new Label(
+                "Pesanan: " + pesanan.getNamaPelanggan() +
+                        "\nTotal Tagihan: Rp" + String.format("%,.2f", pesanan.getTotalHarga())
+        );
+        infoLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666;");
+
+        grid.add(infoLabel, 0, 0, 2, 1);
+        grid.add(nominalLabel, 0, 1);
+        grid.add(nominalField, 1, 1);
+        grid.add(metodeLabel, 0, 2);
+        grid.add(metodeComboBox, 1, 2);
+
+        dialog.getDialogPane().setContent(grid);
+
+        // Buttons
+        ButtonType simpanButtonType = new ButtonType("Simpan", ButtonBar.ButtonData.OK_DONE);
+        ButtonType batalButtonType = new ButtonType("Batal", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().addAll(simpanButtonType, batalButtonType);
+
+        // Validation
+        javafx.scene.Node simpanButton = dialog.getDialogPane().lookupButton(simpanButtonType);
+        simpanButton.setDisable(true);
+
+        // Enable button only when fields are filled
+        nominalField.textProperty().addListener((obs, old, newVal) -> {
+            simpanButton.setDisable(newVal.trim().isEmpty() || metodeComboBox.getValue() == null);
+        });
+
+        metodeComboBox.valueProperty().addListener((obs, old, newVal) -> {
+            simpanButton.setDisable(nominalField.getText().trim().isEmpty() || newVal == null);
+        });
+
+        // Numeric validation for nominal
+        nominalField.textProperty().addListener((obs, old, newVal) -> {
+            if (!newVal.matches("\\d*")) {
+                nominalField.setText(newVal.replaceAll("[^\\d]", ""));
+            }
+        });
+
+        // Show dialog
+        Optional<ButtonType> result = dialog.showAndWait();
+
+        if (result.isPresent() && result.get() == simpanButtonType) {
+            String nominal = nominalField.getText();
+            String metode = metodeComboBox.getValue();
+
+            AlertUtil.showInfo("Info",
+                    "FITUR INI AKAN DIIMPLEMENTASIKAN NANTI\n\n" +
+                            "Data yang akan disimpan:\n" +
+                            "Nominal: Rp" + nominal + "\n" +
+                            "Metode: " + metode + "\n\n" +
+                            "Untuk saat ini, status tidak akan berubah.");
+
+            // NANTI: Simpan ke tabel pembayaran, lalu update status
+            // savePaymentData(pesanan.getIdPesanan(), nominal, metode);
+            // updateStatusPesanan(pesanan.getIdPesanan(), "Pembayaran Verified");
         }
     }
 
@@ -567,8 +680,15 @@ public class KelolaPesananController {
 
     private class PesananCardCell extends ListCell<Pesanan> {
         private final VBox cardContainer = new VBox();
+
+        // Header Components
         private final Label orderIdLabel = new Label();
         private final Label orderDateLabel = new Label();
+        private final Label statusBadge = new Label();
+        private final HBox headerBox = new HBox(); // Wadah header
+
+        // Info Grid Components
+        private final GridPane infoGrid = new GridPane();
         private final Label pelangganLabel = new Label();
         private final Label pelangganValue = new Label();
         private final Label phoneValue = new Label();
@@ -577,11 +697,18 @@ public class KelolaPesananController {
         private final Label jumlahValue = new Label();
         private final Label totalLabel = new Label();
         private final Label totalValue = new Label();
-        private final Label specLabel = new Label();
+
+        // Spesifikasi Components
+        private final VBox specBox = new VBox(5);
         private final Label specText = new Label();
+        private final Label specLabel = new Label();
+
+        // Action Buttons
+        private final ComboBox<String> ubahStatusComboBox = new ComboBox<>();
         private final Button editButton = new Button("✏ Edit");
         private final Button deleteButton = new Button("🗑 Hapus");
         private final Button konfirmasiButton = new Button("✅ Konfirmasi");
+        private final HBox actionBox = new HBox(10);
 
         public PesananCardCell() {
             setupCard();
@@ -591,22 +718,93 @@ public class KelolaPesananController {
             cardContainer.getStyleClass().add("pesanan-card");
             cardContainer.setSpacing(12);
 
-            orderIdLabel.getStyleClass().add("pesanan-order-id");
-            orderDateLabel.getStyleClass().add("pesanan-order-date");
-            pelangganLabel.getStyleClass().add("pesanan-label");
-            pelangganValue.getStyleClass().add("pesanan-value");
-            phoneValue.getStyleClass().add("pesanan-phone");
-            layananLabel.getStyleClass().add("pesanan-label");
-            layananValue.getStyleClass().add("pesanan-value");
-            jumlahValue.getStyleClass().add("pesanan-value");
-            totalLabel.getStyleClass().add("pesanan-label");
-            totalValue.getStyleClass().add("pesanan-total");
+            // --- SETUP HEADER ---
+            orderIdLabel.getStyleClass().add("pesanan-order-id");     // Biar Bold & Warnanya pas
+            orderDateLabel.getStyleClass().add("pesanan-order-date"); // Biar tanggalnya rapi
+
+            VBox leftHeader = new VBox(2, orderIdLabel, orderDateLabel);
+            leftHeader.getStyleClass().add("pesanan-card-header");
+
+            statusBadge.getStyleClass().add("status-badge");
+
+            headerBox.setAlignment(Pos.CENTER_LEFT);
+            HBox.setHgrow(leftHeader, Priority.ALWAYS);
+            headerBox.getChildren().addAll(leftHeader, statusBadge);
+
+            // --- SETUP GRID INFO ---
+            infoGrid.getStyleClass().add("pesanan-info-grid");
+            infoGrid.setHgap(30);
+            infoGrid.setVgap(12);
+
+            // Helper method untuk bikin VBox kecil biar rapi
+            infoGrid.add(createInfoBox("Pelanggan:", pelangganValue, phoneValue), 0, 0);
+            infoGrid.add(createInfoBox("Layanan:", layananValue, jumlahValue), 1, 0);
+            infoGrid.add(createInfoBox("Total:", totalValue), 2, 0);
+
+            // --- SETUP SPEC ---
+            Label specLabel = new Label("Spesifikasi:");
             specLabel.getStyleClass().add("pesanan-spec-label");
             specText.getStyleClass().add("pesanan-spec-text");
+            specText.setWrapText(true);
+            specBox.getChildren().addAll(specLabel, specText);
 
+            // --- SETUP BOTTOM ACTIONS ---
+            // Jurus Paksa ButtonCell (dari chat sebelumnya)
+            ubahStatusComboBox.setButtonCell(new ListCell<>() {
+                @Override protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) setText(ubahStatusComboBox.getPromptText());
+                    else setText(item);
+                }
+            });
+
+            // Action Box
+            konfirmasiButton.getStyleClass().addAll("button-success", "pesanan-action-button");
             editButton.getStyleClass().addAll("button-secondary", "pesanan-action-button");
             deleteButton.getStyleClass().addAll("button-danger", "pesanan-action-button");
-            konfirmasiButton.getStyleClass().addAll("button-success", "pesanan-action-button");
+
+            actionBox.setAlignment(Pos.CENTER_RIGHT);
+            actionBox.getChildren().addAll(konfirmasiButton, editButton, deleteButton); // Pasang semua tombol
+
+            HBox bottomBox = new HBox(15);
+            bottomBox.setAlignment(Pos.CENTER_LEFT);
+            HBox.setHgrow(actionBox, Priority.ALWAYS);
+            bottomBox.getChildren().addAll(ubahStatusComboBox, actionBox);
+
+            Region separator = new Region();
+            separator.getStyleClass().add("pesanan-separator");
+            separator.setPrefHeight(1);
+
+            cardContainer.getChildren().addAll(headerBox, infoGrid, specBox, separator, bottomBox);
+//
+//            orderIdLabel.getStyleClass().add("pesanan-order-id");
+//            orderDateLabel.getStyleClass().add("pesanan-order-date");
+//            pelangganLabel.getStyleClass().add("pesanan-label");
+//            pelangganValue.getStyleClass().add("pesanan-value");
+//            phoneValue.getStyleClass().add("pesanan-phone");
+//            layananLabel.getStyleClass().add("pesanan-label");
+//            layananValue.getStyleClass().add("pesanan-value");
+//            jumlahValue.getStyleClass().add("pesanan-value");
+//            totalLabel.getStyleClass().add("pesanan-label");
+//            totalValue.getStyleClass().add("pesanan-total");
+//            specLabel.getStyleClass().add("pesanan-spec-label");
+//            specText.getStyleClass().add("pesanan-spec-text");
+//
+//            editButton.getStyleClass().addAll("button-secondary", "pesanan-action-button");
+//            deleteButton.getStyleClass().addAll("button-danger", "pesanan-action-button");
+//            konfirmasiButton.getStyleClass().addAll("button-success", "pesanan-action-button");
+        }
+
+        private VBox createInfoBox(String label, Label... values) {
+            VBox box = new VBox(3);
+            Label lbl = new Label(label);
+            lbl.getStyleClass().add("pesanan-label");
+            box.getChildren().add(lbl);
+            for(Label v : values) {
+                v.getStyleClass().add("pesanan-value"); // atau class yang sesuai
+                box.getChildren().add(v);
+            }
+            return box;
         }
 
         @Override
@@ -618,92 +816,93 @@ public class KelolaPesananController {
                 return;
             }
 
-            // Format data
-            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
-
-            // Header
+            // 1. Text Updates
             orderIdLabel.setText("ORD-" + String.format("%03d", pesanan.getIdPesanan()));
-            orderDateLabel.setText(pesanan.getTanggalPesanan().format(dateFormatter));
-
-            VBox headerBox = new VBox(2, orderIdLabel, orderDateLabel);
-            headerBox.getStyleClass().add("pesanan-card-header");
-
-            // Info Grid
-            GridPane infoGrid = new GridPane();
-            infoGrid.getStyleClass().add("pesanan-info-grid");
-            infoGrid.setHgap(30);
-            infoGrid.setVgap(12);
-
-            pelangganLabel.setText("Pelanggan:");
+            orderDateLabel.setText(pesanan.getTanggalPesanan().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
             pelangganValue.setText(pesanan.getNamaPelanggan());
             phoneValue.setText(pesanan.getNoTelepon());
-            VBox pelangganBox = new VBox(3, pelangganLabel, pelangganValue, phoneValue);
-
-            layananLabel.setText("Layanan:");
             layananValue.setText(pesanan.getJenisLayanan());
             jumlahValue.setText(pesanan.getJumlah() + " pcs");
-            VBox layananBox = new VBox(3, layananLabel, layananValue, jumlahValue);
+            totalValue.setText("Rp" + String.format("%,.0f", pesanan.getTotalHarga())); // Simplified format
 
-            totalLabel.setText("Total:");
-            totalValue.setText(currencyFormat.format(pesanan.getTotalHarga()));
-            VBox totalBox = new VBox(3, totalLabel, totalValue);
+            // 2. Status Badge Style
+            statusBadge.setText(pesanan.getStatus());
+            String targetStyle = "status-" + pesanan.getStatus().toLowerCase().replace(" ", "-");
+            // LOGIKA PENTING: Cek dulu, apakah badge SUDAH punya style tersebut?
+            if (!statusBadge.getStyleClass().contains(targetStyle)) {
+                // Hanya jika BELUM punya, kita lakukan hapus & ganti
+                // (Ini mencegah redraw yang tidak perlu saat diklik)
 
-            infoGrid.add(pelangganBox, 0, 0);
-            infoGrid.add(layananBox, 1, 0);
-            infoGrid.add(totalBox, 2, 0);
+                statusBadge.getStyleClass().removeAll(
+                        "status-baru-dibuat",
+                        "status-menunggu-pembayaran",
+                        "status-pembayaran-verified", // Pastikan semua kemungkinan status ada di sini
+                        "status-selesai",
+                        "status-dibatalkan"
+                );
 
-            // Spesifikasi
-            VBox specBox = new VBox(5);
+                statusBadge.getStyleClass().add(targetStyle);
+            }
+
+            // 3. Spesifikasi (Show/Hide Logic)
             if (pesanan.getSpesifikasi() != null && !pesanan.getSpesifikasi().isEmpty()) {
-                specLabel.setText("Spesifikasi:");
                 specText.setText(pesanan.getSpesifikasi());
-                specText.setWrapText(true);
-                specText.setMaxWidth(Double.MAX_VALUE);
-                specBox.getChildren().addAll(specLabel, specText);
-            }
-
-            // Separator
-            Region separator = new Region();
-            separator.getStyleClass().add("pesanan-separator");
-            separator.setPrefHeight(1);
-
-            // Status Badge
-            Label statusBadge = new Label(pesanan.getStatus());
-            statusBadge.getStyleClass().add("status-badge");
-            String statusLower = pesanan.getStatus().toLowerCase().replace(" ", "-");
-            statusBadge.getStyleClass().add("status-" + statusLower);
-
-            // Actions
-            HBox actionBox = new HBox(10);
-            actionBox.setAlignment(Pos.CENTER_RIGHT);
-
-            if (pesanan.getStatus().equalsIgnoreCase("Baru Dibuat")) {
-                actionBox.getChildren().addAll(konfirmasiButton, editButton, deleteButton);
+                specBox.setVisible(true);
+                specBox.setManaged(true);
             } else {
-                actionBox.getChildren().addAll(editButton, deleteButton);
+                specBox.setVisible(false);
+                specBox.setManaged(false); // Biar tidak makan tempat kalau kosong
             }
 
-            HBox bottomBox = new HBox(15);
-            bottomBox.setAlignment(Pos.CENTER_LEFT);
-            HBox.setHgrow(actionBox, Priority.ALWAYS);
-            bottomBox.getChildren().addAll(statusBadge, actionBox);
+            // 4. Tombol Konfirmasi (Show/Hide Logic)
+            boolean isBaru = pesanan.getStatus().equalsIgnoreCase("Baru Dibuat");
+            konfirmasiButton.setVisible(isBaru);
+            konfirmasiButton.setManaged(isBaru); // Kalau hidden, dia tidak makan tempat
 
-            // Button actions
+            // 5. Event Handlers tombol
             konfirmasiButton.setOnAction(e -> handleKonfirmasiPesanan(pesanan));
             editButton.setOnAction(e -> handleEditPesanan(pesanan));
             deleteButton.setOnAction(e -> handleDeletePesanan(pesanan));
 
-            // Assemble card
-            cardContainer.getChildren().clear();
-            cardContainer.getChildren().addAll(
-                    headerBox,
-                    infoGrid,
-                    specBox,
-                    separator,
-                    bottomBox
-            );
+            // 6. Setup Ubah Status ComboBox
+            ubahStatusComboBox.setOnAction(null); // Putus listener dulu biar gak trigger
+            ubahStatusComboBox.setValue(null);
+            ubahStatusComboBox.setPromptText("Ubah Status");
 
+            ObservableList<String> statusOptions = FXCollections.observableArrayList();
+            try (Connection conn = DatabaseConnection.getConnection();
+                 Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(
+                         "SELECT nama_status FROM status_pesanan WHERE nama_status IN " +
+                                 "('Baru Dibuat', 'Menunggu Pembayaran', 'Pembayaran Verified', 'Dibatalkan') " +
+                                 "ORDER BY id_status")) {
+
+                while (rs.next()) {
+                    statusOptions.add(rs.getString("nama_status"));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                statusOptions.addAll("Baru Dibuat", "Menunggu Pembayaran",
+                        "Pembayaran Verified", "Dibatalkan");
+            }
+
+            ubahStatusComboBox.setItems(statusOptions);
+
+            ubahStatusComboBox.setOnAction(e -> {
+                String statusBaru = ubahStatusComboBox.getValue();
+                if (statusBaru == null) {
+                    return;
+                }
+
+                handleUbahStatus(pesanan, statusBaru, ubahStatusComboBox);
+
+                javafx.application.Platform.runLater(() -> {
+                    ubahStatusComboBox.setValue(null);
+                    ubahStatusComboBox.setPromptText("Ubah Status");
+                });
+            });
+
+            // FINAL SET
             setGraphic(cardContainer);
         }
     }
