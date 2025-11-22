@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
 <!-- Layout Utama Menggunakan HBox -->
 
-<HBox minHeight="1080.0" minWidth="1920.0" stylesheets="@../../style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.trying3.controller.admin.DashboardAdminController">
+<HBox minHeight="1080.0" minWidth="1920.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.trying3.controller.admin.DashboardAdminController">
     <children>
         <!-- Sidebar Navigasi (Sebelah Kiri) -->
         <VBox alignment="TOP_CENTER" prefWidth="280.0" styleClass="sidebar">
@@ -76,7 +74,10 @@
                         <Image url="@../../pictures/settingsDark.png" />
                      </image>
                   </ImageView>
-               </graphic></Label>
+               </graphic>
+               <font>
+                  <Font name="Microsoft YaHei Bold" size="22.0" />
+               </font></Label>
                 <Label fx:id="btnNotifikasi" onMouseClicked="#handleNotifikasiClick" styleClass="nav-button" text="Notifikasi">
                <graphic>
                   <ImageView fx:id="notifikasiIcon" fitHeight="20.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">

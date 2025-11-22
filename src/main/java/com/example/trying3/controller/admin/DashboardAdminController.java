@@ -327,7 +327,7 @@ public class DashboardAdminController implements Initializable {
     }
 
     @FXML private void handleKelolaPesananClick() {
-        loadPane("ManagementPane.fxml");
+        loadPane("KelolaPesananPane.fxml");
         setActiveButton(btnKelolaPesanan);
     }
 
