@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+
+<VBox spacing="20.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <padding><Insets top="30" left="30" right="30" bottom="30"/></padding>
+    <children>
+        <Label styleClass="page-title" text="Kelola Proses Produksi Cetak" />
+
+        <!-- STATUS PRODUKSI -->
+        <HBox spacing="20.0">
+            <children>
+                <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label styleClass="stat-title" text="Menunggu Produksi"/>
+                        <Label fx:id="waitingLabel" styleClass="stat-value" text="0"/>
+                        <Label styleClass="stat-subtitle" text="Siap diproduksi"/>
+                    </children>
+                </VBox>
+
+                <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label styleClass="stat-title" text="Sedang Diproduksi"/>
+                        <Label fx:id="inProgressLabel" styleClass="stat-value" text="0"/>
+                        <Label styleClass="stat-subtitle" text="Dalam proses"/>
+                    </children>
+                </VBox>
+
+                <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label styleClass="stat-title" text="Selesai Produksi"/>
+                        <Label fx:id="completedLabel" styleClass="stat-value" text="0"/>
+                        <Label styleClass="stat-subtitle" text="Siap dikirim"/>
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+
+        <!-- ANTRIAN PRODUKSI -->
+        <VBox styleClass="card" spacing="12.0">
+            <children>
+                <Label styleClass="card-title" text="Antrian Produksi"/>
+
+                <!-- Order card (sample) -->
+                <StackPane styleClass="order-card" VBox.vgrow="ALWAYS">
+                    <children>
+                        <VBox spacing="8.0" styleClass="order-card-inner">
+                            <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+                            <children>
+                                <HBox spacing="10.0">
+                                    <children>
+                                        <Label styleClass="order-id" text="ORD-002" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label styleClass="status-pill" text="Sedang Diproduksi" />
+                                    </children>
+                                </HBox>
+
+                                <Label styleClass="muted" text="Toko Berkah - 2024-01-14" />
+                                <Separator />
+
+                                <Label styleClass="field-title" text="Layanan:" />
+                                <Label text="Sablon" />
+
+                                <Label styleClass="field-title" text="Jumlah:" />
+                                <Label text="50 pcs" />
+
+                                <Label styleClass="field-title" text="Spesifikasi:" />
+                                <Label text="Kaos cotton combed 30s, sablon plastisol" wrapText="true" />
+
+                                <Label styleClass="field-title" text="File Desain:" />
+                                <Label text="design_toko_berkah.ai" />
+
+                                <Label styleClass="field-title" text="Catatan:" />
+                                <Label text="Kendala: Kendala" wrapText="true" />
+
+                                <HBox spacing="8.0">
+                                    <children>
+                                        <Button styleClass="btn-primary" text="Selesai Produksi" />
+                                        <Button styleClass="btn-outline" text="Laporkan Kendala" />
+                                        <Button styleClass="btn-outline" text="Print Job Sheet" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </StackPane>
+
+            </children>
+        </VBox>
+
+        <!-- LAPORKAN KENDALA FORM -->
+        <VBox styleClass="card" spacing="10.0">
+            <children>
+                <Label styleClass="card-title" text="Laporkan Kendala - ORD-002" />
+                <Label styleClass="muted" text="Laporkan kendala yang terjadi selama produksi" />
+                <TextArea prefRowCount="4" promptText="Jelaskan kendala yang terjadi..." />
+                <HBox spacing="8.0">
+                    <children>
+                        <Button styleClass="btn-primary" text="Laporkan Kendala" />
+                        <Button styleClass="btn-outline" text="Batal" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</VBox>

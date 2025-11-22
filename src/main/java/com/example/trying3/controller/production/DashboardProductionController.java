@@ -29,43 +29,71 @@ public class DashboardProductionController implements Initializable {
         setActiveButton(btnDashboard);
     }
 
-    private void loadPane(String fxmlFile) {
+    private boolean loadPane(String fxmlFile) {
+        String relativePath = "fxml/production/" + fxmlFile;
+        System.out.println("[DashboardProductionController] Loading FXML: " + relativePath);
+        URL resource = MainApplication.class.getResource(relativePath);
+        if (resource == null) {
+            System.out.println("[DashboardProductionController] Resource NOT FOUND: " + relativePath);
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Resource not found: " + relativePath, javafx.scene.control.ButtonType.OK);
+            alert.setTitle("Load Error");
+            alert.setHeaderText(null);
+            alert.showAndWait();
+            return false;
+        }
+
         try {
-            String relativePath = "fxml/production/" + fxmlFile;
-            FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource(relativePath));
+            FXMLLoader loader = new FXMLLoader(resource);
             Node pane = loader.load();
             contentArea.getChildren().setAll(pane);
+            System.out.println("[DashboardProductionController] Loaded successfully: " + fxmlFile);
+            return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("[DashboardProductionController] Failed to load FXML: " + fxmlFile + " error: " + e.getMessage());
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load FXML: " + fxmlFile + "\n" + e.getMessage(), javafx.scene.control.ButtonType.OK);
+            alert.setTitle("Load Error");
+            alert.setHeaderText(null);
+            alert.showAndWait();
+            return false;
         }
     }
 
-    private void setActiveButton(Label button) {
-        button.getStyleClass().add("active");
+    private void setActiveButton(Label activeButton) {
+        // Hapus "active" dari semua tombol sidebar
+        btnDashboard.getStyleClass().remove("active");
+        btnProduksi.getStyleClass().remove("active");
+        btnJadwalProduksi.getStyleClass().remove("active");
+        btnInventori.getStyleClass().remove("active");
+
+        // Tambahkan "active" ke tombol yang sedang diklik
+        if (!activeButton.getStyleClass().contains("active")) {
+            activeButton.getStyleClass().add("active");
+        }
     }
 
     @FXML
     private void handleDashboardClick() {
-        loadPane("DashboardProductionPane.fxml");
-        setActiveButton(btnDashboard);
+        System.out.println("[DashboardProductionController] handleDashboardClick");
+        if (loadPane("DashboardProductionPane.fxml")) setActiveButton(btnDashboard);
     }
 
     @FXML
     private void handleProduksiClick() {
-        loadPane("ProduksiPane.fxml");
-        setActiveButton(btnProduksi);
+        System.out.println("[DashboardProductionController] handleProduksiClick");
+        // Tampilkan UI 'Kelola Produksi' sesuai desain: gunakan ProduksiPane.fxml
+        if (loadPane("ProduksiPane.fxml")) setActiveButton(btnProduksi);
     }
 
     @FXML
     private void handleJadwalProduksiClick() {
-        loadPane("JadwalProduksiPane.fxml");
-        setActiveButton(btnJadwalProduksi);
+        System.out.println("[DashboardProductionController] handleJadwalProduksiClick");
+        if (loadPane("JadwalProduksiPane.fxml")) setActiveButton(btnJadwalProduksi);
     }
 
     @FXML
     private void handleInventoriClick() {
-        loadPane("InventoriPane.fxml");
-        setActiveButton(btnInventori);
+        System.out.println("[DashboardProductionController] handleInventoriClick");
+        if (loadPane("InventoriPane.fxml")) setActiveButton(btnInventori);
     }
 
     @FXML
