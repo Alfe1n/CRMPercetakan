@@ -155,3 +155,84 @@
     -fx-font-size: 13px;
     -fx-font-weight: bold;
 }
+
+/* --- Order Card (Produksi) --- */
+.order-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+}
+.order-card-inner {
+    -fx-background-color: transparent;
+}
+.order-id {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+/* --- Status Badge/Pill --- */
+.status-pill {
+    -fx-background-color: #1f1f1f;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 6 14 6 14;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+}
+
+/* --- Field Titles --- */
+.field-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #555555;
+}
+
+/* --- Muted Text --- */
+.muted {
+    -fx-font-size: 13px;
+    -fx-text-fill: #999999;
+}
+
+/* --- Buttons --- */
+.btn-primary {
+    -fx-background-color: #1f1f1f;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 20 10 20;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-cursor: hand;
+}
+.btn-primary:hover {
+    -fx-background-color: #3a3a3a;
+}
+
+.btn-outline {
+    -fx-background-color: transparent;
+    -fx-text-fill: #555555;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 20 10 20;
+    -fx-background-radius: 6;
+    -fx-border-color: #d0d0d0;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-cursor: hand;
+}
+.btn-outline:hover {
+    -fx-background-color: #f5f5f5;
+}
+
+/* --- Separator --- */
+.separator {
+    -fx-background-color: #e0e0e0;
+}
+.separator .line {
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1 0 0 0;
+}

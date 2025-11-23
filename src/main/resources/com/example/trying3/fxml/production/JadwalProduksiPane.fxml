@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true"
+            xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            stylesheets="@production.css"
+            fx:controller="com.example.trying3.controller.production.JadwalProduksiController"
+            styleClass="content-pane-scroll"
+            style="-fx-background: transparent; -fx-background-color: transparent;">
+
+    <content>
+        <VBox spacing="20.0" style="-fx-background-color: #f4f7fa;">
+            <padding>
+                <Insets top="30" left="30" right="30" bottom="30"/>
+            </padding>
+
+            <children>
+                <VBox spacing="5.0">
+                    <children>
+                        <Label styleClass="page-title" text="Jadwal Produksi" />
+                        <Label styleClass="muted" text="Kelola jadwal dan kapasitas produksi" />
+                    </children>
+                </VBox>
+
+                <VBox styleClass="card" spacing="20.0">
+                    <children>
+                        <Label styleClass="card-title" text="Jadwal Minggu Ini"/>
+
+                        <VBox fx:id="scheduleContainer" spacing="0.0" />
+                    </children>
+                </VBox>
+
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>
