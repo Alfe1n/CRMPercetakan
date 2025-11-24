@@ -76,10 +76,11 @@ public class DashboardManagementController implements Initializable {
     }
 
     @FXML
-    private void handleAnalitikClick() {
-        loadPane("AnalitikPane.fxml");
+    private void openAnalitik() {
+        loadPane("Analitik.fxml");
         setActiveButton(btnAnalitik);
     }
+
 
     @FXML
     private void handleEksporDataClick() {
