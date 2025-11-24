@@ -32,11 +32,26 @@ public class DashboardManagementController implements Initializable {
     private void loadPane(String fxmlFile) {
         try {
             String relativePath = "fxml/manajemen/" + fxmlFile;
+            // Cek apakah file benar-benar ditemukan
+            if (MainApplication.class.getResource(relativePath) == null) {
+                throw new IOException("File FXML tidak ditemukan: " + relativePath);
+            }
+
             FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource(relativePath));
             Node pane = loader.load();
             contentArea.getChildren().setAll(pane);
+
         } catch (IOException e) {
+            // INI PENTING: Tampilkan error lengkap ke console
+            System.err.println("=== ERROR SAAT MEMBUKA " + fxmlFile + " ===");
             e.printStackTrace();
+
+            // Opsional: Tampilkan pesan ke layar pengguna
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error Loading Page");
+            alert.setHeaderText("Gagal memuat halaman: " + fxmlFile);
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
         }
     }
 
@@ -55,8 +70,8 @@ public class DashboardManagementController implements Initializable {
     }
 
     @FXML
-    private void handleLaporanClick() {
-        loadPane("LaporanPane.fxml");
+    private void openLaporan() {
+        loadPane("Laporan.fxml");
         setActiveButton(btnLaporan);
     }
 

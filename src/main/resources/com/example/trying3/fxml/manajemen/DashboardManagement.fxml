@@ -24,7 +24,7 @@
                 </HBox>
 
                 <Label fx:id="btnDashboard" onMouseClicked="#handleDashboardClick" styleClass="nav-button" text="Dashboard"/>
-                <Label fx:id="btnLaporan" onMouseClicked="#handleLaporanClick" styleClass="nav-button" text="Laporan"/>
+                <Label fx:id="btnLaporan" onMouseClicked="#openLaporan" styleClass="nav-button" text="Laporan"/>
                 <Label fx:id="btnAnalitik" onMouseClicked="#handleAnalitikClick" styleClass="nav-button" text="Analitik"/>
                 <Label fx:id="btnEksporData" onMouseClicked="#handleEksporDataClick" styleClass="nav-button" text="Ekspor Data"/>
                 <Label fx:id="btnLogout" onMouseClicked="#handleLogoutClick" styleClass="nav-button-logout" text="Logout"/>
