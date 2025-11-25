@@ -84,7 +84,7 @@ public class DashboardManagementController implements Initializable {
 
     @FXML
     private void handleEksporDataClick() {
-        loadPane("EksporDataPane.fxml");
+        loadPane("EksporData.fxml");
         setActiveButton(btnEksporData);
     }
 
