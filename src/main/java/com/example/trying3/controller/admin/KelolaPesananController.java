@@ -58,7 +58,7 @@ public class KelolaPesananController {
 
     // Variabel Data
     private PesananDAO pesananDAO;
-    private ObservableList<Pesanan> pesananList = FXCollections.observableArrayList();
+    private final ObservableList<Pesanan> pesananList = FXCollections.observableArrayList();
     private Pesanan currentEditPesanan; // Menyimpan pesanan yang sedang diedit
 
     // Method ini jalan otomatis saat halaman dibuka pertama kali
@@ -467,7 +467,7 @@ public class KelolaPesananController {
     private void forceNumericInput(TextField tf) {
         tf.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*")) {
-                tf.setText(newValue.replaceAll("[^\\d]", ""));
+                tf.setText(newValue.replaceAll("\\D", ""));
             }
         });
     }
@@ -637,18 +637,14 @@ public class KelolaPesananController {
         javafx.scene.Node simpanButton = dialog.getDialogPane().lookupButton(simpanButtonType);
         simpanButton.setDisable(true);
 
-        nominalField.textProperty().addListener((obs, old, newVal) -> {
-            simpanButton.setDisable(newVal.trim().isEmpty() || metodeComboBox.getValue() == null);
-        });
+        nominalField.textProperty().addListener((obs, old, newVal) -> simpanButton.setDisable(newVal.trim().isEmpty() || metodeComboBox.getValue() == null));
 
-        metodeComboBox.valueProperty().addListener((obs, old, newVal) -> {
-            simpanButton.setDisable(nominalField.getText().trim().isEmpty() || newVal == null);
-        });
+        metodeComboBox.valueProperty().addListener((obs, old, newVal) -> simpanButton.setDisable(nominalField.getText().trim().isEmpty() || newVal == null));
 
         // Paksa nominal hanya angka
         nominalField.textProperty().addListener((obs, old, newVal) -> {
             if (!newVal.matches("\\d*")) {
-                nominalField.setText(newVal.replaceAll("[^\\d]", ""));
+                nominalField.setText(newVal.replaceAll("\\D", ""));
             }
         });
 

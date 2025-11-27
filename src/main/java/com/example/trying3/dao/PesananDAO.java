@@ -2,7 +2,6 @@ package com.example.trying3.dao;
 
 import com.example.trying3.config.DatabaseConnection;
 import com.example.trying3.util.SessionManager;
-
 import java.sql.*;
 
 public class PesananDAO {
@@ -100,11 +99,11 @@ public class PesananDAO {
             return false;
         } finally {
             // Tutup resource
-            try { if (rs != null) rs.close(); } catch (Exception e) {};
-            try { if (psPelanggan != null) psPelanggan.close(); } catch (Exception e) {};
-            try { if (psPesanan != null) psPesanan.close(); } catch (Exception e) {};
-            try { if (psDetail != null) psDetail.close(); } catch (Exception e) {};
-            try { if (conn != null) conn.setAutoCommit(true); conn.close(); } catch (Exception e) {};
+            try { if (rs != null) rs.close(); } catch (Exception ignored) {}
+            try { if (psPelanggan != null) psPelanggan.close(); } catch (Exception ignored) {}
+            try { if (psPesanan != null) psPesanan.close(); } catch (Exception ignored) {}
+            try { if (psDetail != null) psDetail.close(); } catch (Exception ignored) {}
+            try { if (conn != null) conn.setAutoCommit(true); conn.close(); } catch (Exception ignored) {}
         }
 
     }

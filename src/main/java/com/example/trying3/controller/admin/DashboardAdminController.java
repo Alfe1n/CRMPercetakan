@@ -332,7 +332,7 @@ public class DashboardAdminController implements Initializable {
     }
 
     @FXML private void handlePembayaranClick() {
-        loadPane("SettingsPane.fxml");
+        loadPane("KelolaPembayaranPane.fxml");
         setActiveButton(btnPembayaran);
     }
 
