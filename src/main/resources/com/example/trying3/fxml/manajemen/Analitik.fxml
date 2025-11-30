@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.trying3.controller.management.AnalitikController"
+            fitToWidth="true">
+
+    <content>
+        <VBox spacing="25">
+            <padding>
+                <Insets top="30" right="30" bottom="30" left="30"/>
+            </padding>
+
+            <VBox spacing="5">
+                <Text text="Analitik" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+                <Text text="Analisis mendalam kinerja bisnis"
+                      style="-fx-font-size: 14px; -fx-fill: #666;" />
+            </VBox>
+
+            <HBox spacing="20" VBox.vgrow="ALWAYS">
+
+                <VBox fx:id="chartContainer1" spacing="15" alignment="CENTER"
+                      HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                      style="-fx-background-color: white; -fx-padding: 20;
+                             -fx-min-height: 350;
+                             -fx-background-radius: 12;
+                             -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);">
+
+                    <HBox alignment="CENTER_LEFT" maxWidth="Infinity">
+                        <Label text="Tren Pesanan" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+                    </HBox>
+
+                    <VBox alignment="CENTER" VBox.vgrow="ALWAYS">
+                        <Text text="📊" style="-fx-font-size: 80px; -fx-fill: #ddd;" />
+                        <Label text="Grafik akan muncul di sini" style="-fx-text-fill: #999;"/>
+                    </VBox>
+                </VBox>
+
+                <VBox fx:id="chartContainer2" spacing="15" alignment="CENTER"
+                      HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                      style="-fx-background-color: white; -fx-padding: 20;
+                             -fx-min-height: 350;
+                             -fx-background-radius: 12;
+                             -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);">
+
+                    <HBox alignment="CENTER_LEFT" maxWidth="Infinity">
+                        <Label text="Distribusi Pendapatan" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+                    </HBox>
+
+                    <VBox alignment="CENTER" VBox.vgrow="ALWAYS">
+                        <Text text="💲" style="-fx-font-size: 80px; -fx-fill: #ddd;" />
+                        <Label text="Grafik akan muncul di sini" style="-fx-text-fill: #999;"/>
+                    </VBox>
+                </VBox>
+
+            </HBox>
+
+        </VBox>
+    </content>
+</ScrollPane>

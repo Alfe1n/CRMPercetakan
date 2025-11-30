@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<ScrollPane fx:id="scrollPane" fitToWidth="true"
+            xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.trying3.controller.management.LaporanController">
+
+    <VBox spacing="20">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+
+        <VBox spacing="5">
+            <Text text="Laporan" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+            <Text text="Laporan operasional dan keuangan" style="-fx-font-size: 14px; -fx-fill: #555;" />
+        </VBox>
+
+        <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;">
+            <Text text="Hasilkan Laporan" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+            <Text text="Pilih jenis dan periode laporan yang ingin diunduh" style="-fx-font-size: 13px; -fx-fill: #777;" />
+
+            <GridPane hgap="20" vgap="15">
+                <columnConstraints>
+                    <ColumnConstraints halignment="LEFT" percentWidth="50"/>
+                    <ColumnConstraints halignment="LEFT" percentWidth="50"/>
+                </columnConstraints>
+
+                <Label text="Periode Laporan" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="comboPeriode" prefWidth="200" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+
+                <Label text="Jenis Laporan" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                <ComboBox fx:id="comboJenis" prefWidth="200" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+            </GridPane>
+
+            <HBox spacing="10">
+                <Button fx:id="btnExcel" text="Unduh Laporan Excel"
+                        style="-fx-background-color: #000; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20;" />
+                <Button fx:id="btnPDF" text="Unduh PDF"
+                        style="-fx-background-color: #eee; -fx-background-radius: 8; -fx-padding: 10 20;" />
+            </HBox>
+        </VBox>
+
+        <HBox spacing="15">
+            <VBox style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;" spacing="5">
+                <Label text="Total Pesanan" style="-fx-font-size: 13px; -fx-text-fill: #777;" />
+                <Label fx:id="txtTotalPesanan" text="0" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+                <Label text="Semua periode" />
+            </VBox>
+
+            <VBox style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;" spacing="5">
+                <Label text="Pesanan Selesai" style="-fx-font-size: 13px; -fx-text-fill: #777;" />
+                <Label fx:id="txtPesananSelesai" text="0" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+                <Label fx:id="txtSelesaiPersen" text="Tingkat penyelesaian 0%" />
+            </VBox>
+
+            <VBox style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;" spacing="5">
+                <Label text="Total Pendapatan" style="-fx-font-size: 13px; -fx-text-fill: #777;" />
+                <Label fx:id="txtPendapatan" text="Rp 0" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+                <Label text="Pembayaran terverifikasi" />
+            </VBox>
+
+            <VBox style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;" spacing="5">
+                <Label text="Pesanan Tertunda" style="-fx-font-size: 13px; -fx-text-fill: #777;" />
+                <Label fx:id="txtTertunda" text="0" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+                <Label text="Perlu tindak lanjut" />
+            </VBox>
+        </HBox>
+
+        <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;">
+            <Text text="Performa untuk Layanan" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+            <VBox spacing="8" fx:id="layananContainer" />
+        </VBox>
+
+        <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;">
+            <Text text="Aktivitas Terbaru" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+            <VBox spacing="8" fx:id="activityContainer" />
+        </VBox>
+
+    </VBox>
+</ScrollPane>

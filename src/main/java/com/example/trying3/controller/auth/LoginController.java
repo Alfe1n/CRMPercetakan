@@ -94,13 +94,13 @@ public class LoginController {
                     fxmlPath = "fxml/admin/Dashboard.fxml";
                     break;
                 case 2: // Designer
-                    fxmlPath = "fxml/designer/Dashboard.fxml"; // Belum ada, pakai admin dulu
+                    fxmlPath = "fxml/designer/DashboardDesignPane.fxml"; // Belum ada, pakai admin dulu
                     break;
                 case 3: // Production
                     fxmlPath = "fxml/production/DashboardProduction.fxml"; // Belum ada, pakai admin dulu
                     break;
                 case 4: // Manager
-                    fxmlPath = "fxml/manager/Dashboard.fxml"; // Belum ada, pakai admin dulu
+                    fxmlPath = "fxml/manajemen/DashboardManagement.fxml"; // Belum ada, pakai admin dulu
                     break;
                 default:
                     fxmlPath = "fxml/admin/Dashboard.fxml";
