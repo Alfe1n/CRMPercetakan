@@ -4,6 +4,12 @@
     -fx-base: #f8f9fa; /* Warna dasar abu-abu muda */
 }
 
+.header {
+    -fx-min-height: 80px;
+    -fx-max-height: 80px;
+    -fx-pref-height: 80px;
+}
+
 /* --- Sidebar --- */
 .sidebar {
     -fx-background-color: #ffffff;

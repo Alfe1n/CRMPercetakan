@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <HBox minHeight="1080.0" minWidth="1920.0" stylesheets="@../../style.css"
-      xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      xmlns="http://javafx.com/javafx/21.0.0" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.example.trying3.controller.management.DashboardManagementController">
 
     <children>

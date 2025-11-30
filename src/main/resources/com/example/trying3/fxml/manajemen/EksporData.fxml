@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<ScrollPane fitToWidth="true" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.trying3.controller.management.EksporDataController">
+<ScrollPane fitToWidth="true" xmlns="http://javafx.com/javafx/21.0.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.trying3.controller.management.EksporDataController">
     <content>
         <VBox spacing="25">
             <padding>

@@ -11,7 +11,7 @@
 
 <!-- Konten ini akan di-load ke dalam StackPane di Dashboard.fxml -->
 
-<ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="content-pane-scroll" vbarPolicy="AS_NEEDED" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="content-pane-scroll" vbarPolicy="AS_NEEDED" xmlns="http://javafx.com/javafx/21.0.0" xmlns:fx="http://javafx.com/fxml/1">
     <content>
         <VBox spacing="20.0">
             <padding>

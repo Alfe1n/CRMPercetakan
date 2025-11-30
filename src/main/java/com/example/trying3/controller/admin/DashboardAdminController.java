@@ -13,10 +13,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
@@ -356,7 +359,22 @@ public class DashboardAdminController implements Initializable {
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.YES) {
                 System.out.println("User logged out.");
-                System.exit(0);
+                try {
+                    SessionManager.getInstance().clearSession();
+                    FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("fxml/auth/Login.fxml"));
+                    Parent root = loader.load();
+                    Scene loginScene = new Scene(root, 1920, 1080);
+                    Stage stage = (Stage) contentArea.getScene().getWindow();
+                    stage.setScene(loginScene);
+                    stage.setTitle("CRM Percetakan - Login");
+                    stage.setResizable(false);
+                    stage.centerOnScreen();
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
             }
         });
     }

@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.StackPane?>
 
-<VBox spacing="30.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox spacing="30.0" xmlns="http://javafx.com/javafx/21.0.0" xmlns:fx="http://javafx.com/fxml/1">
     <padding><Insets top="30" left="30" right="30" bottom="30"/></padding>
     <children>
         <Label styleClass="page-title" text="Pemantauan dan Analisis Bisnis"/>

@@ -87,9 +87,6 @@
                               </Label>
                           </children>
                       </HBox>
-                      <Hyperlink text="Lupa Password?" style="-fx-text-fill: #24A0ED;" />
-<!--                                 onAction="#handleForgotPassword"-->
-<!--                                 style="-fx-text-fill: #24A0ED;">-->
                   </children>
                   <padding>
                       <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
