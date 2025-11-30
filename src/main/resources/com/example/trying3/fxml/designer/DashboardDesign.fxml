@@ -33,9 +33,9 @@
 
                 <VBox spacing="15">
                     <Label fx:id="btnDashboard" onMouseClicked="#handleDashboardClick" maxWidth="Infinity" styleClass="nav-button" text="Dashboard"/>
-                    <Label fx:id="btnAntrianDesign" onMouseClicked="#handleAntrianClick" maxWidth="Infinity" styleClass="nav-button" text="Produksi"/>
-                    <Label fx:id="btnRevisi" onMouseClicked="#handleRevisiClick" maxWidth="Infinity" styleClass="nav-button" text="Jadwal Produksi"/>
-                    <Label fx:id="btnAsset" onMouseClicked="#handleAssetClick" maxWidth="Infinity" styleClass="nav-button" text="Inventori"/>
+                    <Label fx:id="btnAntrianDesign" onMouseClicked="#handleAntrianClick" maxWidth="Infinity" styleClass="nav-button" text="Kelola Desain"/>
+                    <Label fx:id="btnRevisi" onMouseClicked="#handleRevisiClick" maxWidth="Infinity" styleClass="nav-button" text="Template Desain"/>
+                    <Label fx:id="btnAsset" onMouseClicked="#handleAssetClick" maxWidth="Infinity" styleClass="nav-button" text="Riwayat Desain"/>
                 </VBox>
 
                 <Region VBox.vgrow="ALWAYS" />
