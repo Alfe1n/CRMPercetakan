@@ -1,67 +1,96 @@
 package com.example.trying3.controller.design;
 
+import com.example.trying3.MainApplication;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.stage.Stage; // Import yang dibutuhkan
+import javafx.scene.layout.StackPane;
 
+import java.io.IOException;
 import java.net.URL;
-import java.util.Optional; // Import yang dibutuhkan
 import java.util.ResourceBundle;
 
 public class DashboardDesignController implements Initializable {
 
-    // Labels untuk Statistik
-    @FXML private Label lblMenunggu;
-    @FXML private Label lblDisetujui;
-    @FXML private Label lblRevisi;
+    @FXML private Label btnDashboard;
+    @FXML private Label btnAntrianDesign;
+    @FXML private Label btnRevisi;
+    @FXML private Label btnAsset;
+    @FXML private Label btnLogout;
 
-    // Tombol Sidebar
-    @FXML private Button btnDashboard;
-    @FXML private Button btnKelola;
-    @FXML private Button btnTemplate;
-    @FXML private Button btnRiwayat;
-
-    // Tombol Logout BARU
-    @FXML private Button btnLogout;
+    @FXML private Label lblHeaderTitle;
+    @FXML private StackPane contentArea;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Data Dummy
-        lblMenunggu.setText("1");
-        lblDisetujui.setText("2");
-        lblRevisi.setText("0");
+        // Load default pane saat pertama kali buka
+        loadPane("DashboardDesignPane.fxml");
+        setActiveButton(btnDashboard);
 
-        // Contoh event handler tombol (Opsional)
-        btnKelola.setOnAction(e -> System.out.println("Buka Kelola Desain"));
-        btnTemplate.setOnAction(e -> System.out.println("Buka Template"));
-
-        // Menghubungkan aksi Logout
-        btnLogout.setOnAction(e -> handleLogoutClick());
+        if (lblHeaderTitle != null) {
+            lblHeaderTitle.setText("Dashboard Tim Design");
+        }
     }
 
-    // Method untuk menangani KLIK LOGOUT
-    @FXML
-    private void handleLogoutClick() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Yakin ingin logout dari sistem?", ButtonType.YES, ButtonType.NO);
-        alert.setTitle("Konfirmasi Logout");
-        alert.setHeaderText("Keluar dari Dashboard Tim Desain");
+    private boolean loadPane(String fxmlFile) {
+        String relativePath = "fxml/designer/" + fxmlFile;
+        URL resource = MainApplication.class.getResource(relativePath);
 
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.YES) {
-            // Aksi Logout:
-            // 1. Dapatkan Stage (Jendela) saat ini
-            Stage stage = (Stage) btnLogout.getScene().getWindow();
-
-            // 2. Di sini kamu bisa menambahkan kode untuk membuka kembali LoginScreen
-            // Contoh: Panggil LoginController atau Main Application untuk pindah Scene
-            System.out.println("LOGOUT BERHASIL. Pindah ke Scene Login.");
-
-            // Untuk demo: tutup aplikasi
-            // stage.close();
+        if (resource == null) {
+            System.err.println("❌ Resource not found: " + relativePath);
+            return false;
         }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(resource);
+            Node pane = loader.load();
+            contentArea.getChildren().setAll(pane);
+            return true;
+        } catch (IOException e) {
+            System.err.println("❌ Error loading pane: " + fxmlFile);
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private void setActiveButton(Label activeButton) {
+        btnDashboard.getStyleClass().remove("active");
+        btnAntrianDesign.getStyleClass().remove("active");
+        btnRevisi.getStyleClass().remove("active");
+        btnAsset.getStyleClass().remove("active");
+
+        if (!activeButton.getStyleClass().contains("active")) {
+            activeButton.getStyleClass().add("active");
+        }
+    }
+
+    @FXML private void handleDashboardClick() {
+        if (loadPane("DashboardDesignPane.fxml")) setActiveButton(btnDashboard);
+    }
+
+    @FXML private void handleAntrianClick() {
+        // Pastikan file AntrianDesignPane.fxml nanti dibuat, sementara pakai dashboard dulu kalau belum ada
+        if (loadPane("KelolaDesain.fxml")) setActiveButton(btnAntrianDesign);
+    }
+
+    @FXML private void handleRevisiClick() {
+        if (loadPane("RevisiPane.fxml")) setActiveButton(btnRevisi);
+    }
+
+    @FXML private void handleAssetClick() {
+        if (loadPane("AssetPane.fxml")) setActiveButton(btnAsset);
+    }
+
+    @FXML private void handleLogoutClick() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Yakin ingin logout?", ButtonType.YES, ButtonType.NO);
+        alert.setTitle("Konfirmasi Logout");
+        alert.setHeaderText(null);
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.YES) System.exit(0);
+        });
     }
 }

@@ -1,0 +1,186 @@
+/* --- GLOBAL CONFIG --- */
+.root {
+    -fx-font-family: 'Segoe UI', sans-serif;
+    -fx-background-color: #f4f7fa;
+}
+
+/* --- SIDEBAR --- */
+.sidebar {
+    -fx-background-color: #ffffff;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 0);
+    -fx-padding: 30 0 1000 0;
+}
+
+.sidebar-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+}
+
+/* --- TOMBOL NAVIGASI (INAKTIF) --- */
+.nav-button {
+    -fx-padding: 12 20;
+    -fx-background-color: transparent;
+    -fx-text-fill: #555555; /* Abu abu tua */
+    -fx-font-size: 14px;
+    -fx-font-weight: bold; /* PENTING: Agar teks tebal seperti referensi */
+    -fx-cursor: hand;
+    -fx-alignment: CENTER_LEFT;
+    -fx-background-radius: 8;
+}
+
+.nav-button:hover {
+    -fx-background-color: #f5f5f5;
+    -fx-text-fill: #222222;
+}
+
+/* --- TOMBOL NAVIGASI (AKTIF/DASHBOARD) --- */
+.nav-button.active {
+    -fx-background-color: #1a1a1a; /* Hitam Pekat */
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 8;
+}
+
+/* --- TOMBOL LOGOUT --- */
+.nav-button-logout {
+    -fx-padding: 12 20;
+    -fx-background-color: #e74c3c; /* Merah terang sesuai referensi */
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold; /* Teks Tebal */
+    -fx-cursor: hand;
+    -fx-alignment: CENTER_LEFT;
+    -fx-background-radius: 8;
+
+}
+
+.nav-button-logout:hover {
+    -fx-background-color: #c0392b;
+}
+
+/* --- CONTENT STYLE --- */
+.header {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #eeeeee;
+    -fx-border-width: 0 0 1 0;
+}
+
+.header-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.page-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f2937;
+}
+
+.muted {
+    -fx-text-fill: #6b7280;
+    -fx-font-size: 12px;
+}
+
+/* Stat Box & Card sama seperti sebelumnya */
+.stat-box {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #e5e7eb;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.03), 8, 0, 0, 4);
+}
+
+.stat-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #6b7280;
+}
+
+.stat-value {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+    -fx-padding: 10 0 0 0;
+}
+
+.stat-subtitle {
+    -fx-font-size: 11px;
+    -fx-text-fill: #9ca3af;
+}
+
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #e5e7eb;
+    -fx-padding: 25;
+}
+
+.card-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f2937;
+}
+
+.status-pill {
+    -fx-padding: 4 10;
+    -fx-background-radius: 20;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+/* --- TAMBAHAN UNTUK KELOLA DESAIN --- */
+
+/* Style khusus container kartu order yang ada bordernya */
+.order-detail-card {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 20;
+}
+
+/* Label field (misal: "Layanan:", "Catatan:") */
+.field-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #374151;
+    -fx-font-size: 13px;
+}
+
+.field-value {
+    -fx-text-fill: #4b5563;
+    -fx-font-size: 13px;
+}
+
+/* --- TOMBOL AKSI --- */
+.action-button-base {
+    -fx-padding: 8 16;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+}
+
+/* Tombol Outline (Upload & Revisi) */
+.btn-outline {
+    -fx-background-color: transparent;
+    -fx-border-color: #d1d5db;
+    -fx-text-fill: #374151;
+    -fx-border-width: 1;
+}
+.btn-outline:hover {
+    -fx-background-color: #f9fafb;
+    -fx-border-color: #9ca3af;
+}
+
+/* Tombol Filled (Setujui - Warna Abu Gelap) */
+.btn-filled {
+    -fx-background-color: #9ca3af; /* Abu-abu seperti di gambar */
+    -fx-text-fill: white;
+    -fx-border-width: 0;
+}
+.btn-filled:hover {
+    -fx-background-color: #6b7280;
+}

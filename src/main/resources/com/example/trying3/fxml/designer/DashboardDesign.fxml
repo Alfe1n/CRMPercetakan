@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<HBox minHeight="1080.0" minWidth="1920.0" stylesheets="@designer.css"
+      xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.trying3.controller.design.DashboardDesignController">
+
+    <children>
+        <VBox alignment="TOP_CENTER" prefWidth="260.0" styleClass="sidebar" spacing="10">
+
+            <padding>
+                <Insets top="40.0" left="25.0" right="25.0" bottom="40.0"/>
+            </padding>
+
+            <children>
+                <HBox alignment="CENTER_LEFT" prefHeight="60.0" spacing="15.0">
+                    <children>
+                        <ImageView fitHeight="35.0" fitWidth="35.0" preserveRatio="true">
+                            <image>
+                            </image>
+                        </ImageView>
+                        <Label styleClass="sidebar-title" text="CRM Percetakan" />
+                    </children>
+                    <padding><Insets bottom="20.0" /></padding>
+                </HBox>
+
+                <VBox spacing="15">
+                    <Label fx:id="btnDashboard" onMouseClicked="#handleDashboardClick" maxWidth="Infinity" styleClass="nav-button" text="Dashboard"/>
+                    <Label fx:id="btnAntrianDesign" onMouseClicked="#handleAntrianClick" maxWidth="Infinity" styleClass="nav-button" text="Produksi"/>
+                    <Label fx:id="btnRevisi" onMouseClicked="#handleRevisiClick" maxWidth="Infinity" styleClass="nav-button" text="Jadwal Produksi"/>
+                    <Label fx:id="btnAsset" onMouseClicked="#handleAssetClick" maxWidth="Infinity" styleClass="nav-button" text="Inventori"/>
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <Label fx:id="btnLogout" onMouseClicked="#handleLogoutClick" maxWidth="Infinity" styleClass="nav-button-logout" text="Logout"/>
+            </children>
+        </VBox>
+
+        <VBox HBox.hgrow="ALWAYS">
+            <children>
+                <HBox alignment="CENTER_LEFT" prefHeight="80.0" styleClass="header">
+                    <padding><Insets left="30.0" right="30.0"/></padding>
+                    <children>
+                        <Label fx:id="lblHeaderTitle" styleClass="header-title" text="Dashboard Tim Design" />
+                    </children>
+                </HBox>
+                <StackPane fx:id="contentArea" styleClass="content-area" VBox.vgrow="ALWAYS"/>
+            </children>
+        </VBox>
+    </children>
+</HBox>
