@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true"
+            xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            stylesheets="@designer.css"
+            fx:controller="com.example.trying3.controller.design.DashboardDesignPaneController"
+            styleClass="content-pane-scroll"
+            style="-fx-background: transparent; -fx-background-color: transparent;">
+
+    <content>
+        <VBox spacing="25.0" style="-fx-background-color: #f4f7fa;">
+            <padding>
+                <Insets top="30" left="30" right="30" bottom="30"/>
+            </padding>
+
+            <children>
+                <VBox spacing="5.0">
+                    <children>
+                        <Label styleClass="page-title" text="Overview Design" />
+                        <Label styleClass="muted" text="Pantau status pengerjaan desain grafis" />
+                    </children>
+                </VBox>
+
+                <HBox spacing="20.0">
+                    <children>
+                        <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
+                            <children>
+                                <HBox alignment="CENTER_LEFT">
+                                    <children>
+                                        <Label styleClass="stat-title" text="Antrian Design"/>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label text="🎨" style="-fx-font-size: 16px; -fx-text-fill: #999;"/>
+                                    </children>
+                                </HBox>
+                                <Label fx:id="waitingLabel" styleClass="stat-value" text="0"/>
+                                <Label styleClass="stat-subtitle" text="Belum dikerjakan"/>
+                            </children>
+                        </VBox>
+
+                        <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
+                            <children>
+                                <HBox alignment="CENTER_LEFT">
+                                    <children>
+                                        <Label styleClass="stat-title" text="Sedang Didesain"/>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label text="🖌️" style="-fx-font-size: 16px; -fx-text-fill: #999;"/>
+                                    </children>
+                                </HBox>
+                                <Label fx:id="inProgressLabel" styleClass="stat-value" text="0"/>
+                                <Label styleClass="stat-subtitle" text="Dalam pengerjaan"/>
+                            </children>
+                        </VBox>
+
+                        <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
+                            <children>
+                                <HBox alignment="CENTER_LEFT">
+                                    <children>
+                                        <Label styleClass="stat-title" text="Selesai / ACC"/>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label text="✅" style="-fx-font-size: 16px; -fx-text-fill: #999;"/>
+                                    </children>
+                                </HBox>
+                                <Label fx:id="completedLabel" styleClass="stat-value" text="0"/>
+                                <Label styleClass="stat-subtitle" text="Siap Cetak"/>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <VBox styleClass="card" spacing="15.0">
+                    <children>
+                        <Label styleClass="card-title" text="Prioritas Pengerjaan"/>
+                        <Label styleClass="muted" text="Daftar pesanan yang membutuhkan desain segera" />
+
+                        <VBox fx:id="queueContainer" spacing="15.0" />
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>

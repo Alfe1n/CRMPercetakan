@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 6.0.0-dev+20251117.dfcf3dd949
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 24, 2025 at 07:18 PM
--- Server version: 8.0.30
--- PHP Version: 8.1.10
+-- Generation Time: Nov 22, 2025 at 12:31 PM
+-- Server version: 8.4.3
+-- PHP Version: 8.4.14
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -134,6 +134,15 @@ CREATE TABLE `detail_pesanan` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
+-- Dumping data for table `detail_pesanan`
+--
+
+INSERT INTO `detail_pesanan` (`id_detail`, `id_pesanan`, `id_layanan`, `jumlah`, `harga_satuan`, `subtotal`, `spesifikasi`, `created_at`) VALUES
+(4, 13, 1, 1000, 750.00, 750000.00, 'Brosur A4, kertas art paper 150gsm, full color', '2025-11-20 16:08:06'),
+(5, 14, 4, 50, 10000.00, 500000.00, 'Kaos cotton combed 30s, sablon plastisol', '2025-11-22 08:16:49'),
+(6, 15, 3, 5000, 500.00, 2500000.00, 'Buku panduan siswa, kertas HVS 70gsm, B&W', '2025-11-22 08:21:13');
+
+--
 -- Triggers `detail_pesanan`
 --
 DELIMITER $$
@@ -190,6 +199,20 @@ CREATE TABLE `jenis_layanan` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `jenis_layanan`
+--
+
+INSERT INTO `jenis_layanan` (`id_layanan`, `nama_layanan`, `deskripsi`, `harga_dasar`, `satuan`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 'Digital Printing A4', 'Cetak digital ukuran A4 full color', 2000.00, 'lembar', 1, '2025-11-20 11:42:53', '2025-11-20 11:42:53'),
+(2, 'Digital Printing A3', 'Cetak digital ukuran A3 full color', 5000.00, 'lembar', 1, '2025-11-20 11:42:53', '2025-11-20 11:42:53'),
+(3, 'Offset Printing', 'Cetak offset untuk jumlah banyak', 1500.00, 'lembar', 1, '2025-11-20 11:42:53', '2025-11-20 11:42:53'),
+(4, 'Sablon Kaos', 'Sablon untuk kaos/tekstil', 25000.00, 'pcs', 1, '2025-11-20 11:42:53', '2025-11-20 11:42:53'),
+(5, 'Cetak Undangan', 'Cetak undangan pernikahan', 3000.00, 'pcs', 1, '2025-11-20 11:42:53', '2025-11-20 11:42:53'),
+(6, 'Banner Indoor', 'Cetak banner untuk indoor', 50000.00, 'm2', 1, '2025-11-20 11:42:53', '2025-11-20 11:42:53'),
+(7, 'Banner Outdoor', 'Cetak banner tahan cuaca', 75000.00, 'm2', 1, '2025-11-20 11:42:53', '2025-11-20 11:42:53'),
+(8, 'Cetak Sticker', 'Cetak sticker vinyl', 15000.00, 'lembar', 1, '2025-11-20 11:42:53', '2025-11-20 11:42:53');
+
 -- --------------------------------------------------------
 
 --
@@ -244,6 +267,21 @@ CREATE TABLE `log_aktivitas` (
   `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `log_aktivitas`
+--
+
+INSERT INTO `log_aktivitas` (`id_log`, `id_user`, `aksi`, `tabel_terkait`, `id_record`, `detail_perubahan`, `ip_address`, `user_agent`, `timestamp`) VALUES
+(1, 6, 'update_status_pesanan', 'pesanan', 15, 'Status berubah dari Baru Dibuat ke Menunggu Pembayaran', NULL, NULL, '2025-11-22 17:58:13'),
+(2, 6, 'update_status_pesanan', 'pesanan', 15, 'Status berubah dari Menunggu Pembayaran ke Baru Dibuat', NULL, NULL, '2025-11-22 17:58:18'),
+(3, 6, 'update_status_pesanan', 'pesanan', 15, 'Status berubah dari Baru Dibuat ke Menunggu Pembayaran', NULL, NULL, '2025-11-22 17:58:36'),
+(4, 6, 'update_status_pesanan', 'pesanan', 15, 'Status berubah dari Menunggu Pembayaran ke Baru Dibuat', NULL, NULL, '2025-11-22 17:58:56'),
+(5, 6, 'update_status_pesanan', 'pesanan', 14, 'Status berubah dari Baru Dibuat ke Menunggu Pembayaran', NULL, NULL, '2025-11-22 18:42:48'),
+(6, 6, 'update_status_pesanan', 'pesanan', 14, 'Status berubah dari Menunggu Pembayaran ke Baru Dibuat', NULL, NULL, '2025-11-22 18:42:56'),
+(7, 6, 'update_status_pesanan', 'pesanan', 15, 'Status berubah dari Baru Dibuat ke Menunggu Pembayaran', NULL, NULL, '2025-11-22 18:46:40'),
+(8, 6, 'update_status_pesanan', 'pesanan', 15, 'Status berubah dari Menunggu Pembayaran ke Baru Dibuat', NULL, NULL, '2025-11-22 18:53:03'),
+(9, 6, 'update_status_pesanan', 'pesanan', 15, 'Status berubah dari Baru Dibuat ke Menunggu Pembayaran', NULL, NULL, '2025-11-22 19:28:00');
+
 -- --------------------------------------------------------
 
 --
@@ -257,6 +295,17 @@ CREATE TABLE `master_kendala` (
   `solusi_umum` text COMMENT 'Panduan penanganan',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `master_kendala`
+--
+
+INSERT INTO `master_kendala` (`id_kendala_type`, `nama_kendala`, `kategori`, `solusi_umum`, `created_at`) VALUES
+(1, 'Mesin Rusak', 'mesin', 'Hubungi teknisi, gunakan mesin backup', '2025-11-20 11:51:19'),
+(2, 'Tinta Habis', 'bahan', 'Restock tinta dari supplier', '2025-11-20 11:51:19'),
+(3, 'Kertas Habis', 'bahan', 'Pesan kertas ke supplier', '2025-11-20 11:51:19'),
+(4, 'Operator Sakit', 'tenaga_kerja', 'Ganti shift dengan operator lain', '2025-11-20 11:51:19'),
+(5, 'Listrik Mati', 'lainnya', 'Gunakan genset, tunggu listrik kembali', '2025-11-20 11:51:19');
 
 -- --------------------------------------------------------
 
@@ -275,6 +324,18 @@ CREATE TABLE `metode_pembayaran` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `metode_pembayaran`
+--
+
+INSERT INTO `metode_pembayaran` (`id_metode`, `nama_metode`, `tipe`, `nomor_rekening`, `atas_nama`, `logo_path`, `is_active`, `created_at`) VALUES
+(1, 'Transfer BCA', 'bank_transfer', '1234567890', 'CV Percetakan Jaya', NULL, 1, '2025-11-20 11:51:04'),
+(2, 'Transfer Mandiri', 'bank_transfer', '0987654321', 'CV Percetakan Jaya', NULL, 1, '2025-11-20 11:51:04'),
+(3, 'OVO', 'e_wallet', '081234567890', 'Percetakan Jaya', NULL, 1, '2025-11-20 11:51:04'),
+(4, 'GoPay', 'e_wallet', '081234567890', 'Percetakan Jaya', NULL, 1, '2025-11-20 11:51:04'),
+(5, 'Dana', 'e_wallet', '081234567890', 'Percetakan Jaya', NULL, 1, '2025-11-20 11:51:04'),
+(6, 'Cash/Tunai', 'cash', NULL, NULL, NULL, 1, '2025-11-20 11:51:04');
+
 -- --------------------------------------------------------
 
 --
@@ -291,6 +352,15 @@ CREATE TABLE `pelanggan` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `pelanggan`
+--
+
+INSERT INTO `pelanggan` (`id_pelanggan`, `nama`, `email`, `no_telepon`, `alamat`, `media_komunikasi`, `created_at`, `updated_at`) VALUES
+(1, 'PT Maju Jaya Berkah', 'info@majujaya.com', '081234567890', 'Jl. Sudirman No. 123, Jakarta', 'email', '2025-11-20 11:51:56', '2025-11-22 07:06:14'),
+(7, 'Toko Berkah', 'tokoberkah@gmail.com', '081987654321', NULL, 'whatsapp', '2025-11-22 08:16:49', '2025-11-22 08:16:49'),
+(8, 'Sekolah Harapan', 'yayasan@harapan.com', '081444555666', NULL, 'whatsapp', '2025-11-22 08:21:13', '2025-11-22 08:21:13');
 
 -- --------------------------------------------------------
 
@@ -332,6 +402,15 @@ CREATE TABLE `pesanan` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `pesanan`
+--
+
+INSERT INTO `pesanan` (`id_pesanan`, `nomor_pesanan`, `id_pelanggan`, `id_user_admin`, `id_status`, `tanggal_pesanan`, `deadline`, `catatan`, `total_biaya`, `created_at`, `updated_at`) VALUES
+(13, 'PO-20251120-0001', 1, 6, 1, '2025-11-20 23:08:06', NULL, 'Brosur A4, kertas art paper 150gsm, full color', 750000.00, '2025-11-20 16:08:06', '2025-11-20 16:08:06'),
+(14, 'PO-20251122-0001', 7, 6, 1, '2025-11-22 15:16:49', NULL, 'Kaos cotton combed 30s, sablon plastisol', 500000.00, '2025-11-22 08:16:49', '2025-11-22 11:42:56'),
+(15, 'PO-20251122-2147', 8, 6, 2, '2025-11-22 15:21:13', NULL, 'Buku panduan siswa, kertas HVS 70gsm, B&W', 2500000.00, '2025-11-22 08:21:13', '2025-11-22 12:28:00');
 
 --
 -- Triggers `pesanan`
@@ -394,7 +473,7 @@ CREATE TABLE `produksi` (
   `catatan` text,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -448,6 +527,18 @@ CREATE TABLE `status_desain` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `status_desain`
+--
+
+INSERT INTO `status_desain` (`id_status_desain`, `nama_status`, `deskripsi`, `created_at`) VALUES
+(1, 'Menunggu Dikerjakan', 'Desain belum dimulai', '2025-11-20 11:42:35'),
+(2, 'Dalam Pengerjaan', 'Desainer sedang mengerjakan', '2025-11-20 11:42:35'),
+(3, 'Menunggu Approval', 'Menunggu persetujuan pelanggan', '2025-11-20 11:42:35'),
+(4, 'Perlu Revisi', 'Customer minta revisi', '2025-11-20 11:42:35'),
+(5, 'Disetujui (ACC)', 'Desain final disetujui', '2025-11-20 11:42:35'),
+(6, 'Ditolak', 'Desain ditolak/dibatalkan', '2025-11-20 11:42:35');
+
 -- --------------------------------------------------------
 
 --
@@ -461,6 +552,24 @@ CREATE TABLE `status_pesanan` (
   `warna_badge` varchar(20) DEFAULT NULL COMMENT 'Untuk UI: success, warning, danger, info',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `status_pesanan`
+--
+
+INSERT INTO `status_pesanan` (`id_status`, `nama_status`, `urutan`, `warna_badge`, `created_at`) VALUES
+(1, 'Baru Dibuat', 1, 'info', '2025-11-20 11:41:50'),
+(2, 'Menunggu Pembayaran', 2, 'warning', '2025-11-20 11:41:50'),
+(3, 'Pembayaran Verified', 3, 'success', '2025-11-20 11:41:50'),
+(4, 'Menunggu Desain', 4, 'info', '2025-11-20 11:41:50'),
+(5, 'Desain Direvisi', 5, 'warning', '2025-11-20 11:41:50'),
+(6, 'Desain Disetujui', 6, 'success', '2025-11-20 11:41:50'),
+(7, 'Antrian Produksi', 7, 'info', '2025-11-20 11:41:50'),
+(8, 'Sedang Diproduksi', 8, 'primary', '2025-11-20 11:41:50'),
+(9, 'Produksi Selesai', 9, 'success', '2025-11-20 11:41:50'),
+(10, 'Siap Dikirim', 10, 'success', '2025-11-20 11:41:50'),
+(11, 'Selesai', 11, 'success', '2025-11-20 11:41:50'),
+(12, 'Dibatalkan', 12, 'danger', '2025-11-20 11:41:50');
 
 -- --------------------------------------------------------
 
@@ -513,7 +622,7 @@ INSERT INTO `user` (`id_user`, `username`, `password_hash`, `email`, `nama_lengk
 (2, 'designer1', '$2a$10$N9qo8uLOickgx2ZMRZoMye5lxrp4lJH8FxKbUxDXdqWpFKGdXqjQu', 'designer@percetakan.com', 'Budi Designer', 2, 1, NULL, 0, NULL, '2025-10-24 17:02:39', '2025-10-24 17:02:39'),
 (3, 'operator1', '$2a$10$N9qo8uLOickgx2ZMRZoMye5lxrp4lJH8FxKbUxDXdqWpFKGdXqjQu', 'operator@percetakan.com', 'Joko Operator', 3, 1, NULL, 0, NULL, '2025-10-24 17:02:39', '2025-10-24 17:02:39'),
 (5, 'admin1', '$2a$10$Xe.PQK9pZY5L5K5L5K5L5O5K5L5K5L5K5L5K5L5K5L5K5L5K5L5K5K', 'admin1@percetakan.com', 'Administrator Sistem', 1, 1, NULL, 1, NULL, '2025-10-24 18:53:34', '2025-10-24 19:16:40'),
-(6, 'Admin01', '$2a$10$8v9lXlU70XjcA4mtberhzu4YLpthbsiaz.KEsdFZoyaHzO9HP9TNu', 'Admin@gmai.com', 'Haerul Akbar', 1, 1, '2025-10-25 02:17:56', 0, NULL, '2025-10-24 19:12:57', '2025-10-24 19:17:56');
+(6, 'Admin01', '$2a$10$8v9lXlU70XjcA4mtberhzu4YLpthbsiaz.KEsdFZoyaHzO9HP9TNu', 'Admin@gmai.com', 'Haerul Akbar', 1, 1, '2025-11-22 19:27:42', 0, NULL, '2025-10-24 19:12:57', '2025-11-22 12:27:42');
 
 -- --------------------------------------------------------
 
@@ -572,33 +681,6 @@ CREATE TABLE `v_produksi_alert` (
 ,`hari_tersisa` int
 ,`alert_type` varchar(15)
 );
-
--- --------------------------------------------------------
-
---
--- Structure for view `v_dashboard_stats`
---
-DROP TABLE IF EXISTS `v_dashboard_stats`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_dashboard_stats`  AS SELECT (select count(0) from `pesanan` where (cast(`pesanan`.`tanggal_pesanan` as date) = curdate())) AS `pesanan_hari_ini`, (select count(0) from `pesanan` where (week(`pesanan`.`tanggal_pesanan`,0) = week(curdate(),0))) AS `pesanan_minggu_ini`, (select count(0) from `pesanan` where `pesanan`.`id_status` in (select `status_pesanan`.`id_status` from `status_pesanan` where (`status_pesanan`.`nama_status` = 'Selesai'))) AS `pesanan_selesai`, (select count(0) from `pembayaran` where (`pembayaran`.`status_pembayaran` = 'pending')) AS `pembayaran_pending`, (select coalesce(sum(`pesanan`.`total_biaya`),0) from `pesanan` where (month(`pesanan`.`tanggal_pesanan`) = month(curdate()))) AS `pendapatan_bulan_ini`, (select count(0) from `produksi` where (`produksi`.`status_produksi` = 'proses')) AS `produksi_berjalan`, (select count(0) from `kendala_produksi` where (`kendala_produksi`.`status` = 'open')) AS `kendala_aktif` ;
-
--- --------------------------------------------------------
-
---
--- Structure for view `v_pesanan_lengkap`
---
-DROP TABLE IF EXISTS `v_pesanan_lengkap`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_pesanan_lengkap`  AS SELECT `p`.`id_pesanan` AS `id_pesanan`, `p`.`nomor_pesanan` AS `nomor_pesanan`, `p`.`tanggal_pesanan` AS `tanggal_pesanan`, `p`.`deadline` AS `deadline`, `pl`.`nama` AS `nama_pelanggan`, `pl`.`no_telepon` AS `no_telepon`, `u`.`nama_lengkap` AS `admin_input`, `sp`.`nama_status` AS `nama_status`, `sp`.`urutan` AS `urutan_status`, `p`.`total_biaya` AS `total_biaya`, count(`dp`.`id_detail`) AS `jumlah_item`, coalesce(sum((case when (`pm`.`status_pembayaran` = 'verified') then `pm`.`jumlah` else 0 end)),0) AS `total_dibayar`, (`p`.`total_biaya` - coalesce(sum((case when (`pm`.`status_pembayaran` = 'verified') then `pm`.`jumlah` else 0 end)),0)) AS `sisa_pembayaran` FROM (((((`pesanan` `p` join `pelanggan` `pl` on((`p`.`id_pelanggan` = `pl`.`id_pelanggan`))) join `user` `u` on((`p`.`id_user_admin` = `u`.`id_user`))) join `status_pesanan` `sp` on((`p`.`id_status` = `sp`.`id_status`))) left join `detail_pesanan` `dp` on((`p`.`id_pesanan` = `dp`.`id_pesanan`))) left join `pembayaran` `pm` on((`p`.`id_pesanan` = `pm`.`id_pesanan`))) GROUP BY `p`.`id_pesanan` ;
-
--- --------------------------------------------------------
-
---
--- Structure for view `v_produksi_alert`
---
-DROP TABLE IF EXISTS `v_produksi_alert`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_produksi_alert`  AS SELECT `pr`.`id_produksi` AS `id_produksi`, `p`.`nomor_pesanan` AS `nomor_pesanan`, `pl`.`nama` AS `nama_pelanggan`, `u`.`nama_lengkap` AS `operator`, `pr`.`progres_persen` AS `progres_persen`, `pr`.`status_produksi` AS `status_produksi`, `pr`.`tanggal_mulai` AS `tanggal_mulai`, (to_days(curdate()) - to_days(`pr`.`tanggal_mulai`)) AS `hari_berjalan`, `p`.`deadline` AS `deadline`, (to_days(`p`.`deadline`) - to_days(curdate())) AS `hari_tersisa`, (case when (`pr`.`status_produksi` = 'terkendala') then 'Terkendala' when ((to_days(`p`.`deadline`) - to_days(curdate())) < 2) then 'Deadline Dekat' when (((to_days(curdate()) - to_days(`pr`.`tanggal_mulai`)) > 5) and (`pr`.`progres_persen` < 50)) then 'Progress Lambat' else 'Normal' end) AS `alert_type` FROM (((`produksi` `pr` join `pesanan` `p` on((`pr`.`id_pesanan` = `p`.`id_pesanan`))) join `pelanggan` `pl` on((`p`.`id_pelanggan` = `pl`.`id_pelanggan`))) join `user` `u` on((`pr`.`id_operator` = `u`.`id_user`))) WHERE (`pr`.`status_produksi` <> 'selesai') HAVING (`alert_type` <> 'Normal') ;
 
 --
 -- Indexes for dumped tables
@@ -791,13 +873,13 @@ ALTER TABLE `desain`
 -- AUTO_INCREMENT for table `detail_pesanan`
 --
 ALTER TABLE `detail_pesanan`
-  MODIFY `id_detail` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_detail` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `jenis_layanan`
 --
 ALTER TABLE `jenis_layanan`
-  MODIFY `id_layanan` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id_layanan` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `kendala_produksi`
@@ -815,25 +897,25 @@ ALTER TABLE `laporan`
 -- AUTO_INCREMENT for table `log_aktivitas`
 --
 ALTER TABLE `log_aktivitas`
-  MODIFY `id_log` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id_log` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `master_kendala`
 --
 ALTER TABLE `master_kendala`
-  MODIFY `id_kendala_type` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id_kendala_type` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `metode_pembayaran`
 --
 ALTER TABLE `metode_pembayaran`
-  MODIFY `id_metode` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id_metode` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `pelanggan`
 --
 ALTER TABLE `pelanggan`
-  MODIFY `id_pelanggan` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id_pelanggan` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `pembayaran`
@@ -845,7 +927,7 @@ ALTER TABLE `pembayaran`
 -- AUTO_INCREMENT for table `pesanan`
 --
 ALTER TABLE `pesanan`
-  MODIFY `id_pesanan` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id_pesanan` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `produksi`
@@ -869,13 +951,13 @@ ALTER TABLE `role`
 -- AUTO_INCREMENT for table `status_desain`
 --
 ALTER TABLE `status_desain`
-  MODIFY `id_status_desain` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id_status_desain` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `status_pesanan`
 --
 ALTER TABLE `status_pesanan`
-  MODIFY `id_status` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id_status` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `sync_queue`
@@ -888,6 +970,33 @@ ALTER TABLE `sync_queue`
 --
 ALTER TABLE `user`
   MODIFY `id_user` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `v_dashboard_stats`
+--
+DROP TABLE IF EXISTS `v_dashboard_stats`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_dashboard_stats`  AS SELECT (select count(0) from `pesanan` where (cast(`pesanan`.`tanggal_pesanan` as date) = curdate())) AS `pesanan_hari_ini`, (select count(0) from `pesanan` where (week(`pesanan`.`tanggal_pesanan`,0) = week(curdate(),0))) AS `pesanan_minggu_ini`, (select count(0) from `pesanan` where `pesanan`.`id_status` in (select `status_pesanan`.`id_status` from `status_pesanan` where (`status_pesanan`.`nama_status` = 'Selesai'))) AS `pesanan_selesai`, (select count(0) from `pembayaran` where (`pembayaran`.`status_pembayaran` = 'pending')) AS `pembayaran_pending`, (select coalesce(sum(`pesanan`.`total_biaya`),0) from `pesanan` where (month(`pesanan`.`tanggal_pesanan`) = month(curdate()))) AS `pendapatan_bulan_ini`, (select count(0) from `produksi` where (`produksi`.`status_produksi` = 'proses')) AS `produksi_berjalan`, (select count(0) from `kendala_produksi` where (`kendala_produksi`.`status` = 'open')) AS `kendala_aktif` ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `v_pesanan_lengkap`
+--
+DROP TABLE IF EXISTS `v_pesanan_lengkap`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_pesanan_lengkap`  AS SELECT `p`.`id_pesanan` AS `id_pesanan`, `p`.`nomor_pesanan` AS `nomor_pesanan`, `p`.`tanggal_pesanan` AS `tanggal_pesanan`, `p`.`deadline` AS `deadline`, `pl`.`nama` AS `nama_pelanggan`, `pl`.`no_telepon` AS `no_telepon`, `u`.`nama_lengkap` AS `admin_input`, `sp`.`nama_status` AS `nama_status`, `sp`.`urutan` AS `urutan_status`, `p`.`total_biaya` AS `total_biaya`, count(`dp`.`id_detail`) AS `jumlah_item`, coalesce(sum((case when (`pm`.`status_pembayaran` = 'verified') then `pm`.`jumlah` else 0 end)),0) AS `total_dibayar`, (`p`.`total_biaya` - coalesce(sum((case when (`pm`.`status_pembayaran` = 'verified') then `pm`.`jumlah` else 0 end)),0)) AS `sisa_pembayaran` FROM (((((`pesanan` `p` join `pelanggan` `pl` on((`p`.`id_pelanggan` = `pl`.`id_pelanggan`))) join `user` `u` on((`p`.`id_user_admin` = `u`.`id_user`))) join `status_pesanan` `sp` on((`p`.`id_status` = `sp`.`id_status`))) left join `detail_pesanan` `dp` on((`p`.`id_pesanan` = `dp`.`id_pesanan`))) left join `pembayaran` `pm` on((`p`.`id_pesanan` = `pm`.`id_pesanan`))) GROUP BY `p`.`id_pesanan` ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `v_produksi_alert`
+--
+DROP TABLE IF EXISTS `v_produksi_alert`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_produksi_alert`  AS SELECT `pr`.`id_produksi` AS `id_produksi`, `p`.`nomor_pesanan` AS `nomor_pesanan`, `pl`.`nama` AS `nama_pelanggan`, `u`.`nama_lengkap` AS `operator`, `pr`.`progres_persen` AS `progres_persen`, `pr`.`status_produksi` AS `status_produksi`, `pr`.`tanggal_mulai` AS `tanggal_mulai`, (to_days(curdate()) - to_days(`pr`.`tanggal_mulai`)) AS `hari_berjalan`, `p`.`deadline` AS `deadline`, (to_days(`p`.`deadline`) - to_days(curdate())) AS `hari_tersisa`, (case when (`pr`.`status_produksi` = 'terkendala') then 'Terkendala' when ((to_days(`p`.`deadline`) - to_days(curdate())) < 2) then 'Deadline Dekat' when (((to_days(curdate()) - to_days(`pr`.`tanggal_mulai`)) > 5) and (`pr`.`progres_persen` < 50)) then 'Progress Lambat' else 'Normal' end) AS `alert_type` FROM (((`produksi` `pr` join `pesanan` `p` on((`pr`.`id_pesanan` = `p`.`id_pesanan`))) join `pelanggan` `pl` on((`p`.`id_pelanggan` = `pl`.`id_pelanggan`))) join `user` `u` on((`pr`.`id_operator` = `u`.`id_user`))) WHERE (`pr`.`status_produksi` <> 'selesai') HAVING (`alert_type` <> 'Normal') ;
 
 --
 -- Constraints for dumped tables

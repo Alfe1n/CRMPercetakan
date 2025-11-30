@@ -1,0 +1,180 @@
+/* =================================================================
+   GLOBAL LAYOUT & SCROLLPANE
+   ================================================================= */
+.root {
+    -fx-font-family: 'Segoe UI', 'Open Sans', sans-serif;
+    -fx-background-color: #f4f7fa; /* Background abu-abu muda halaman */
+}
+
+.content-pane-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.content-pane-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Menghilangkan border default ScrollPane */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-control-inner-background: transparent;
+}
+
+/* =================================================================
+   TYPOGRAPHY
+   ================================================================= */
+.page-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #222222;
+}
+
+.muted {
+    -fx-text-fill: #888888;
+    -fx-font-size: 13px;
+}
+
+.field-title {
+    -fx-text-fill: #666666;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 5 0 0 0; /* Sedikit jarak ke atas */
+}
+
+/* =================================================================
+   STATUS BOXES (Statistik Atas)
+   ================================================================= */
+.stat-box {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 10, 0, 0, 4);
+    -fx-padding: 20;
+    -fx-min-width: 200;
+    -fx-spacing: 5;
+}
+
+.stat-title {
+    -fx-text-fill: #666666;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-transform: uppercase;
+}
+
+.stat-value {
+    -fx-text-fill: #222222;
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+}
+
+.stat-subtitle {
+    -fx-text-fill: #999999;
+    -fx-font-size: 12px;
+}
+
+/* =================================================================
+   CARDS & CONTAINER
+   ================================================================= */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 10, 0, 0, 4);
+    -fx-padding: 25;
+}
+
+.card-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #222222;
+}
+
+/* =================================================================
+   ORDER CARD (Detail Pesanan)
+   ================================================================= */
+.order-card {
+    -fx-background-color: white;
+    -fx-border-color: #eeeeee;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    /* Tidak pakai shadow agar terlihat menyatu di dalam card utama,
+       atau tambahkan shadow tipis jika diinginkan */
+}
+
+.order-id {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #222222;
+}
+
+/* Status Pill (Label "Sedang Diproduksi" hitam rounded) */
+.status-pill {
+    -fx-background-color: #222222;
+    -fx-text-fill: white;
+    -fx-background-radius: 15;
+    -fx-padding: 4 12 4 12;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+/* =================================================================
+   BUTTONS
+   ================================================================= */
+/* Tombol Utama (Hitam pekat seperti di desain) */
+.btn-primary {
+    -fx-background-color: #111111;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-background-radius: 6;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #333333;
+}
+
+/* Tombol Outline (Putih dengan border, untuk "Laporkan Kendala") */
+.btn-outline {
+    -fx-background-color: transparent;
+    -fx-border-color: #dddddd;
+    -fx-border-radius: 6;
+    -fx-text-fill: #333333;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 9 20; /* Compensate border width */
+    -fx-cursor: hand;
+}
+
+.btn-outline:hover {
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: #cccccc;
+}
+
+/* =================================================================
+   FORM ELEMENTS (TextArea)
+   ================================================================= */
+.text-area {
+    -fx-background-color: transparent; /* Hapus background wrapper */
+    -fx-text-fill: #333333;
+}
+
+.text-area .content {
+    -fx-background-color: white;
+    -fx-background-radius: 6;
+}
+
+.text-area:focused .content {
+    -fx-background-color: white;
+    /* Menambahkan efek border focus jika diinginkan */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 5, 0, 0, 2);
+}
+
+/* Separator Styling */
+.separator *.line {
+    -fx-border-style: solid;
+    -fx-border-width: 1px;
+    -fx-border-color: #eeeeee;
+    -fx-background-color: #eeeeee;
+}

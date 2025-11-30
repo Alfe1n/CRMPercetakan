@@ -156,566 +156,83 @@
     -fx-font-weight: bold;
 }
 
-// Baru
-
-/* ========================================
-   GLOBAL & FONT SETTINGS
-   ======================================== */
-.root {
-    -fx-font-family: "Segoe UI", "Roboto", "Microsoft YaHei UI", sans-serif;
-    -fx-base: #f8f9fa;
-    -fx-background: #f4f7fa;
-}
-
-* {
-    -fx-focus-color: transparent;
-    -fx-faint-focus-color: transparent;
-}
-
-
-/* ========================================
-   SIDEBAR NAVIGATION
-   ======================================== */
-.sidebar {
+/* --- Order Card (Produksi) --- */
+.order-card {
     -fx-background-color: #ffffff;
-    -fx-border-color: transparent #e0e0e0 transparent transparent;
-    -fx-border-width: 0 1 0 0;
-}
-
-.sidebar-title {
-    -fx-font-size: 22px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #1f1f1f;
-}
-
-.nav-button {
-    -fx-font-size: 15px;
-    -fx-font-weight: 600;
-    -fx-text-fill: #5a5a5a;
-    -fx-pref-width: 220;
-    -fx-pref-height: 50;
-    -fx-padding: 0 0 0 25;
-    -fx-alignment: center-left;
-    -fx-background-radius: 10;
-    -fx-cursor: hand;
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-transition: all 0.3s ease;
-}
-
-.nav-button:hover {
-    -fx-background-color: #f5f5f5;
-    -fx-text-fill: #1f1f1f;
-}
-
-.nav-button.active {
-    -fx-background-color: #1f1f1f;
-    -fx-text-fill: #ffffff;
-}
-
-.nav-button-logout {
-    -fx-font-size: 15px;
-    -fx-font-weight: 600;
-    -fx-text-fill: white;
-    -fx-pref-width: 220;
-    -fx-pref-height: 50;
-    -fx-padding: 0 0 0 25;
-    -fx-alignment: center-left;
-    -fx-background-radius: 10;
-    -fx-cursor: hand;
-    -fx-background-color: #e74c3c;
-    -fx-border-color: transparent;
-}
-
-.nav-button-logout:hover {
-    -fx-background-color: #c0392b;
-}
-
-
-/* ========================================
-   HEADER
-   ======================================== */
-.header {
-    -fx-background-color: #ffffff;
-    -fx-border-color: transparent transparent #e0e0e0 transparent;
-    -fx-border-width: 0 0 1 0;
-}
-
-.header-title {
-    -fx-font-size: 20px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #2c3e50;
-}
-
-
-/* ========================================
-   CONTENT AREA
-   ======================================== */
-.content-area {
-    -fx-background-color: #f4f7fa;
-}
-
-.content-pane {
-    -fx-background-color: transparent;
-}
-
-.content-pane-scroll {
-    -fx-background-color: transparent;
-}
-
-.content-pane-scroll > .viewport {
-    -fx-background-color: transparent;
-}
-
-.content-pane-scroll .scroll-bar {
-    -fx-background-color: transparent;
-}
-
-.content-pane-scroll .scroll-bar .thumb {
-    -fx-background-color: #cccccc;
-    -fx-background-radius: 5;
-}
-
-.content-pane-scroll .scroll-bar .thumb:hover {
-    -fx-background-color: #999999;
-}
-
-
-/* ========================================
-   PAGE ELEMENTS
-   ======================================== */
-.page-title {
-    -fx-font-size: 28px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #1f1f1f;
-}
-
-.page-subtitle {
-    -fx-font-size: 14px;
-    -fx-text-fill: #7f8c8d;
-}
-
-
-/* ========================================
-   STATISTICS BOX
-   ======================================== */
-.stat-box {
-    -fx-background-color: #ffffff;
-    -fx-padding: 25px;
-    -fx-background-radius: 12;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0, 0, 2);
-}
-
-.stat-title {
-    -fx-font-size: 14px;
-    -fx-font-weight: 600;
-    -fx-text-fill: #7f8c8d;
-    -fx-letter-spacing: 0.5;
-}
-
-.stat-value {
-    -fx-font-size: 36px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #1f1f1f;
-    -fx-padding: 8 0 5 0;
-}
-
-.stat-subtitle {
-    -fx-font-size: 13px;
-    -fx-text-fill: #95a5a6;
-}
-
-.stat-icon {
-    -fx-opacity: 0.7;
-}
-
-
-/* ========================================
-   CARD COMPONENT
-   ======================================== */
-.card {
-    -fx-background-color: #ffffff;
-    -fx-padding: 30px;
-    -fx-background-radius: 12;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0, 0, 2);
-}
-
-.card-title {
-    -fx-font-size: 22px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #1f1f1f;
-}
-
-.card-subtitle {
-    -fx-font-size: 14px;
-    -fx-text-fill: #7f8c8d;
-}
-
-
-/* ========================================
-   FORM ELEMENTS
-   ======================================== */
-.form-label {
-    -fx-font-size: 14px;
-    -fx-font-weight: 600;
-    -fx-text-fill: #2c3e50;
-}
-
-.form-label-required::after {
-    -fx-text-fill: #e74c3c;
-}
-
-.text-field,
-.text-area {
-    -fx-font-size: 14px;
-    -fx-text-fill: #2c3e50;
-    -fx-prompt-text-fill: #95a5a6;
-    -fx-background-color: #ffffff;
-    -fx-border-color: #dfe6e9;
-    -fx-border-width: 1.5;
-    -fx-border-radius: 8;
     -fx-background-radius: 8;
-    -fx-padding: 12;
-}
-
-.text-field:focused,
-.text-area:focused {
-    -fx-border-color: #1f1f1f;
-    -fx-background-color: #ffffff;
-    -fx-effect: dropshadow(gaussian, rgba(31,31,31,0.1), 8, 0, 0, 2);
-}
-
-.text-field:hover,
-.text-area:hover {
-    -fx-border-color: #b2bec3;
-}
-
-.text-area {
-    -fx-padding: 12;
-}
-
-.text-area .content {
-    -fx-background-color: transparent;
-}
-
-
-/* ========================================
-   COMBO BOX
-   ======================================== */
-.combo-box {
-    -fx-font-size: 14px;
-    -fx-background-color: #ffffff;
-    -fx-border-color: #dfe6e9;
-    -fx-border-width: 1.5;
-    -fx-border-radius: 8;
-    -fx-background-radius: 8;
-}
-
-.combo-box .list-cell {
-    -fx-text-fill: #2c3e50;
-    -fx-padding: 10;
-}
-
-.combo-box:hover {
-    -fx-border-color: #b2bec3;
-}
-
-.combo-box:focused {
-    -fx-border-color: #1f1f1f;
-    -fx-effect: dropshadow(gaussian, rgba(31,31,31,0.1), 8, 0, 0, 2);
-}
-
-.combo-box-popup .list-view {
-    -fx-background-color: #ffffff;
-    -fx-border-color: #dfe6e9;
-    -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 4);
-}
-
-.combo-box-popup .list-view .list-cell {
-    -fx-background-color: transparent;
-    -fx-text-fill: #2c3e50;
-    -fx-padding: 12 16;
-}
-
-.combo-box-popup .list-view .list-cell:hover {
-    -fx-background-color: #f8f9fa;
-}
-
-.combo-box-popup .list-view .list-cell:selected {
-    -fx-background-color: #1f1f1f;
-    -fx-text-fill: #ffffff;
-}
-
-
-/* ========================================
-   BUTTONS
-   ======================================== */
-.button {
-    -fx-font-size: 14px;
-    -fx-font-weight: 600;
-    -fx-cursor: hand;
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
-    -fx-padding: 12 24;
-}
-
-.button-primary {
-    -fx-background-color: #1f1f1f;
-    -fx-text-fill: #ffffff;
-    -fx-border-color: transparent;
-}
-
-.button-primary:hover {
-    -fx-background-color: #333333;
-    -fx-effect: dropshadow(gaussian, rgba(31,31,31,0.3), 8, 0, 0, 2);
-}
-
-.button-primary:pressed {
-    -fx-background-color: #0a0a0a;
-}
-
-.button-secondary {
-    -fx-background-color: #ffffff;
-    -fx-text-fill: #2c3e50;
-    -fx-border-color: #dfe6e9;
-    -fx-border-width: 1.5;
-}
-
-.button-secondary:hover {
-    -fx-background-color: #f8f9fa;
-    -fx-border-color: #b2bec3;
-}
-
-.button-secondary:pressed {
-    -fx-background-color: #ecf0f1;
-}
-
-.button-success {
-    -fx-background-color: #27ae60;
-    -fx-text-fill: #ffffff;
-    -fx-border-color: transparent;
-}
-
-.button-success:hover {
-    -fx-background-color: #229954;
-    -fx-effect: dropshadow(gaussian, rgba(39,174,96,0.3), 8, 0, 0, 2);
-}
-
-.button-danger {
-    -fx-background-color: #e74c3c;
-    -fx-text-fill: #ffffff;
-    -fx-border-color: transparent;
-}
-
-.button-danger:hover {
-    -fx-background-color: #c0392b;
-    -fx-effect: dropshadow(gaussian, rgba(231,76,60,0.3), 8, 0, 0, 2);
-}
-
-.button-small {
-    -fx-font-size: 13px;
-    -fx-padding: 8 16;
-}
-
-.button-large {
-    -fx-font-size: 16px;
-    -fx-padding: 14 28;
-}
-
-
-/* ========================================
-   TABLE VIEW (untuk list pesanan)
-   ======================================== */
-.table-view {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-}
-
-.table-view .column-header {
-    -fx-background-color: #f8f9fa;
     -fx-border-color: #e0e0e0;
-    -fx-font-weight: bold;
-    -fx-text-fill: #2c3e50;
-    -fx-padding: 12;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
 }
-
-.table-view .table-cell {
-    -fx-text-fill: #2c3e50;
-    -fx-padding: 12;
-    -fx-border-color: transparent transparent #f0f0f0 transparent;
-}
-
-.table-view .table-row-cell {
-    -fx-background-color: #ffffff;
-}
-
-.table-view .table-row-cell:hover {
-    -fx-background-color: #f8f9fa;
-}
-
-.table-view .table-row-cell:selected {
-    -fx-background-color: #ecf0f1;
-}
-
-
-/* ========================================
-   LIST VIEW (untuk order list)
-   ======================================== */
-.order-list-view {
+.order-card-inner {
     -fx-background-color: transparent;
-    -fx-border-color: transparent;
 }
-
-.order-list-view .list-cell {
-    -fx-background-color: transparent;
-    -fx-padding: 8 0;
-}
-
-.order-list-item {
-    -fx-background-color: #f8f9fa;
-    -fx-background-radius: 10;
-    -fx-padding: 15;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 6, 0, 0, 2);
-}
-
-.order-list-view .list-cell:hover .order-list-item {
-    -fx-background-color: #ecf0f1;
-    -fx-cursor: hand;
-}
-
-.order-customer-name {
+.order-id {
     -fx-font-size: 16px;
     -fx-font-weight: bold;
-    -fx-text-fill: #1f1f1f;
+    -fx-text-fill: #2c3e50;
 }
 
-.order-type {
-    -fx-font-size: 13px;
-    -fx-text-fill: #7f8c8d;
+/* --- Status Badge/Pill --- */
+.status-pill {
+    -fx-background-color: #1f1f1f;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 6 14 6 14;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
 }
 
-.order-status {
+/* --- Field Titles --- */
+.field-title {
     -fx-font-size: 13px;
     -fx-font-weight: bold;
-    -fx-padding: 4 10;
-    -fx-background-radius: 15;
+    -fx-text-fill: #555555;
 }
 
-.order-status-pending {
-    -fx-background-color: #fff3cd;
-    -fx-text-fill: #856404;
+/* --- Muted Text --- */
+.muted {
+    -fx-font-size: 13px;
+    -fx-text-fill: #999999;
 }
 
-.order-status-process {
-    -fx-background-color: #cce5ff;
-    -fx-text-fill: #004085;
+/* --- Buttons --- */
+.btn-primary {
+    -fx-background-color: #1f1f1f;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 20 10 20;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-cursor: hand;
+}
+.btn-primary:hover {
+    -fx-background-color: #3a3a3a;
 }
 
-.order-status-completed {
-    -fx-background-color: #d4edda;
-    -fx-text-fill: #155724;
-}
-
-
-/* ========================================
-   SCROLL BAR STYLING
-   ======================================== */
-.scroll-bar:vertical {
+.btn-outline {
     -fx-background-color: transparent;
-    -fx-pref-width: 8;
+    -fx-text-fill: #555555;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 20 10 20;
+    -fx-background-radius: 6;
+    -fx-border-color: #d0d0d0;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-cursor: hand;
+}
+.btn-outline:hover {
+    -fx-background-color: #f5f5f5;
 }
 
-.scroll-bar:horizontal {
-    -fx-background-color: transparent;
-    -fx-pref-height: 8;
-}
-
-.scroll-bar .thumb {
-    -fx-background-color: #cbd5e0;
-    -fx-background-radius: 5;
-}
-
-.scroll-bar .thumb:hover {
-    -fx-background-color: #a0aec0;
-}
-
-.scroll-bar .track {
-    -fx-background-color: transparent;
-}
-
-.scroll-bar .increment-button,
-.scroll-bar .decrement-button {
-    -fx-background-color: transparent;
-    -fx-pref-height: 0;
-    -fx-pref-width: 0;
-}
-
-
-/* ========================================
-   VALIDATION & ALERTS
-   ======================================== */
-.text-field.error,
-.text-area.error {
-    -fx-border-color: #e74c3c;
-    -fx-border-width: 2;
-}
-
-.text-field.success,
-.text-area.success {
-    -fx-border-color: #27ae60;
-    -fx-border-width: 2;
-}
-
-.error-label {
-    -fx-font-size: 12px;
-    -fx-text-fill: #e74c3c;
-    -fx-font-style: italic;
-}
-
-.success-label {
-    -fx-font-size: 12px;
-    -fx-text-fill: #27ae60;
-    -fx-font-weight: 600;
-}
-
-
-/* ========================================
-   UTILITY CLASSES
-   ======================================== */
-.separator-line {
+/* --- Separator --- */
+.separator {
     -fx-background-color: #e0e0e0;
-    -fx-pref-height: 1;
 }
-
-.text-muted {
-    -fx-text-fill: #7f8c8d;
-}
-
-.text-primary {
-    -fx-text-fill: #1f1f1f;
-}
-
-.text-success {
-    -fx-text-fill: #27ae60;
-}
-
-.text-danger {
-    -fx-text-fill: #e74c3c;
-}
-
-.text-bold {
-    -fx-font-weight: bold;
-}
-
-.mt-10 {
-    -fx-padding: 10 0 0 0;
-}
-
-.mb-10 {
-    -fx-padding: 0 0 10 0;
-}
-
-.my-10 {
-    -fx-padding: 10 0 10 0;
+.separator .line {
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1 0 0 0;
 }

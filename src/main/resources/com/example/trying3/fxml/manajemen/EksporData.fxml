@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<ScrollPane fitToWidth="true" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.trying3.controller.management.EksporDataController">
+    <content>
+        <VBox spacing="25">
+            <padding>
+                <Insets bottom="30" left="30" right="30" top="30" />
+            </padding>
+            <children>
+
+                <VBox spacing="5">
+                    <children>
+                        <Text style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Ekspor Data" />
+                        <Text style="-fx-font-size: 14px; -fx-fill: #666;" text="Ekspor data untuk analisis eksternal" />
+                    </children>
+                </VBox>
+
+                <VBox style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);">
+                    <children>
+                        <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Opsi Ekspor">
+                            <VBox.margin>
+                                <Insets bottom="20.0" />
+                            </VBox.margin>
+                        </Label>
+
+                        <GridPane hgap="20.0" vgap="15.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints vgrow="SOMETIMES" />
+                                <RowConstraints vgrow="SOMETIMES" />
+                            </rowConstraints>
+                            <children>
+
+                                <Button maxWidth="Infinity" onAction="#handleEksporSemua" style="-fx-background-color: #1a1a1a; -fx-text-fill: white; -fx-padding: 12 20; -fx-background-radius: 6; -fx-font-weight: bold; -fx-cursor: hand;" text="📥  Ekspor Semua Pesanan" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+
+                                <Button maxWidth="Infinity" onAction="#handleEksporPelanggan" style="-fx-background-color: #1a1a1a; -fx-text-fill: white; -fx-padding: 12 20; -fx-background-radius: 6; -fx-font-weight: bold; -fx-cursor: hand;" text="📥  Ekspor Data Pelanggan" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                                <Button maxWidth="Infinity" onAction="#handleLaporanKeuangan" style="-fx-background-color: #1a1a1a; -fx-text-fill: white; -fx-padding: 12 20; -fx-background-radius: 6; -fx-font-weight: bold; -fx-cursor: hand;" text="📥  Laporan Keuangan Ekspor" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+
+                                <Button maxWidth="Infinity" onAction="#handleLaporanProduksi" style="-fx-background-color: #1a1a1a; -fx-text-fill: white; -fx-padding: 12 20; -fx-background-radius: 6; -fx-font-weight: bold; -fx-cursor: hand;" text="📥  Laporan Produksi Ekspor" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                            </children>
+                        </GridPane>
+                    </children>
+                </VBox>
+
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>
