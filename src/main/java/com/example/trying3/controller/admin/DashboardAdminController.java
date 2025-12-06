@@ -340,6 +340,7 @@ public class DashboardAdminController implements Initializable {
     }
 
     @FXML private void handleManajemenUserClick() {
+        loadPane("ManajemenUserPane.fxml");
         setActiveButton(btnManagementUser);
     }
 
@@ -353,29 +354,11 @@ public class DashboardAdminController implements Initializable {
 
     @FXML
     private void handleLogoutClick() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Apakah Anda yakin ingin logout?", ButtonType.YES, ButtonType.NO);
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Yakin ingin logout?", ButtonType.YES, ButtonType.NO);
         alert.setTitle("Konfirmasi Logout");
         alert.setHeaderText(null);
         alert.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.YES) {
-                System.out.println("User logged out.");
-                try {
-                    SessionManager.getInstance().clearSession();
-                    FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("fxml/auth/Login.fxml"));
-                    Parent root = loader.load();
-                    Scene loginScene = new Scene(root, 1920, 1080);
-                    Stage stage = (Stage) contentArea.getScene().getWindow();
-                    stage.setScene(loginScene);
-                    stage.setTitle("CRM Percetakan - Login");
-                    stage.setResizable(false);
-                    stage.centerOnScreen();
-                    stage.show();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-
-            }
+            if (response == ButtonType.YES) System.exit(0);
         });
     }
 

@@ -754,3 +754,187 @@
 .my-10 {
     -fx-padding: 10 0 10 0;
 }
+/* ========================================
+   MANAJEMEN USER - TAMBAHAN STYLE
+   Tambahkan ke file style.css yang sudah ada
+   ======================================== */
+
+/* ========================================
+   USER LIST VIEW
+   ======================================== */
+.user-list-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.user-list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 5 0;
+}
+
+.user-list-view .list-cell:empty {
+    -fx-background-color: transparent;
+}
+
+.user-list-item {
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 10;
+    -fx-border-color: #e8e8e8;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+}
+
+.user-list-item:hover {
+    -fx-background-color: #f0f0f0;
+    -fx-border-color: #d0d0d0;
+    -fx-cursor: hand;
+}
+
+.user-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f1f1f;
+}
+
+.user-email {
+    -fx-font-size: 13px;
+    -fx-text-fill: #5a5a5a;
+}
+
+.user-date {
+    -fx-font-size: 12px;
+    -fx-text-fill: #95a5a6;
+}
+
+
+/* ========================================
+   STATUS BADGES (untuk User)
+   ======================================== */
+.status-aktif {
+    -fx-background-color: #1f1f1f;
+    -fx-text-fill: white;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 5 12;
+    -fx-background-radius: 15;
+}
+
+.status-nonaktif {
+    -fx-background-color: #95a5a6;
+    -fx-text-fill: white;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 5 12;
+    -fx-background-radius: 15;
+}
+
+
+/* ========================================
+   ROLE BADGES
+   ======================================== */
+.role-badge {
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-padding: 5 12;
+    -fx-background-radius: 15;
+    -fx-background-color: #e8e8e8;
+    -fx-text-fill: #5a5a5a;
+}
+
+.role-admin {
+    -fx-background-color: #1f1f1f;
+    -fx-text-fill: white;
+}
+
+.role-desain {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+}
+
+.role-produksi {
+    -fx-background-color: #9b59b6;
+    -fx-text-fill: white;
+}
+
+.role-manajemen {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+}
+
+
+/* ========================================
+   CREDENTIAL BOX
+   ======================================== */
+.credential-box {
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 10;
+    -fx-padding: 15;
+    -fx-border-color: #e8e8e8;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+}
+
+.credential-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f1f1f;
+}
+
+.credential-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #7f8c8d;
+    -fx-font-weight: 600;
+}
+
+.credential-value {
+    -fx-font-size: 13px;
+    -fx-text-fill: #2c3e50;
+}
+
+.credential-badge {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 4 10;
+    -fx-background-radius: 12;
+}
+
+.credential-badge-admin {
+    -fx-background-color: #1f1f1f;
+    -fx-text-fill: white;
+}
+
+.credential-badge-desain {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+}
+
+.credential-badge-produksi {
+    -fx-background-color: #9b59b6;
+    -fx-text-fill: white;
+}
+
+.credential-badge-manajemen {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+}
+
+
+/* ========================================
+   BUTTON ICON DANGER
+   ======================================== */
+.button-icon-danger {
+    -fx-background-color: transparent;
+    -fx-text-fill: #e74c3c;
+    -fx-border-color: #e74c3c;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 6 10;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.button-icon-danger:hover {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+}

@@ -11,7 +11,7 @@
 <HBox minHeight="1080.0" minWidth="1920.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.trying3.controller.admin.DashboardAdminController">
     <children>
         <!-- Sidebar Navigasi (Sebelah Kiri) -->
-        <VBox alignment="TOP_CENTER" prefWidth="280.0" styleClass="sidebar">
+        <VBox alignment="TOP_CENTER" prefWidth="280.0" minWidth="280.0" maxWidth="280.0" styleClass="sidebar">
             <children>
                 <!-- Logo dan Judul di Sidebar -->
                 <HBox alignment="CENTER_LEFT" prefHeight="112.0" spacing="10.0">

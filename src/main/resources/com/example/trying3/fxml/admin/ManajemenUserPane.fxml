@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+
+<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.example.trying3.controller.admin.ManajemenUserController"
+           styleClass="content-pane">
+
+    <!-- ==================== PANE 1: DAFTAR USER ==================== -->
+    <VBox fx:id="listUserPane" spacing="20" styleClass="content-pane">
+        <padding>
+            <Insets bottom="40.0" left="40.0" right="40.0" top="40.0"/>
+        </padding>
+
+        <!-- Header dengan Judul dan Tombol Tambah -->
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label styleClass="page-title" text="Manajemen User"/>
+                <Label styleClass="page-subtitle" text="Kelola pengguna dan hak akses sistem"/>
+            </VBox>
+            <Button fx:id="btnTambahUser" onAction="#handleTambahUserClick" styleClass="button, button-primary">
+                <graphic>
+                    <HBox alignment="CENTER" spacing="8">
+                        <Label text="+" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+                        <Label text="Tambah User" style="-fx-text-fill: white; -fx-font-weight: 600;"/>
+                    </HBox>
+                </graphic>
+            </Button>
+        </HBox>
+
+        <!-- Konten Utama dengan ScrollPane -->
+        <ScrollPane fitToWidth="true" styleClass="content-pane-scroll" VBox.vgrow="ALWAYS">
+            <VBox spacing="25">
+                <padding>
+                    <Insets bottom="10" right="10" top="5"/>
+                </padding>
+
+                <!-- Section: Daftar Pengguna -->
+                <VBox spacing="15" styleClass="card">
+                    <VBox spacing="5">
+                        <Label styleClass="card-title" text="Daftar Pengguna"/>
+                        <Label styleClass="card-subtitle" text="Kelola semua pengguna sistem"/>
+                    </VBox>
+
+                    <!-- ListView untuk User -->
+                    <ListView fx:id="userListView" styleClass="user-list-view" prefHeight="400"/>
+                </VBox>
+
+                <!-- Section: Informasi Credential -->
+                <VBox spacing="15" styleClass="card">
+                    <VBox spacing="5">
+                        <Label styleClass="card-title" text="Informasi Credential"/>
+                        <Label styleClass="card-subtitle" text="Credential untuk testing sistem"/>
+                    </VBox>
+
+                    <!-- Grid Credential -->
+                    <GridPane hgap="30" vgap="20">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+                        </columnConstraints>
+
+                        <!-- Administrator -->
+                        <VBox spacing="8" styleClass="credential-box" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label styleClass="credential-title" text="Administrator"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label styleClass="credential-badge, credential-badge-admin" text="Admin"/>
+                            </HBox>
+                            <HBox spacing="5">
+                                <Label styleClass="credential-label" text="Email:"/>
+                                <Label styleClass="credential-value" text="admin@percetakan.com"/>
+                            </HBox>
+                            <HBox spacing="5">
+                                <Label styleClass="credential-label" text="Password:"/>
+                                <Label styleClass="credential-value" text="admin123"/>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Tim Desain -->
+                        <VBox spacing="8" styleClass="credential-box" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label styleClass="credential-title" text="Tim Desain"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label styleClass="credential-badge, credential-badge-desain" text="Desain"/>
+                            </HBox>
+                            <HBox spacing="5">
+                                <Label styleClass="credential-label" text="Email:"/>
+                                <Label styleClass="credential-value" text="design@percetakan.com"/>
+                            </HBox>
+                            <HBox spacing="5">
+                                <Label styleClass="credential-label" text="Password:"/>
+                                <Label styleClass="credential-value" text="design123"/>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Tim Produksi -->
+                        <VBox spacing="8" styleClass="credential-box" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label styleClass="credential-title" text="Tim Produksi"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label styleClass="credential-badge, credential-badge-produksi" text="Produksi"/>
+                            </HBox>
+                            <HBox spacing="5">
+                                <Label styleClass="credential-label" text="Email:"/>
+                                <Label styleClass="credential-value" text="production@percetakan.com"/>
+                            </HBox>
+                            <HBox spacing="5">
+                                <Label styleClass="credential-label" text="Password:"/>
+                                <Label styleClass="credential-value" text="production123"/>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Manajemen -->
+                        <VBox spacing="8" styleClass="credential-box" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label styleClass="credential-title" text="Manajemen"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label styleClass="credential-badge, credential-badge-manajemen" text="Manajemen"/>
+                            </HBox>
+                            <HBox spacing="5">
+                                <Label styleClass="credential-label" text="Email:"/>
+                                <Label styleClass="credential-value" text="manager@percetakan.com"/>
+                            </HBox>
+                            <HBox spacing="5">
+                                <Label styleClass="credential-label" text="Password:"/>
+                                <Label styleClass="credential-value" text="manager123"/>
+                            </HBox>
+                        </VBox>
+                    </GridPane>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </VBox>
+
+    <!-- ==================== PANE 2: FORM TAMBAH USER ==================== -->
+    <VBox fx:id="formTambahUserPane" spacing="20" styleClass="content-pane" visible="false">
+        <padding>
+            <Insets bottom="30" left="30" right="30" top="30"/>
+        </padding>
+
+        <!-- Header Form -->
+        <HBox alignment="CENTER_LEFT" spacing="15">
+            <Button fx:id="btnBackToList" onAction="#handleBackToListClick" styleClass="button, button-secondary">
+                <graphic>
+                    <Label text="←" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                </graphic>
+            </Button>
+            <VBox spacing="5">
+                <Label styleClass="page-title" text="Tambah User Baru"/>
+                <Label styleClass="page-subtitle" text="Isi form di bawah untuk menambah user baru"/>
+            </VBox>
+        </HBox>
+
+        <!-- Form Card -->
+        <VBox spacing="25" styleClass="card" VBox.vgrow="ALWAYS">
+            <GridPane hgap="20" vgap="20">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+                </columnConstraints>
+
+                <!-- Nama Lengkap -->
+                <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <Label styleClass="form-label" text="Nama Lengkap"/>
+                    <TextField fx:id="txtNamaLengkap" promptText="Masukkan nama lengkap" styleClass="text-field"/>
+                    <Label fx:id="lblNamaError" styleClass="error-label" visible="false"/>
+                </VBox>
+
+                <!-- Username -->
+                <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <Label styleClass="form-label" text="Username"/>
+                    <TextField fx:id="txtUsername" promptText="Masukkan username" styleClass="text-field"/>
+                    <Label fx:id="lblUsernameError" styleClass="error-label" visible="false"/>
+                </VBox>
+
+                <!-- Email -->
+                <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                    <Label styleClass="form-label" text="Email"/>
+                    <TextField fx:id="txtEmail" promptText="Masukkan email" styleClass="text-field"/>
+                    <Label fx:id="lblEmailError" styleClass="error-label" visible="false"/>
+                </VBox>
+
+                <!-- Role -->
+                <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <Label styleClass="form-label" text="Role"/>
+                    <ComboBox fx:id="cmbRole" promptText="Pilih role" styleClass="combo-box" maxWidth="1.7976931348623157E308"/>
+                    <Label fx:id="lblRoleError" styleClass="error-label" visible="false"/>
+                </VBox>
+
+                <!-- Password -->
+                <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                    <Label styleClass="form-label" text="Password"/>
+                    <PasswordField fx:id="txtPassword" promptText="Masukkan password" styleClass="text-field"/>
+                    <Label fx:id="lblPasswordError" styleClass="error-label" visible="false"/>
+                </VBox>
+
+                <!-- Konfirmasi Password -->
+                <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                    <Label styleClass="form-label" text="Konfirmasi Password"/>
+                    <PasswordField fx:id="txtKonfirmasiPassword" promptText="Ulangi password" styleClass="text-field"/>
+                    <Label fx:id="lblKonfirmasiPasswordError" styleClass="error-label" visible="false"/>
+                </VBox>
+            </GridPane>
+
+            <!-- Spacer -->
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- Buttons -->
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <Button fx:id="btnSimpanUser" onAction="#handleSimpanUserClick" styleClass="button, button-primary" text="Simpan User"/>
+                <Button fx:id="btnBatalForm" onAction="#handleBatalFormClick" styleClass="button, button-secondary" text="Batal"/>
+            </HBox>
+        </VBox>
+    </VBox>
+
+    <!-- ==================== PANE 3: FORM RESET PASSWORD ==================== -->
+    <VBox fx:id="formResetPasswordPane" spacing="20" styleClass="content-pane" visible="false">
+        <padding>
+            <Insets bottom="30" left="30" right="30" top="30"/>
+        </padding>
+
+        <!-- Header Form Reset Password -->
+        <HBox alignment="CENTER_LEFT" spacing="15">
+            <Button fx:id="btnBackFromReset" onAction="#handleBackToListClick" styleClass="button, button-secondary">
+                <graphic>
+                    <Label text="←" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                </graphic>
+            </Button>
+            <VBox spacing="5">
+                <Label styleClass="page-title" text="Reset Password"/>
+                <Label styleClass="page-subtitle" text="Reset password untuk user yang dipilih"/>
+            </VBox>
+        </HBox>
+
+        <!-- Form Card Reset Password -->
+        <VBox spacing="25" styleClass="card" VBox.vgrow="ALWAYS">
+
+            <!-- Info User yang akan di-reset -->
+            <VBox spacing="10" style="-fx-background-color: #f8f9fa; -fx-padding: 15; -fx-background-radius: 8;">
+                <Label text="Informasi User" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                <HBox spacing="20">
+                    <VBox spacing="5">
+                        <Label text="Nama:" styleClass="form-label"/>
+                        <Label fx:id="lblResetNama" text="-" style="-fx-font-size: 14px;"/>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label text="Username:" styleClass="form-label"/>
+                        <Label fx:id="lblResetUsername" text="-" style="-fx-font-size: 14px;"/>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label text="Email:" styleClass="form-label"/>
+                        <Label fx:id="lblResetEmail" text="-" style="-fx-font-size: 14px;"/>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label text="Role:" styleClass="form-label"/>
+                        <Label fx:id="lblResetRole" text="-" style="-fx-font-size: 14px;"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- Form Password Baru -->
+            <GridPane hgap="20" vgap="20">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+                </columnConstraints>
+
+                <!-- Password Baru -->
+                <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <Label styleClass="form-label" text="Password Baru"/>
+                    <PasswordField fx:id="txtNewPassword" promptText="Masukkan password baru" styleClass="text-field"/>
+                    <Label fx:id="lblNewPasswordError" styleClass="error-label" visible="false"/>
+                </VBox>
+
+                <!-- Konfirmasi Password Baru -->
+                <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <Label styleClass="form-label" text="Konfirmasi Password Baru"/>
+                    <PasswordField fx:id="txtConfirmNewPassword" promptText="Ulangi password baru" styleClass="text-field"/>
+                    <Label fx:id="lblConfirmNewPasswordError" styleClass="error-label" visible="false"/>
+                </VBox>
+            </GridPane>
+
+            <!-- Spacer -->
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- Buttons -->
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <Button fx:id="btnResetPassword" onAction="#handleResetPasswordClick" styleClass="button, button-primary" text="Reset Password"/>
+                <Button fx:id="btnBatalReset" onAction="#handleBackToListClick" styleClass="button, button-secondary" text="Batal"/>
+            </HBox>
+        </VBox>
+    </VBox>
+</StackPane>
