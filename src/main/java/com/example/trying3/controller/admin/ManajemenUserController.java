@@ -20,6 +20,12 @@ public class ManajemenUserController implements Initializable {
     @FXML private VBox listUserPane;
     @FXML private VBox formTambahUserPane;
     @FXML private VBox formResetPasswordPane;
+    @FXML private Button btnBackToList;
+    @FXML private Button btnBatalReset;
+    @FXML private Button btnSimpanUser;
+    @FXML private Button btnBatalForm;
+    @FXML private Button btnBackFromReset;
+    @FXML private Button btnResetPassword;
 
     // === List User Components ===
     @FXML private ListView<User> userListView;
