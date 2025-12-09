@@ -1,5 +1,8 @@
 package com.example.trying3.controller.design;
 
+import com.example.trying3.dao.PesananDAO;
+import com.example.trying3.model.Pesanan;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -21,107 +24,139 @@ public class DashboardDesignPaneController implements Initializable {
     @FXML private Label completedLabel;
     @FXML private VBox queueContainer;
 
-    private List<DesignOrder> orders = new ArrayList<>();
+    private PesananDAO pesananDAO;
+    private List<Pesanan> orders = new ArrayList<>();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        loadDummyData();
+        pesananDAO = new PesananDAO();
+        loadData();
+    }
+
+    private void loadData() {
+        orders = pesananDAO.getPesananForDesignTeam();
         updateStatistics();
         renderQueue();
     }
 
-    private void loadDummyData() {
-        // Data Dummy
-        orders.add(new DesignOrder("DES-101", "Kopi Kenangan", "Rebranding Logo", "Menunggu Design", "Logo vector, style minimalis"));
-        orders.add(new DesignOrder("DES-102", "Universitas X", "Banner Wisuda", "Sedang Didesain", "Ukuran 3x1m, foto terlampir"));
-        orders.add(new DesignOrder("DES-103", "Warung Bu Siti", "Daftar Menu", "Selesai Design", "A4 Laminasi, file siap cetak"));
-        orders.add(new DesignOrder("DES-104", "Event Organizer", "ID Card Panitia", "Menunggu Design", "Nama & Foto menyusul"));
-    }
-
+    // Perbarui statistik di dashboard
     private void updateStatistics() {
-        long waiting = orders.stream().filter(o -> o.status.equals("Menunggu Design")).count();
-        long inProgress = orders.stream().filter(o -> o.status.equals("Sedang Didesain")).count();
-        long completed = orders.stream().filter(o -> o.status.equals("Selesai Design")).count();
+        long waiting = orders.stream()
+                .filter(o -> "Menunggu Desain".equals(o.getStatus()))
+                .count();
+        long inProgress = orders.stream()
+                .filter(o -> "Desain Direvisi".equals(o.getStatus()))
+                .count();
+        long completed = orders.stream()
+                .filter(o -> "Desain Disetujui".equals(o.getStatus()))
+                .count();
 
-        if(waitingLabel != null) waitingLabel.setText(String.valueOf(waiting));
-        if(inProgressLabel != null) inProgressLabel.setText(String.valueOf(inProgress));
-        if(completedLabel != null) completedLabel.setText(String.valueOf(completed));
+        if (waitingLabel != null) waitingLabel.setText(String.valueOf(waiting));
+        if (inProgressLabel != null) inProgressLabel.setText(String.valueOf(inProgress));
+        if (completedLabel != null) completedLabel.setText(String.valueOf(completed));
     }
 
+    // Render antrian desain
     private void renderQueue() {
-        if(queueContainer == null) return;
+        if (queueContainer == null) return;
 
         queueContainer.getChildren().clear();
 
-        for (DesignOrder order : orders) {
-            if (!order.status.equals("Selesai Design")) {
+        // Filter yang belum selesai dan urutkan berdasarkan prioritas
+        List<Pesanan> activeOrders = orders.stream()
+                .filter(o -> !"Desain Disetujui".equals(o.getStatus()))
+                .sorted((a, b) -> {
+                    // Prioritas: Desain Direvisi > Menunggu Desain
+                    int priorityA = getPriority(a.getStatus());
+                    int priorityB = getPriority(b.getStatus());
+                    return Integer.compare(priorityA, priorityB);
+                })
+                .toList();
+
+        if (activeOrders.isEmpty()) {
+            Label emptyLabel = new Label("Tidak ada antrian desain aktif. 🎉");
+            emptyLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 14px;");
+            queueContainer.getChildren().add(emptyLabel);
+        } else {
+            for (Pesanan order : activeOrders) {
                 queueContainer.getChildren().add(createOrderCard(order));
             }
         }
-
-        if (queueContainer.getChildren().isEmpty()) {
-            Label emptyLabel = new Label("Tidak ada antrian desain aktif.");
-            emptyLabel.getStyleClass().add("muted");
-            queueContainer.getChildren().add(emptyLabel);
-        }
     }
 
-    private VBox createOrderCard(DesignOrder order) {
+    // Tentukan prioritas berdasarkan status
+    private int getPriority(String status) {
+        return switch (status) {
+            case "Desain Direvisi" -> 1;
+            case "Menunggu Desain" -> 2;
+            default -> 3;
+        };
+    }
+
+    // Buat kartu untuk setiap pesanan
+    private VBox createOrderCard(Pesanan order) {
         VBox card = new VBox();
-        card.setStyle("-fx-background-color: white; -fx-border-color: #eeeeee; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 20;");
+        card.setStyle("-fx-background-color: white; -fx-border-color: #eeeeee; " +
+                "-fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 20;");
         card.setSpacing(10);
 
+        // Header
         HBox header = new HBox();
         header.setAlignment(Pos.CENTER_LEFT);
 
         VBox titleBox = new VBox(2);
-        Label lblId = new Label(order.id);
+        Label lblId = new Label(order.getDisplayId());
         lblId.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #222;");
-        Label lblClient = new Label(order.client);
-        lblClient.getStyleClass().add("muted");
+
+        Label lblClient = new Label(order.getNamaPelanggan());
+        lblClient.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 12px;");
+
         titleBox.getChildren().addAll(lblId, lblClient);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        Label lblStatus = new Label(order.status);
-        lblStatus.getStyleClass().add("status-pill");
-
-        if (order.status.equals("Menunggu Design")) {
-            lblStatus.setStyle("-fx-background-color: #fff3cd; -fx-text-fill: #856404; -fx-background-radius: 15; -fx-padding: 5 12; -fx-font-weight: bold; -fx-font-size: 11px;");
-        } else if (order.status.equals("Sedang Didesain")) {
-            lblStatus.setStyle("-fx-background-color: #cce5ff; -fx-text-fill: #004085; -fx-background-radius: 15; -fx-padding: 5 12; -fx-font-weight: bold; -fx-font-size: 11px;");
-        }
+        Label lblStatus = new Label(order.getStatus());
+        lblStatus.setStyle(getStatusStyle(order.getStatus()));
 
         header.getChildren().addAll(titleBox, spacer, lblStatus);
 
+        // Details
         VBox detailsBox = new VBox(5);
-        detailsBox.getChildren().add(createDetailLabel("Project: ", order.project));
-        detailsBox.getChildren().add(createDetailLabel("Brief: ", order.brief));
+        detailsBox.getChildren().add(createDetailLabel("Project: ", order.getJenisLayanan()));
+        detailsBox.getChildren().add(createDetailLabel("Brief: ", order.getSpesifikasi()));
 
         card.getChildren().addAll(header, detailsBox);
         return card;
     }
 
+    // Tentukan gaya status berdasarkan nilai status
+    private String getStatusStyle(String status) {
+        String baseStyle = "-fx-background-radius: 15; -fx-padding: 5 12; -fx-font-weight: bold; -fx-font-size: 11px;";
+
+        return switch (status) {
+            case "Menunggu Desain" -> baseStyle + "-fx-background-color: #fff3cd; -fx-text-fill: #856404;";
+            case "Desain Direvisi" -> baseStyle + "-fx-background-color: #f8d7da; -fx-text-fill: #721c24;";
+            case "Desain Disetujui" -> baseStyle + "-fx-background-color: #d4edda; -fx-text-fill: #155724;";
+            default -> baseStyle + "-fx-background-color: #e2e3e5; -fx-text-fill: #383d41;";
+        };
+    }
+
+    // Buat label detail untuk pesanan
     private HBox createDetailLabel(String label, String value) {
         HBox row = new HBox(5);
         Label lblTitle = new Label(label);
         lblTitle.setStyle("-fx-font-weight: bold; -fx-text-fill: #555; -fx-font-size: 12px;");
-        Label lblValue = new Label(value);
+
+        Label lblValue = new Label(value != null ? value : "-");
         lblValue.setStyle("-fx-text-fill: #333; -fx-font-size: 12px;");
+        lblValue.setWrapText(true);
+
         row.getChildren().addAll(lblTitle, lblValue);
         return row;
     }
 
-    public static class DesignOrder {
-        String id, client, project, status, brief;
-
-        public DesignOrder(String id, String client, String project, String status, String brief) {
-            this.id = id;
-            this.client = client;
-            this.project = project;
-            this.status = status;
-            this.brief = brief;
-        }
+    public void refresh() {
+        Platform.runLater(this::loadData);
     }
 }

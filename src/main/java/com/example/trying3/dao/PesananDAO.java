@@ -193,34 +193,38 @@ public class PesananDAO {
     public List<Pesanan> getPesananForDesignTeam() {
         List<Pesanan> list = new ArrayList<>();
         String sql = """
-            SELECT 
-                p.id_pesanan,
-                p.nomor_pesanan,
-                pel.nama AS nama_pelanggan,
-                pel.no_telepon,
-                pel.email,
-                jl.nama_layanan AS jenis_layanan,
-                dp.jumlah,
-                p.total_biaya AS total_harga,
-                dp.spesifikasi,
-                sp.nama_status AS status,
-                tanggal_pesanan,
-                p.updated_at,
-                p.catatan
-            FROM pesanan p
-            JOIN pelanggan pel ON p.id_pelanggan = pel.id_pelanggan
-            JOIN status_pesanan sp ON p.id_status = sp.id_status
-            LEFT JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan
-            LEFT JOIN jenis_layanan jl ON dp.id_layanan = jl.id_layanan
-            WHERE sp.nama_status IN ('Menunggu Desain', 'Desain Direvisi', 'Desain Disetujui')
-            ORDER BY 
-                CASE sp.nama_status
-                    WHEN 'Desain Direvisi' THEN 1
-                    WHEN 'Menunggu Desain' THEN 2
-                    WHEN 'Desain Disetujui' THEN 3
-                END,
-                p.tanggal_pesanan ASC
+        SELECT 
+            p.id_pesanan,
+            p.nomor_pesanan,
+            pel.nama AS nama_pelanggan,
+            pel.no_telepon,
+            pel.email,
+            jl.nama_layanan AS jenis_layanan,
+            dp.jumlah,
+            p.total_biaya AS total_harga,
+            dp.spesifikasi,
+            sp.nama_status AS status,
+            tanggal_pesanan,
+            p.updated_at,
+            p.catatan
+        FROM pesanan p
+        JOIN pelanggan pel ON p.id_pelanggan = pel.id_pelanggan
+        JOIN status_pesanan sp ON p.id_status = sp.id_status
+        LEFT JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan
+        LEFT JOIN jenis_layanan jl ON dp.id_layanan = jl.id_layanan
+        -- PERBAIKAN DI SINI: Tambahkan 'Pembayaran Verified'
+        WHERE sp.nama_status IN ('Pembayaran Verified', 'Menunggu Desain', 'Desain Direvisi', 'Desain Disetujui')
+        ORDER BY 
+            CASE sp.nama_status
+                WHEN 'Desain Direvisi' THEN 1
+                WHEN 'Pembayaran Verified' THEN 2  -- Prioritas tinggi
+                WHEN 'Menunggu Desain' THEN 3
+                WHEN 'Desain Disetujui' THEN 4
+            END,
+            p.tanggal_pesanan ASC
         """;
+
+        // ... sisa kode catch/try ...
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);

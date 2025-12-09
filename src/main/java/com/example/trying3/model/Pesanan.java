@@ -155,6 +155,10 @@ public class Pesanan {
         return tanggalPesanan.format(DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm"));
     }
 
+    public String getFormattedJumlah() {
+        return jumlah + " pcs";
+    }
+
     @Override
     public String toString() {
         return "Pesanan{" +
