@@ -18,10 +18,9 @@ public class DashboardDesignController implements Initializable {
 
     @FXML private Label btnDashboard;
     @FXML private Label btnAntrianDesign;
-    @FXML private Label btnRevisi;
-    @FXML private Label btnAsset;
+    @FXML private Label btnTemplate;
+    @FXML private Label btnRiwayat;
     @FXML private Label btnLogout;
-
     @FXML private Label lblHeaderTitle;
     @FXML private StackPane contentArea;
 
@@ -60,8 +59,7 @@ public class DashboardDesignController implements Initializable {
     private void setActiveButton(Label activeButton) {
         btnDashboard.getStyleClass().remove("active");
         btnAntrianDesign.getStyleClass().remove("active");
-        btnRevisi.getStyleClass().remove("active");
-        btnAsset.getStyleClass().remove("active");
+
 
         if (!activeButton.getStyleClass().contains("active")) {
             activeButton.getStyleClass().add("active");
@@ -77,12 +75,14 @@ public class DashboardDesignController implements Initializable {
         if (loadPane("KelolaDesain.fxml")) setActiveButton(btnAntrianDesign);
     }
 
-    @FXML private void handleRevisiClick() {
-        if (loadPane("RevisiPane.fxml")) setActiveButton(btnRevisi);
+    @FXML private void handleTemplateClick() {
+        // Load panel yang baru dibuat
+        if (loadPane("TemplateDesainPane.fxml")) setActiveButton(btnTemplate); // Ganti btnRevisi jadi btnTemplate di deklarasi FXML controller utama Anda
     }
 
-    @FXML private void handleAssetClick() {
-        if (loadPane("AssetPane.fxml")) setActiveButton(btnAsset);
+    @FXML
+    private void handleRiwayatClick() { // Sesuaikan nama method dengan onMouseClicked di FXML
+         if (loadPane("RiwayatDesainPane.fxml")) setActiveButton(btnRiwayat);
     }
 
     @FXML private void handleLogoutClick() {
