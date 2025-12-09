@@ -773,3 +773,29 @@
     -fx-background-color: #f3f4f6;
     -fx-background-radius: 6;
 }
+
+ /* Untuk tampilan badge status */
+ .status-success {
+     -fx-background-color: #e5f5e5; /* Light green background */
+     -fx-text-fill: #27ae60;      /* Darker green text */
+ }
+
+ .status-danger {
+     -fx-background-color: #fbe5e5; /* Light red background */
+     -fx-text-fill: #e74c3c;      /* Darker red text */
+ }
+
+ .status-info {
+     -fx-background-color: #e5f7fa; /* Light blue background (untuk status non-final) */
+     -fx-text-fill: #3498db;
+ }
+
+ /* Untuk tombol aksi di dalam card */
+ .pesanan-action-button {
+     -fx-font-size: 12px;
+     -fx-font-weight: 600;
+     -fx-padding: 6 16;
+     -fx-background-radius: 6;
+     -fx-cursor: hand;
+ }
+
