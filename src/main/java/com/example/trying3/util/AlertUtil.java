@@ -55,6 +55,15 @@ public class AlertUtil {
         return result.isPresent() && result.get() == ButtonType.OK;
     }
 
+    public static boolean showYesNoConfirmation(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, message, ButtonType.YES, ButtonType.NO);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.YES;
+    }
+
     public static void showLoginError() {
         showError("Login Gagal", "Username atau password salah!");
     }
