@@ -679,3 +679,48 @@
 .my-10 {
     -fx-padding: 10 0 10 0;
 }
+/* Tambahan untuk Template Card */
+.template-card {
+    -fx-background-color: white;
+    -fx-border-color: #eeeeee;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.02), 5, 0, 0, 1);
+}
+
+.template-card:hover {
+    -fx-border-color: #d0d0d0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+.template-image-placeholder {
+    -fx-background-color: #f3f4f6;
+    -fx-background-radius: 6;
+}
+
+ /* Untuk tampilan badge status */
+ .status-success {
+     -fx-background-color: #e5f5e5; /* Light green background */
+     -fx-text-fill: #27ae60;      /* Darker green text */
+ }
+
+ .status-danger {
+     -fx-background-color: #fbe5e5; /* Light red background */
+     -fx-text-fill: #e74c3c;      /* Darker red text */
+ }
+
+ .status-info {
+     -fx-background-color: #e5f7fa; /* Light blue background (untuk status non-final) */
+     -fx-text-fill: #3498db;
+ }
+
+ /* Untuk tombol aksi di dalam card */
+ .pesanan-action-button {
+     -fx-font-size: 12px;
+     -fx-font-weight: 600;
+     -fx-padding: 6 16;
+     -fx-background-radius: 6;
+     -fx-cursor: hand;
+ }
+

@@ -39,10 +39,10 @@
                 <Label fx:id="btnAntrianDesign" onMouseClicked="#handleAntrianClick" styleClass="nav-button" text="Kelola Desain">
                 </Label>
 
-                <Label fx:id="btnRevisi" onMouseClicked="#handleRevisiClick" styleClass="nav-button" text="Template Desain">
+                <Label fx:id="btnTemplate" onMouseClicked="#handleTemplateClick" styleClass="nav-button" text="Template Desain">
                 </Label>
 
-                <Label fx:id="btnAsset" onMouseClicked="#handleAssetClick" styleClass="nav-button" text="Riwayat Desain">
+                <Label fx:id="btnRiwayat" onMouseClicked="#handleRiwayatClick" styleClass="nav-button" text="Riwayat Desain">
                 </Label>
 
                 <Label fx:id="btnLogout" onMouseClicked="#handleLogoutClick" styleClass="nav-button-logout" text="Logout">
