@@ -10,18 +10,9 @@ import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-/**
- * Custom ListCell untuk menampilkan riwayat pembayaran yang sudah terverifikasi.
- * Read-only cell tanpa input form.
- * 
- * OPTIMIZED: Components dibuat sekali di constructor, hanya data yang di-update.
- */
 public class PembayaranRiwayatCell extends ListCell<Pesanan> {
     
-    // =====================================================
-    // FIELDS - Components dibuat SEKALI
-    // =====================================================
-    
+    // FIELDS
     private final VBox cardContainer = new VBox();
     private final Label orderIdLabel = new Label();
     private final Label metodeLabel = new Label();
@@ -33,18 +24,12 @@ public class PembayaranRiwayatCell extends ListCell<Pesanan> {
     private final HBox headerBox = new HBox();
     private final GridPane infoGrid = new GridPane();
     
-    // =====================================================
     // CONSTRUCTOR
-    // =====================================================
-    
     public PembayaranRiwayatCell() {
         setupCard();
     }
     
-    // =====================================================
     // SETUP - Dipanggil SEKALI di constructor
-    // =====================================================
-    
     private void setupCard() {
         cardContainer.getStyleClass().add("pesanan-card");
         cardContainer.setSpacing(12);
@@ -84,10 +69,7 @@ public class PembayaranRiwayatCell extends ListCell<Pesanan> {
         cardContainer.getChildren().addAll(headerBox, infoGrid);
     }
     
-    // =====================================================
     // UPDATE ITEM - Dipanggil setiap kali data berubah
-    // =====================================================
-    
     @Override
     protected void updateItem(Pesanan pesanan, boolean empty) {
         super.updateItem(pesanan, empty);
@@ -97,7 +79,7 @@ public class PembayaranRiwayatCell extends ListCell<Pesanan> {
             return;
         }
 
-        // ===== HANYA UPDATE DATA, TIDAK REBUILD UI =====
+        // hanya update data, tidak perlu rebuild UI
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
 
@@ -112,12 +94,10 @@ public class PembayaranRiwayatCell extends ListCell<Pesanan> {
                  "");
         metodeLabel.setText(tanggalText);
 
-        // Update values
         layananValue.setText(pesanan.getJenisLayanan());
         jumlahValue.setText(pesanan.getJumlah() + " pcs");
         totalValue.setText(currencyFormat.format(pesanan.getTotalHarga()));
 
-        // Set graphic
         setGraphic(cardContainer);
     }
 }

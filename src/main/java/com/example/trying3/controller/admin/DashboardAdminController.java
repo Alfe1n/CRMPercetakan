@@ -34,7 +34,6 @@ public class DashboardAdminController implements Initializable {
     @FXML private Label btnKelolaPesanan;
     @FXML private Label btnPembayaran;
     @FXML private Label btnManagementUser;
-    @FXML private Label btnPengaturan;
     @FXML private Label btnNotifikasi;
     @FXML private Label btnLogout;
     @FXML private StackPane contentArea;
@@ -54,8 +53,6 @@ public class DashboardAdminController implements Initializable {
     private Image pembayaranIconLight;
     private Image manajemenUserIconDark;
     private Image manajemenUserIconLight;
-    private Image pengaturanIconDark;
-    private Image pengaturanIconLight;
     private Image notifikasiIconDark;
     private Image notifikasiIconLight;
 
@@ -121,8 +118,6 @@ public class DashboardAdminController implements Initializable {
             pembayaranIconLight = new Image(getClass().getResourceAsStream("/com/example/trying3/pictures/credit-cardLight.png"));
             manajemenUserIconDark = new Image(getClass().getResourceAsStream("/com/example/trying3/pictures/usersDark.png"));
             manajemenUserIconLight = new Image(getClass().getResourceAsStream("/com/example/trying3/pictures/usersLight.png"));
-            pengaturanIconDark = new Image(getClass().getResourceAsStream("/com/example/trying3/pictures/settingsDark.png"));
-            pengaturanIconLight = new Image(getClass().getResourceAsStream("/com/example/trying3/pictures/settingsLight.png"));
             notifikasiIconDark = new Image(getClass().getResourceAsStream("/com/example/trying3/pictures/bellDark.png"));
             notifikasiIconLight = new Image(getClass().getResourceAsStream("/com/example/trying3/pictures/bellLight.png"));
         } catch (Exception e) {
@@ -135,7 +130,7 @@ public class DashboardAdminController implements Initializable {
      * Mengatur gaya awal dan efek hover untuk tombol navigasi.
      */
     private void setupNavigationStyles() {
-        Label[] navButtons = {btnDashboard, btnKelolaPesanan, btnPembayaran, btnManagementUser, btnPengaturan, btnNotifikasi};
+        Label[] navButtons = {btnDashboard, btnKelolaPesanan, btnPembayaran, btnManagementUser, btnNotifikasi};
         for (Label button : navButtons) {
             button.setOnMouseEntered(e -> {
                 if (button != activeButton) {
@@ -280,9 +275,6 @@ public class DashboardAdminController implements Initializable {
             if (manajemenUserIcon != null && manajemenUserIconDark != null) {
                 manajemenUserIcon.setImage(manajemenUserIconDark);
             }
-            if (pengaturanIcon != null && pengaturanIconDark != null) {
-                pengaturanIcon.setImage(pengaturanIconDark);
-            }
             if (notifikasiIcon != null && notifikasiIconDark != null) {
                 notifikasiIcon.setImage(notifikasiIconDark);
             }
@@ -306,11 +298,6 @@ public class DashboardAdminController implements Initializable {
         // btnActive - Manajemen User
         if (button == btnManagementUser && manajemenUserIcon != null && manajemenUserIconLight != null){
             manajemenUserIcon.setImage(manajemenUserIconLight);
-        }
-
-        // btnActive - Pengaturan
-        if (button == btnPengaturan && pengaturanIcon != null && pengaturanIconLight != null){
-            pengaturanIcon.setImage(pengaturanIconLight);
         }
 
         // btnActive - Notifikasi
@@ -342,10 +329,6 @@ public class DashboardAdminController implements Initializable {
     @FXML private void handleManajemenUserClick() {
         loadPane("ManajemenUserPane.fxml");
         setActiveButton(btnManagementUser);
-    }
-
-    @FXML private void handlePengaturanClick() {
-        setActiveButton(btnPengaturan);
     }
 
     @FXML private void handleNotifikasiClick() {

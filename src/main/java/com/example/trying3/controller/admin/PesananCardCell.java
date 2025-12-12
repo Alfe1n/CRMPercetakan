@@ -16,7 +16,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-// Kelas ini mengatur tampilan satu kotak (kartu) pesanan di dalam ListView
 public class PesananCardCell extends ListCell<Pesanan> {
 
     // Interface untuk mengirim aksi (klik tombol) kembali ke Controller utama
