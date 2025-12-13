@@ -3,276 +3,264 @@ package com.example.trying3.controller.design;
 import com.example.trying3.dao.PesananDAO;
 import com.example.trying3.model.Pesanan;
 import com.example.trying3.util.AlertUtil;
-import javafx.application.Platform;
+import com.example.trying3.util.SessionManager;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.ResourceBundle;
 
 public class KelolaDesignController implements Initializable {
 
+    // --- FXML ELEMENTS ---
+    @FXML private VBox ordersContainer;
+
+    // Statistik Labels
     @FXML private Label lblCountWaiting;
     @FXML private Label lblCountRevision;
     @FXML private Label lblCountApproved;
-    @FXML private VBox ordersContainer;
+
+    // --- POPUP REVISI ELEMENTS (Sesuai FXML) ---
+    @FXML private VBox revisiPopupContainer;
+    @FXML private TextArea txtRevisi;
 
     private PesananDAO pesananDAO;
-    private List<Pesanan> orderList = new ArrayList<>();
+
+    // Variable bantuan untuk menyimpan pesanan mana yang sedang direvisi
+    private Pesanan currentRevisiOrder;
 
     @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public void initialize(URL location, ResourceBundle resources) {
         pesananDAO = new PesananDAO();
+
+        // Pastikan popup tersembunyi saat awal load
+        if(revisiPopupContainer != null) {
+            revisiPopupContainer.setVisible(false);
+            revisiPopupContainer.setManaged(false);
+        }
+
         loadData();
     }
 
     private void loadData() {
-        orderList = pesananDAO.getPesananForDesignTeam();
-        refreshUI();
-    }
+        if (ordersContainer != null) {
+            ordersContainer.getChildren().clear();
+        }
 
-    // Perbarui UI berdasarkan data terbaru
-    private void refreshUI() {
-        updateStatistics();
-        renderOrderCards();
-    }
+        List<Pesanan> orders = pesananDAO.getPesananForDesignTeam();
 
-    // Perbarui statistik di dashboard
-    private void updateStatistics() {
-        long waiting = orderList.stream()
-                .filter(o -> "Menunggu Desain".equals(o.getStatus()) || "Pembayaran Verified".equals(o.getStatus()))
-                .count();
-        long revision = orderList.stream()
-                .filter(o -> "Desain Direvisi".equals(o.getStatus()))
-                .count();
-        long approved = orderList.stream()
-                .filter(o -> "Desain Disetujui".equals(o.getStatus()))
-                .count();
+        int countMenunggu = 0;
+        int countRevisi = 0;
+        int countDisetujui = 0;
 
-        if (lblCountWaiting != null) lblCountWaiting.setText(String.valueOf(waiting));
-        if (lblCountRevision != null) lblCountRevision.setText(String.valueOf(revision));
-        if (lblCountApproved != null) lblCountApproved.setText(String.valueOf(approved));
-    }
+        for (Pesanan p : orders) {
+            String status = p.getStatus();
+            if (status.contains("Menunggu") || status.contains("Verified")) countMenunggu++;
+            else if (status.contains("Revisi")) countRevisi++;
+            else if (status.contains("Disetujui") || status.contains("Antrian")) countDisetujui++;
 
-
-    // Render kartu pesanan di antrian desain
-    private void renderOrderCards() {
-        if (ordersContainer == null) return;
-
-        ordersContainer.getChildren().clear();
-
-        // Filter hanya yang belum disetujui untuk ditampilkan di antrian
-        List<Pesanan> antrianList = orderList.stream()
-                .filter(o -> !"Desain Disetujui".equals(o.getStatus()))
-                .toList();
-
-        if (antrianList.isEmpty()) {
-            Label emptyLabel = new Label("Tidak ada pesanan dalam antrian desain.");
-            emptyLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 14px; -fx-padding: 20;");
-            ordersContainer.getChildren().add(emptyLabel);
-        } else {
-            for (Pesanan order : antrianList) {
-                ordersContainer.getChildren().add(createOrderCard(order));
+            if (ordersContainer != null) {
+                ordersContainer.getChildren().add(createOrderCard(p));
             }
         }
+
+        if(lblCountWaiting != null) lblCountWaiting.setText(String.valueOf(countMenunggu));
+        if(lblCountRevision != null) lblCountRevision.setText(String.valueOf(countRevisi));
+        if(lblCountApproved != null) lblCountApproved.setText(String.valueOf(countDisetujui));
     }
 
+    private VBox createOrderCard(Pesanan p) {
+        VBox card = new VBox(10);
+        // Menggunakan styling CSS yang sama dengan Produksi (Card Style)
+        card.setStyle("-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);");
+        card.setPadding(new Insets(15));
 
-    // Buat kartu pesanan individual
-    private VBox createOrderCard(Pesanan order) {
-        VBox card = new VBox();
-        card.setStyle("-fx-background-color: white; -fx-border-color: #e8e8e8; -fx-border-width: 1; " +
-                "-fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 20;");
-        card.setSpacing(15);
-
-        // === HEADER ===
+        // --- Header ---
         HBox header = new HBox();
         header.setAlignment(Pos.CENTER_LEFT);
 
-        VBox identityBox = new VBox(2);
-        Label lblId = new Label(order.getDisplayId());
-        lblId.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #111;");
-
-        Label lblClient = new Label(order.getNamaPelanggan());
-        lblClient.setStyle("-fx-text-fill: #666; -fx-font-size: 12px;");
-
-        Label lblDate = new Label(order.getFormattedDate());
-        lblDate.setStyle("-fx-text-fill: #999; -fx-font-size: 11px;");
-
-        identityBox.getChildren().addAll(lblId, lblClient, lblDate);
+        VBox titleBox = new VBox(2);
+        Label lblId = new Label("PO-" + p.getNomorPesanan());
+        lblId.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        Label lblDate = new Label(p.getTanggalPesanan() != null ? p.getTanggalPesanan().toLocalDate().toString() : "-");
+        lblDate.setStyle("-fx-text-fill: #757575; -fx-font-size: 11px;");
+        titleBox.getChildren().addAll(lblId, lblDate);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        Label lblStatus = createStatusLabel(order.getStatus());
+        Label lblStatus = new Label(p.getStatus());
+        lblStatus.setStyle("-fx-background-color: #e3f2fd; -fx-text-fill: #1565c0; -fx-padding: 5 10; -fx-background-radius: 15;");
+        if (p.getStatus().contains("Revisi")) {
+            lblStatus.setStyle("-fx-background-color: #ffebee; -fx-text-fill: #c62828; -fx-padding: 5 10; -fx-background-radius: 15;");
+        }
+        header.getChildren().addAll(titleBox, spacer, lblStatus);
 
-        header.getChildren().addAll(identityBox, spacer, lblStatus);
+        // --- Info Customer ---
+        Label lblCust = new Label(p.getNamaPelanggan());
+        lblCust.setStyle("-fx-text-fill: #333; -fx-font-weight: bold; -fx-font-size: 12px;");
 
-        // === DETAIL INFO ===
-        VBox details = new VBox(8);
-        details.getChildren().add(createDetailRow("Layanan:", order.getJenisLayanan()));
-        details.getChildren().add(createDetailRow("Jumlah:", order.getFormattedJumlah()));
-        details.getChildren().add(createDetailRow("Spesifikasi:",
-                order.getSpesifikasi() != null ? order.getSpesifikasi() : "-"));
-        details.getChildren().add(createDetailRow("Catatan:",
-                order.getCatatan() != null ? order.getCatatan() : "-"));
+        // --- Detail Grid ---
+        GridPane grid = new GridPane();
+        grid.setHgap(15);
+        grid.setVgap(5);
 
-        // === ACTION BUTTONS ===
+        addDetailRow(grid, 0, "Layanan:", p.getJenisLayanan());
+        addDetailRow(grid, 1, "Jumlah:", p.getJumlah() + " pcs");
+        addDetailRow(grid, 2, "Spesifikasi:", p.getSpesifikasi());
+
+        // File Link
+        HBox fileBox = new HBox(5);
+        if (p.getFileDesainPath() != null && !p.getFileDesainPath().isEmpty()) {
+            Label lblFile = new Label("File: " + new File(p.getFileDesainPath()).getName());
+            lblFile.setStyle("-fx-text-fill: #27ae60; -fx-font-style: italic; -fx-font-size: 11px;");
+            fileBox.getChildren().add(lblFile);
+        } else {
+            Label lblFile = new Label("Belum ada file desain");
+            lblFile.setStyle("-fx-text-fill: #999; -fx-font-style: italic; -fx-font-size: 11px;");
+            fileBox.getChildren().add(lblFile);
+        }
+
+        // --- Tombol Aksi ---
         HBox actions = new HBox(10);
         actions.setPadding(new Insets(10, 0, 0, 0));
 
-        Button btnUpload = new Button("↑ Upload Desain");
-        styleButton(btnUpload, false);
-        btnUpload.setOnAction(e -> handleUploadDesign(order));
+        Button btnUpload = new Button("Upload Desain");
+        btnUpload.setStyle("-fx-background-color: white; -fx-border-color: #ddd; -fx-cursor: hand;");
+        btnUpload.setOnAction(e -> handleUpload(p));
 
-        Button btnApprove = new Button("✓ Setujui Desain");
-        styleButton(btnApprove, true);
-        btnApprove.setOnAction(e -> handleApproveDesign(order));
-
-        Button btnRevise = new Button("✎ Perlu Revisi");
-        styleButton(btnRevise, false);
-        btnRevise.setOnAction(e -> handleRequestRevision(order));
-
-        // Tampilkan tombol berdasarkan status
-        if ("Menunggu Desain".equals(order.getStatus()) || "Pembayaran Verified".equals(order.getStatus())) {
-            actions.getChildren().addAll(btnUpload, btnApprove, btnRevise);
-        } else if ("Desain Direvisi".equals(order.getStatus())) {
-            actions.getChildren().addAll(btnUpload, btnApprove);
+        Button btnApprove = new Button("Setujui Desain");
+        btnApprove.setStyle("-fx-background-color: #2e2e2e; -fx-text-fill: white; -fx-cursor: hand;");
+        if (p.getFileDesainPath() == null || p.getFileDesainPath().isEmpty()) {
+            btnApprove.setDisable(true);
+            btnApprove.setTooltip(new Tooltip("Upload desain dulu sebelum approve"));
         }
+        btnApprove.setOnAction(e -> handleApprove(p));
 
-        card.getChildren().addAll(header, details, actions);
+        Button btnRevisi = new Button("Perlu Revisi");
+        btnRevisi.setStyle("-fx-background-color: white; -fx-border-color: #ff9800; -fx-text-fill: #ff9800; -fx-cursor: hand;");
+        btnRevisi.setOnAction(e -> handleOpenRevisiPopup(p));
+
+        actions.getChildren().addAll(btnUpload, btnApprove, btnRevisi);
+        card.getChildren().addAll(header, lblCust, grid, fileBox, actions);
         return card;
     }
 
-    // Buat label status dengan gaya dinamis
-    private Label createStatusLabel(String status) {
-        Label lblStatus = new Label(status);
-        lblStatus.setStyle(getStatusStyle(status));
-        return lblStatus;
+    private void addDetailRow(GridPane grid, int row, String label, String value) {
+        Label l = new Label(label); l.setStyle("-fx-font-weight: bold; -fx-text-fill: #555; -fx-font-size: 12px;");
+        Label v = new Label(value); v.setStyle("-fx-text-fill: #333; -fx-font-size: 12px;"); v.setWrapText(true);
+        grid.add(l, 0, row);
+        grid.add(v, 1, row);
     }
 
-    // Tentukan gaya status berdasarkan nilai status
-    private String getStatusStyle(String status) {
-        String baseStyle = "-fx-padding: 6 14; -fx-background-radius: 15; -fx-font-weight: bold; -fx-font-size: 11px;";
+    // --- LOGIC ACTIONS ---
 
-        return switch (status) {
-            case "Menunggu Desain" -> baseStyle + "-fx-background-color: #f3f4f6; -fx-text-fill: #374151;";
-            case "Desain Direvisi" -> baseStyle + "-fx-background-color: #fef2f2; -fx-text-fill: #dc2626;";
-            case "Desain Disetujui" -> baseStyle + "-fx-background-color: #dcfce7; -fx-text-fill: #166534;";
-            default -> baseStyle + "-fx-background-color: #f3f4f6; -fx-text-fill: #374151;";
-        };
-    }
-
-    // Buat baris detail informasi pesanan
-    private HBox createDetailRow(String labelText, String valueText) {
-        HBox row = new HBox(5);
-        row.setAlignment(Pos.CENTER_LEFT);
-
-        Label lbl = new Label(labelText);
-        lbl.setStyle("-fx-font-weight: bold; -fx-text-fill: #555; -fx-font-size: 12px;");
-        lbl.setMinWidth(80);
-
-        Label val = new Label(valueText != null ? valueText : "-");
-        val.setStyle("-fx-text-fill: #333; -fx-font-size: 12px;");
-        val.setWrapText(true);
-
-        row.getChildren().addAll(lbl, val);
-        return row;
-    }
-
-    // Gaya tombol konsisten
-    private void styleButton(Button btn, boolean isPrimary) {
-        String baseStyle = "-fx-font-size: 12px; -fx-font-weight: 600; -fx-padding: 8 16; " +
-                "-fx-background-radius: 6; -fx-cursor: hand;";
-
-        if (isPrimary) {
-            btn.setStyle(baseStyle + "-fx-background-color: #1f1f1f; -fx-text-fill: white;");
-            btn.setOnMouseEntered(e -> btn.setStyle(baseStyle + "-fx-background-color: #333; -fx-text-fill: white;"));
-            btn.setOnMouseExited(e -> btn.setStyle(baseStyle + "-fx-background-color: #1f1f1f; -fx-text-fill: white;"));
-        } else {
-            btn.setStyle(baseStyle + "-fx-background-color: white; -fx-text-fill: #333; " +
-                    "-fx-border-color: #ddd; -fx-border-width: 1; -fx-border-radius: 6;");
-            btn.setOnMouseEntered(e -> btn.setStyle(baseStyle + "-fx-background-color: #f5f5f5; -fx-text-fill: #333; " +
-                    "-fx-border-color: #ccc; -fx-border-width: 1; -fx-border-radius: 6;"));
-            btn.setOnMouseExited(e -> btn.setStyle(baseStyle + "-fx-background-color: white; -fx-text-fill: #333; " +
-                    "-fx-border-color: #ddd; -fx-border-width: 1; -fx-border-radius: 6;"));
-        }
-    }
-
-    // Tangani upload desain
-    private void handleUploadDesign(Pesanan order) {
+    private void handleUpload(Pesanan p) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Pilih File Desain");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif"),
-                new FileChooser.ExtensionFilter("PDF Files", "*.pdf"),
-                new FileChooser.ExtensionFilter("Design Files", "*.psd", "*.ai", "*.cdr"),
-                new FileChooser.ExtensionFilter("All Files", "*.*")
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.pdf", "*.ai", "*.psd")
         );
-
-        File selectedFile = fileChooser.showOpenDialog(ordersContainer.getScene().getWindow());
+        Stage stage = (Stage) ordersContainer.getScene().getWindow();
+        File selectedFile = fileChooser.showOpenDialog(stage);
 
         if (selectedFile != null) {
-            AlertUtil.showInfo("Upload Berhasil",
-                    "File desain untuk " + order.getDisplayId() + " berhasil diupload.\n" +
-                            "File: " + selectedFile.getName());
+            try {
+                File destDir = new File("design_storage");
+                if (!destDir.exists()) destDir.mkdirs();
+                String newFileName = "DESAIN_" + p.getNomorPesanan() + "_" + System.currentTimeMillis() + "_" + selectedFile.getName();
+                File destFile = new File(destDir, newFileName);
+                Files.copy(selectedFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
-            // Refresh data
-            loadData();
-        }
-    }
+                int idDesigner = SessionManager.getInstance().getCurrentUserId();
+                if (idDesigner == -1) idDesigner = 1;
 
-    // Tangani approval desain
-    private void handleApproveDesign(Pesanan order) {
-        boolean confirm = AlertUtil.showConfirmation("Konfirmasi Approval",
-                "Apakah Anda yakin ingin menyetujui desain untuk pesanan " + order.getDisplayId() + "?\n" +
-                        "Pesanan akan dilanjutkan ke tahap produksi.");
-
-        if (confirm) {
-            boolean success = pesananDAO.updateDesignStatus(order.getIdPesanan(), "approve");
-
-            if (success) {
-                AlertUtil.showInfo("Desain Disetujui",
-                        "Desain untuk " + order.getDisplayId() + " telah disetujui.\n" +
-                                "Pesanan siap untuk produksi.");
-                loadData();
-            } else {
-                AlertUtil.showError("Gagal", "Gagal mengupdate status pesanan. Silakan coba lagi.");
+                boolean success = pesananDAO.simpanDesain(p.getIdPesanan(), destFile.getPath(), idDesigner);
+                if (success) {
+                    pesananDAO.updateStatus(p.getIdPesanan(), "Menunggu Desain");
+                    loadData();
+                    AlertUtil.showInfo("Sukses", "File berhasil diupload!");
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                AlertUtil.showError("Error", "Gagal upload file: " + ex.getMessage());
             }
         }
     }
 
-    // Tangani permintaan revisi desain
-    private void handleRequestRevision(Pesanan order) {
-        boolean confirm = AlertUtil.showConfirmation("Konfirmasi Revisi",
-                "Apakah Anda yakin desain untuk pesanan " + order.getDisplayId() + " perlu direvisi?");
-
-        if (confirm) {
-            boolean success = pesananDAO.updateDesignStatus(order.getIdPesanan(), "revisi");
-
-            if (success) {
-                AlertUtil.showInfo("Status Diubah",
-                        "Pesanan " + order.getDisplayId() + " ditandai perlu revisi.");
-                loadData();
-            } else {
-                AlertUtil.showError("Gagal", "Gagal mengupdate status pesanan. Silakan coba lagi.");
+    private void handleApprove(Pesanan p) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                "Apakah pelanggan sudah setuju?\nPesanan akan dikirim ke Tim Produksi.",
+                ButtonType.YES, ButtonType.NO);
+        alert.showAndWait().ifPresent(resp -> {
+            if (resp == ButtonType.YES) {
+                boolean success = pesananDAO.approveDesain(p.getIdPesanan());
+                if (success) {
+                    loadData();
+                    AlertUtil.showInfo("Sukses", "Desain disetujui! Pesanan masuk ke antrian produksi.");
+                } else {
+                    AlertUtil.showError("Error", "Gagal update database.");
+                }
             }
+        });
+    }
+
+    // =======================================================
+    // LOGIC POPUP REVISI (Menghubungkan dengan FXML)
+    // =======================================================
+
+    // 1. Membuka Popup saat tombol "Perlu Revisi" diklik di kartu
+    private void handleOpenRevisiPopup(Pesanan p) {
+        this.currentRevisiOrder = p; // Simpan pesanan mana yang sedang direvisi
+        txtRevisi.clear(); // Kosongkan text area
+        revisiPopupContainer.setVisible(true); // Tampilkan popup
+        revisiPopupContainer.setManaged(true); // Atur layout agar terlihat
+    }
+
+    // 2. Button Action: "Kirim Revisi" (dipanggil dari FXML onAction="#submitRevisi")
+    @FXML
+    private void submitRevisi() {
+        if (currentRevisiOrder == null) return;
+
+        String alasan = txtRevisi.getText();
+        if (alasan == null || alasan.trim().isEmpty()) {
+            AlertUtil.showWarning("Peringatan", "Mohon isi alasan revisi dari pelanggan.");
+            return;
+        }
+
+        // Update status ke "Desain Direvisi"
+        boolean successStatus = pesananDAO.updateDesignStatus(currentRevisiOrder.getIdPesanan(), "revisi");
+
+        // (Opsional) Update catatan alasan revisi ke database
+        // Jika DAO kamu punya method updateCatatan, gunakan ini:
+        pesananDAO.updateCatatan(currentRevisiOrder.getIdPesanan(), "REVISI: " + alasan);
+
+        if (successStatus) {
+            AlertUtil.showInfo("Berhasil", "Status pesanan diubah menjadi Perlu Revisi.");
+            loadData();   // Refresh data
+            cancelRevisi(); // Tutup popup
+        } else {
+            AlertUtil.showError("Gagal", "Terjadi kesalahan saat update status.");
         }
     }
 
-    public void refresh() {
-        Platform.runLater(this::loadData);
+    // 3. Button Action: "Batal" (dipanggil dari FXML onAction="#cancelRevisi")
+    @FXML
+    private void cancelRevisi() {
+        revisiPopupContainer.setVisible(false);
+        revisiPopupContainer.setManaged(false);
+        currentRevisiOrder = null;
+        txtRevisi.clear();
     }
 }

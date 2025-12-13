@@ -12,6 +12,7 @@ module com.example.trying3 {
     requires com.almasb.fxgl.all;
     requires java.sql;
     requires jbcrypt;
+    requires java.desktop;
 
     opens com.example.trying3 to javafx.fxml;
     exports com.example.trying3;
