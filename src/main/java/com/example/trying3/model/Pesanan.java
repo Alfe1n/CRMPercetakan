@@ -17,12 +17,13 @@ public class Pesanan {
     private String status;
     private LocalDateTime tanggalPesanan;
     private LocalDateTime updatedAt;
+    private String fileDesainPath;
 
     // Constructors
     public Pesanan() {
     }
 
-    public Pesanan(int idPesanan, String namaPelanggan, String noTelepon, String email, 
+    public Pesanan(int idPesanan, String namaPelanggan, String noTelepon, String email,
                    String jenisLayanan, int jumlah, double totalHarga, String spesifikasi,
                    String status, LocalDateTime tanggalPesanan) {
         this.idPesanan = idPesanan;
@@ -169,5 +170,15 @@ public class Pesanan {
                 ", status='" + status + '\'' +
                 ", totalHarga=" + totalHarga +
                 '}';
+
+
+    }
+    public String getFileDesainPath() {
+        return fileDesainPath;
+    }
+
+    public void setFileDesainPath(String fileDesainPath) {
+        this.fileDesainPath = fileDesainPath;
     }
 }
+

@@ -7,11 +7,13 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.GridPane?>
 
 <ScrollPane fitToWidth="true"
             xmlns="http://javafx.com/javafx/21.0.0"
             xmlns:fx="http://javafx.com/fxml/1"
-            stylesheets="@production.css"
+            stylesheets="@../designer/designer.css"
             fx:controller="com.example.trying3.controller.production.ProduksiController"
             styleClass="content-pane-scroll"
             style="-fx-background: transparent; -fx-background-color: transparent;">
@@ -31,53 +33,60 @@
                 </VBox>
 
                 <HBox spacing="20.0">
-                    <children>
-                        <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
-                            <children>
-                                <Label styleClass="stat-title" text="Menunggu Produksi"/>
-                                <Label fx:id="waitingLabel" styleClass="stat-value" text="0"/>
-                                <Label styleClass="stat-subtitle" text="Siap diproduksi"/>
-                            </children>
-                        </VBox>
-
-                        <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
-                            <children>
-                                <Label styleClass="stat-title" text="Sedang Diproduksi"/>
-                                <Label fx:id="inProgressLabel" styleClass="stat-value" text="0"/>
-                                <Label styleClass="stat-subtitle" text="Dalam proses"/>
-                            </children>
-                        </VBox>
-
-                        <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
-                            <children>
-                                <Label styleClass="stat-title" text="Selesai Produksi"/>
-                                <Label fx:id="completedLabel" styleClass="stat-value" text="0"/>
-                                <Label styleClass="stat-subtitle" text="Siap dikirim"/>
-                            </children>
-                        </VBox>
-                    </children>
-                </HBox>
-
-                <VBox fx:id="kendalaFormContainer" styleClass="card" spacing="12.0" visible="false" managed="false">
-                    <children>
-                        <Label fx:id="lblKendalaTitle" styleClass="card-title" text="Laporkan Kendala" />
-                        <Label styleClass="muted" text="Laporkan kendala yang terjadi selama produksi" />
-                        <Label styleClass="field-title" text="Deskripsi Kendala" />
-                        <TextArea fx:id="txtKendala" prefRowCount="4" promptText="Jelaskan kendala yang terjadi..." />
-                        <HBox spacing="10.0" style="-fx-padding: 8 0 0 0;">
-                            <children>
-                                <Button styleClass="btn-primary" text="Kirim Laporan" onAction="#submitKendala"/>
-                                <Button styleClass="btn-outline" text="Batal" onAction="#cancelKendala"/>
-                            </children>
+                    <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label styleClass="stat-title" text="Menunggu Produksi"/>
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Label text="🕒" style="-fx-text-fill: #999; -fx-font-size:14px;"/>
                         </HBox>
-                    </children>
-                </VBox>
+                        <Label fx:id="waitingLabel" styleClass="stat-value" text="0"/>
+                        <Label styleClass="stat-subtitle" text="Siap diproduksi"/>
+                    </VBox>
+
+                    <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label styleClass="stat-title" text="Sedang Diproduksi"/>
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Label text="⚙️" style="-fx-text-fill: #999; -fx-font-size:14px;"/>
+                        </HBox>
+                        <Label fx:id="inProgressLabel" styleClass="stat-value" text="0"/>
+                        <Label styleClass="stat-subtitle" text="Dalam proses"/>
+                    </VBox>
+
+                    <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label styleClass="stat-title" text="Selesai Produksi"/>
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Label text="✔" style="-fx-text-fill: #999; -fx-font-size:14px;"/>
+                        </HBox>
+                        <Label fx:id="completedLabel" styleClass="stat-value" text="0"/>
+                        <Label styleClass="stat-subtitle" text="Siap dikirim"/>
+                    </VBox>
+                </HBox>
 
                 <VBox styleClass="card" spacing="15.0">
                     <children>
                         <Label styleClass="card-title" text="Antrian Produksi"/>
                         <Label styleClass="muted" text="Pesanan yang siap untuk diproduksi" />
+
                         <VBox fx:id="orderListContainer" spacing="12.0" />
+                    </children>
+                </VBox>
+
+                <VBox fx:id="kendalaFormContainer" styleClass="card" spacing="12.0" visible="false" managed="false" style="-fx-border-color: #ddd; -fx-border-width: 1;">
+                    <children>
+                        <Label fx:id="lblKendalaTitle" styleClass="card-title" text="Laporkan Kendala" />
+                        <Label styleClass="muted" text="Laporkan kendala yang terjadi selama produksi" />
+
+                        <Label styleClass="form-label" text="Deskripsi Kendala" />
+                        <TextArea fx:id="txtKendala" prefRowCount="4" promptText="Jelaskan kendala yang terjadi..." styleClass="text-area"/>
+
+                        <HBox spacing="10.0" style="-fx-padding: 8 0 0 0;">
+                            <children>
+                                <Button styleClass="button-danger" text="Kirim Laporan" onAction="#submitKendala"/>
+                                <Button styleClass="button-secondary" text="Batal" onAction="#cancelKendala"/>
+                            </children>
+                        </HBox>
                     </children>
                 </VBox>
 

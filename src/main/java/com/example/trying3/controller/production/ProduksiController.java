@@ -1,5 +1,7 @@
 package com.example.trying3.controller.production;
 
+import com.example.trying3.dao.PesananDAO;
+import com.example.trying3.model.Pesanan;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -7,7 +9,13 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
+import java.awt.Desktop;
+import java.io.File;
+import java.io.FileWriter; // Import untuk tulis file TXT
+import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -16,240 +24,323 @@ import java.util.stream.Collectors;
 public class ProduksiController implements Initializable {
 
     // --- FXML ELEMENTS ---
-    // Statistik
     @FXML private Label waitingLabel;
     @FXML private Label inProgressLabel;
     @FXML private Label completedLabel;
-
-    // Container untuk menampung kartu pesanan
     @FXML private VBox orderListContainer;
 
-    // Form Kendala (Popup/Bagian Bawah)
     @FXML private VBox kendalaFormContainer;
     @FXML private Label lblKendalaTitle;
     @FXML private TextArea txtKendala;
 
-    // --- DATA LOCAL ---
+    // --- DATA ---
     private List<ProductionOrder> orderList = new ArrayList<>();
-    private ProductionOrder selectedOrderForIssue; // Order yang sedang dipilih untuk lapor kendala
+    private ProductionOrder selectedOrderForIssue;
+    private PesananDAO pesananDAO;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        loadDummyData();
+        pesananDAO = new PesananDAO();
+        if(kendalaFormContainer != null) {
+            kendalaFormContainer.setVisible(false);
+            kendalaFormContainer.setManaged(false);
+        }
+        loadDataFromDatabase();
         refreshDashboard();
     }
 
-    // 1. LOAD DATA DUMMY
-    private void loadDummyData() {
-        orderList.add(new ProductionOrder("ORD-002", "Toko Berkah", "2024-01-14", "Sablon", 50, "Kaos cotton combed 30s, sablon plastisol", "design_toko_berkah.ai", "Sedang Diproses"));
-        orderList.add(new ProductionOrder("ORD-003", "PT Maju Jaya", "2024-01-15", "Digital Printing", 100, "Banner Flexi 280gr, Finishing Mata Ayam", "banner_maju.pdf", "Menunggu"));
-        orderList.add(new ProductionOrder("ORD-004", "CV. Sejahtera", "2024-01-16", "Offset", 1000, "Brosur A4 Art Paper 150gsm", "brosur_final.pdf", "Selesai"));
+    private void loadDataFromDatabase() {
+        orderList.clear();
+        List<Pesanan> dbOrders = pesananDAO.getPesananForProduction();
+
+        for (Pesanan p : dbOrders) {
+            String fileDesain = (p.getFileDesainPath() != null) ? p.getFileDesainPath() : "";
+            String namaPelanggan = (p.getNamaPelanggan() != null) ? p.getNamaPelanggan() : "Unknown";
+            String tgl = (p.getTanggalPesanan() != null) ? p.getTanggalPesanan().toLocalDate().toString() : "-";
+            String catatan = (p.getCatatan() != null) ? p.getCatatan() : "";
+
+            orderList.add(new ProductionOrder(
+                    String.valueOf(p.getIdPesanan()), namaPelanggan, tgl,
+                    p.getJenisLayanan(), p.getJumlah(), p.getSpesifikasi(),
+                    fileDesain, p.getStatus(), catatan
+            ));
+        }
     }
 
-    // 2. REFRESH TAMPILAN (Statistik & List)
     private void refreshDashboard() {
-        updateStatistics();
+        long waiting = orderList.stream().filter(o -> o.getStatus().equalsIgnoreCase("Antrian Produksi")).count();
+        long inProgress = orderList.stream().filter(o -> o.getStatus().equalsIgnoreCase("Sedang Diproduksi")).count();
+        long completed = orderList.stream().filter(o -> o.getStatus().equalsIgnoreCase("Selesai")).count();
+
+        if (waitingLabel != null) waitingLabel.setText(String.valueOf(waiting));
+        if (inProgressLabel != null) inProgressLabel.setText(String.valueOf(inProgress));
+        if (completedLabel != null) completedLabel.setText(String.valueOf(completed));
+
         renderOrderList();
     }
 
-    private void updateStatistics() {
-        long waiting = orderList.stream().filter(o -> o.getStatus().equals("Menunggu")).count();
-        long inProgress = orderList.stream().filter(o -> o.getStatus().equals("Sedang Diproses")).count();
-        long completed = orderList.stream().filter(o -> o.getStatus().equals("Selesai")).count();
-
-        waitingLabel.setText(String.valueOf(waiting));
-        inProgressLabel.setText(String.valueOf(inProgress));
-        completedLabel.setText(String.valueOf(completed));
-    }
-
     private void renderOrderList() {
-        orderListContainer.getChildren().clear();
+        if (orderListContainer != null) {
+            orderListContainer.getChildren().clear();
 
-        // Filter: Tampilkan yang belum selesai (Menunggu & Sedang Diproses)
-        // Agar dashboard fokus pada pekerjaan aktif.
-        List<ProductionOrder> activeOrders = orderList.stream()
-                .filter(o -> !o.getStatus().equals("Selesai"))
-                .collect(Collectors.toList());
+            List<ProductionOrder> activeOrders = orderList.stream()
+                    .filter(o -> !o.getStatus().equalsIgnoreCase("Selesai"))
+                    .collect(Collectors.toList());
 
-        if (activeOrders.isEmpty()) {
-            Label emptyLabel = new Label("Tidak ada antrian produksi saat ini.");
-            emptyLabel.getStyleClass().add("muted");
-            orderListContainer.getChildren().add(emptyLabel);
-            return;
-        }
+            if (activeOrders.isEmpty()) {
+                Label emptyLabel = new Label("Tidak ada antrian produksi saat ini.");
+                emptyLabel.getStyleClass().add("muted");
+                emptyLabel.setPadding(new Insets(10));
+                orderListContainer.getChildren().add(emptyLabel);
+                return;
+            }
 
-        for (ProductionOrder order : activeOrders) {
-            orderListContainer.getChildren().add(createOrderCard(order));
+            for (ProductionOrder order : activeOrders) {
+                orderListContainer.getChildren().add(createOrderCard(order));
+            }
         }
     }
 
-    // 3. MEMBUAT UI KARTU SECARA PROGRAMMATIC (Sesuai CSS)
+    // --- UI CARD (Style CSS Designer) ---
     private VBox createOrderCard(ProductionOrder order) {
-        VBox card = new VBox();
-        card.getStyleClass().add("order-card");
-        card.setSpacing(12);
-        card.setPadding(new Insets(16));
+        VBox card = new VBox(15);
+        card.getStyleClass().add("order-detail-card");
 
-        // Header Baris (ID + Spacer + Status Pill)
-        HBox header = new HBox(10);
+        // Header
+        HBox header = new HBox();
         header.setAlignment(Pos.CENTER_LEFT);
 
-        Label lblId = new Label(order.getId());
-        lblId.getStyleClass().add("order-id");
+        VBox titleBox = new VBox(2);
+        Label lblId = new Label("PO-" + order.getId());
+        lblId.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #1f1f1f;");
+        Label lblCust = new Label(order.getCustomerName() + " • " + order.getDate());
+        lblCust.getStyleClass().add("muted");
+        titleBox.getChildren().addAll(lblId, lblCust);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
+        // Status Pill
         Label lblStatus = new Label(order.getStatus());
-        lblStatus.getStyleClass().add("status-pill");
+        lblStatus.getStyleClass().add("status-badge");
+        if (order.getStatus().equalsIgnoreCase("Antrian Produksi")) {
+            lblStatus.getStyleClass().add("status-antrian-produksi");
+        } else if (order.getStatus().equalsIgnoreCase("Sedang Diproduksi")) {
+            lblStatus.getStyleClass().add("status-sedang-diproduksi");
+        } else {
+            lblStatus.getStyleClass().add("status-produksi-selesai");
+        }
+        header.getChildren().addAll(titleBox, spacer, lblStatus);
 
-        // Kustomisasi warna pill jika status "Menunggu"
-        if(order.getStatus().equals("Menunggu")) {
-            lblStatus.setStyle("-fx-background-color: #e0e0e0; -fx-text-fill: #333;");
+        // Details
+        GridPane grid = new GridPane();
+        grid.setHgap(20);
+        grid.setVgap(8);
+
+        addDetailRow(grid, 0, "Layanan", order.getService());
+        addDetailRow(grid, 1, "Jumlah", order.getQuantity() + " pcs");
+        addDetailRow(grid, 2, "Spesifikasi", order.getSpecs());
+
+        if (!order.getCatatan().isEmpty()) {
+            Label l = new Label("Catatan");
+            l.getStyleClass().add("field-label");
+            l.setStyle("-fx-text-fill: #e74c3c;");
+
+            Label v = new Label(order.getCatatan());
+            v.getStyleClass().add("field-value");
+            v.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+            v.setWrapText(true);
+            grid.add(l, 0, 3); grid.add(v, 1, 3);
         }
 
-        header.getChildren().addAll(lblId, spacer, lblStatus);
+        // File Link
+        HBox fileBox = new HBox(5);
+        if (!order.getFileDesainPath().isEmpty()) {
+            Label lblFile = new Label("📂 File Desain: " + new File(order.getFileDesainPath()).getName());
+            lblFile.setStyle("-fx-text-fill: #27ae60; -fx-font-style: italic; -fx-font-size: 12px; -fx-cursor: hand; -fx-underline: true;");
+            lblFile.setOnMouseClicked(e -> openFile(order.getFileDesainPath()));
+            fileBox.getChildren().add(lblFile);
+        } else {
+            Label lblFile = new Label("⚠️ Belum ada file desain");
+            lblFile.getStyleClass().add("muted");
+            lblFile.setStyle("-fx-font-style: italic;");
+            fileBox.getChildren().add(lblFile);
+        }
 
-        // Subheader (Customer Info)
-        Label lblCustomer = new Label(order.getCustomerName() + " - " + order.getDate());
-        lblCustomer.getStyleClass().add("muted");
-
-        // Garis Pemisah
-        Separator sep = new Separator();
-
-        // Detail Pesanan
-        VBox detailsBox = new VBox(8);
-        detailsBox.getChildren().addAll(
-                createDetailRow("Layanan:", order.getService()),
-                createDetailRow("Jumlah:", order.getQuantity() + " pcs"),
-                createDetailRow("Spesifikasi:", order.getSpecs()),
-                createDetailRow("File Desain:", order.getDesignFile())
-        );
-
-        // Tombol Aksi
+        // Action Buttons
         HBox actions = new HBox(10);
-        actions.setPadding(new Insets(8, 0, 0, 0));
+        actions.setPadding(new Insets(10, 0, 0, 0));
 
-        Button btnFinish = new Button("Selesai Produksi");
-        btnFinish.getStyleClass().add("btn-primary");
-        btnFinish.setOnAction(e -> handleFinishProduction(order));
+        Button btnMain = new Button();
+        btnMain.getStyleClass().add("button-primary");
 
-        // Logika ganti teks tombol berdasarkan status
-        if (order.getStatus().equals("Menunggu")) {
-            btnFinish.setText("Mulai Produksi");
-            btnFinish.setOnAction(e -> handleStartProduction(order));
+        if (order.getStatus().equalsIgnoreCase("Antrian Produksi")) {
+            btnMain.setText("Mulai Produksi");
+            btnMain.setOnAction(e -> handleStartProduction(order));
+        } else {
+            btnMain.setText("✅ Selesai Produksi");
+            btnMain.setOnAction(e -> handleFinishProduction(order));
         }
 
-        Button btnIssue = new Button("Laporkan Kendala");
-        btnIssue.getStyleClass().add("btn-outline");
+        Button btnIssue = new Button("⚠️ Laporkan Kendala");
+        btnIssue.getStyleClass().add("button-secondary");
         btnIssue.setOnAction(e -> showKendalaForm(order));
 
-        Button btnPrint = new Button("Print Job Sheet");
-        btnPrint.getStyleClass().add("btn-outline");
-        btnPrint.setOnAction(e -> System.out.println("Printing job sheet for " + order.getId()));
+        // [UPDATE] Tombol Print ke TXT
+        Button btnPrint = new Button("🖨️ Print Job Sheet (TXT)");
+        btnPrint.getStyleClass().add("button-secondary");
+        btnPrint.setOnAction(e -> generateTxtJobSheet(order));
 
-        actions.getChildren().addAll(btnFinish, btnIssue, btnPrint);
+        actions.getChildren().addAll(btnMain, btnIssue, btnPrint);
 
-        // Gabungkan semua ke dalam kartu
-        card.getChildren().addAll(header, lblCustomer, sep, detailsBox, actions);
+        card.getChildren().addAll(header, grid, fileBox, actions);
         return card;
     }
 
-    // Helper untuk membuat baris detail (Label Judul + Isi)
-    private VBox createDetailRow(String title, String value) {
-        VBox row = new VBox(2);
-        Label lblTitle = new Label(title);
-        lblTitle.getStyleClass().add("field-title");
-        Label lblValue = new Label(value);
-        lblValue.setWrapText(true);
-        row.getChildren().addAll(lblTitle, lblValue);
-        return row;
+    private void addDetailRow(GridPane grid, int row, String label, String value) {
+        Label l = new Label(label);
+        l.getStyleClass().add("field-label");
+
+        Label v = new Label(value);
+        v.getStyleClass().add("field-value");
+        v.setWrapText(true);
+
+        grid.add(l, 0, row);
+        grid.add(v, 1, row);
     }
 
-    // --- EVENT HANDLERS ---
+    // =====================================================================
+    // FITUR PRINT KE TXT (NOTEPAD)
+    // =====================================================================
+    private void generateTxtJobSheet(ProductionOrder order) {
+        // 1. Siapkan konten teks
+        StringBuilder sb = new StringBuilder();
+        sb.append("============================================================\n");
+        sb.append("               CRM PERCETAKAN - JOB SHEET                   \n");
+        sb.append("============================================================\n");
+        sb.append("Tanggal Cetak : ").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"))).append("\n");
+        sb.append("Nomor Pesanan : PO-").append(order.getId()).append("\n");
+        sb.append("------------------------------------------------------------\n\n");
+
+        sb.append("DATA PELANGGAN:\n");
+        sb.append("Nama          : ").append(order.getCustomerName()).append("\n");
+        sb.append("Tanggal Masuk : ").append(order.getDate()).append("\n\n");
+
+        sb.append("DETAIL PESANAN:\n");
+        sb.append("Layanan       : ").append(order.getService()).append("\n");
+        sb.append("Jumlah        : ").append(order.getQuantity()).append(" pcs\n");
+        sb.append("Spesifikasi   :\n").append(order.getSpecs()).append("\n\n");
+
+        if (!order.getCatatan().isEmpty()) {
+            sb.append("CATATAN KENDALA:\n");
+            sb.append(order.getCatatan()).append("\n\n");
+        }
+
+        sb.append("------------------------------------------------------------\n");
+        sb.append("\n\n");
+        sb.append("   Admin / CS                       Operator Produksi\n");
+        sb.append("\n\n");
+        sb.append(" (______________)                 (________________)\n");
+        sb.append("============================================================\n");
+
+        // 2. Buat file TXT
+        try {
+            // Buat folder khusus 'print_jobs' biar rapi
+            File dir = new File("print_jobs");
+            if (!dir.exists()) dir.mkdirs();
+
+            String fileName = "JobSheet_PO-" + order.getId() + ".txt";
+            File file = new File(dir, fileName);
+
+            // Tulis konten ke file
+            FileWriter writer = new FileWriter(file);
+            writer.write(sb.toString());
+            writer.close();
+
+            // 3. Buka file otomatis dengan Notepad
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(file);
+            } else {
+                showAlert("Info", "File berhasil dibuat: " + file.getAbsolutePath());
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Gagal membuat Job Sheet: " + e.getMessage());
+        }
+    }
+
+    // --- UTILS ---
+    private void openFile(String path) {
+        try {
+            File file = new File(path);
+            if (file.exists()) Desktop.getDesktop().open(file);
+        } catch (IOException e) { e.printStackTrace(); }
+    }
 
     private void handleStartProduction(ProductionOrder order) {
-        order.setStatus("Sedang Diproses");
-        System.out.println("Order " + order.getId() + " dimulai.");
-        refreshDashboard();
+        pesananDAO.updateStatus(Integer.parseInt(order.getId()), "Sedang Diproduksi");
+        loadDataFromDatabase(); refreshDashboard();
     }
 
     private void handleFinishProduction(ProductionOrder order) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Tandai pesanan " + order.getId() + " sebagai Selesai?", ButtonType.YES, ButtonType.NO);
-        alert.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.YES) {
-                order.setStatus("Selesai");
-                System.out.println("Order " + order.getId() + " selesai.");
-                refreshDashboard();
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Selesaikan pesanan ini?", ButtonType.YES, ButtonType.NO);
+        alert.showAndWait().ifPresent(resp -> {
+            if (resp == ButtonType.YES) {
+                pesananDAO.updateStatus(Integer.parseInt(order.getId()), "Selesai");
+                loadDataFromDatabase(); refreshDashboard();
             }
         });
     }
 
     private void showKendalaForm(ProductionOrder order) {
         this.selectedOrderForIssue = order;
-        lblKendalaTitle.setText("Laporkan Kendala - " + order.getId());
-        txtKendala.clear();
-        kendalaFormContainer.setVisible(true);
-        kendalaFormContainer.setManaged(true);
-    }
-
-    @FXML
-    private void submitKendala() {
-        if (selectedOrderForIssue != null && !txtKendala.getText().isEmpty()) {
-            String issue = txtKendala.getText();
-            System.out.println("Kendala dilaporkan untuk " + selectedOrderForIssue.getId() + ": " + issue);
-
-            Alert info = new Alert(Alert.AlertType.INFORMATION, "Laporan kendala terkirim.");
-            info.show();
-
-            cancelKendala();
-        } else {
-            Alert warn = new Alert(Alert.AlertType.WARNING, "Mohon isi deskripsi kendala.");
-            warn.show();
+        if(lblKendalaTitle != null) lblKendalaTitle.setText("Kendala PO-" + order.getId());
+        if(txtKendala != null) txtKendala.clear();
+        if(kendalaFormContainer != null) {
+            kendalaFormContainer.setVisible(true);
+            kendalaFormContainer.setManaged(true);
         }
     }
 
-    @FXML
-    private void cancelKendala() {
-        kendalaFormContainer.setVisible(false);
-        kendalaFormContainer.setManaged(false);
-        selectedOrderForIssue = null;
-        txtKendala.clear();
+    @FXML private void submitKendala() {
+        if (selectedOrderForIssue != null && txtKendala != null) {
+            pesananDAO.updateCatatan(Integer.parseInt(selectedOrderForIssue.getId()), "KENDALA: " + txtKendala.getText());
+            loadDataFromDatabase(); refreshDashboard(); cancelKendala();
+        }
     }
 
-    // ==============================================================
-    // INNER CLASS: MODEL DATA (ProductionOrder)
-    // Disimpan di dalam Controller agar menjadi satu file saja.
-    // ==============================================================
+    @FXML private void cancelKendala() {
+        if(kendalaFormContainer != null) {
+            kendalaFormContainer.setVisible(false);
+            kendalaFormContainer.setManaged(false);
+        }
+    }
+
+    private void showAlert(String title, String content) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION);
+        a.setTitle(title);
+        a.setContentText(content);
+        a.show();
+    }
+
     public static class ProductionOrder {
-        private String id;
-        private String customerName;
-        private String date;
-        private String service;
+        private String id, customerName, date, service;
         private int quantity;
-        private String specs;
-        private String designFile;
-        private String status;
-
-        public ProductionOrder(String id, String customerName, String date, String service, int quantity, String specs, String designFile, String status) {
-            this.id = id;
-            this.customerName = customerName;
-            this.date = date;
-            this.service = service;
-            this.quantity = quantity;
-            this.specs = specs;
-            this.designFile = designFile;
-            this.status = status;
+        private String specs, fileDesainPath, status, catatan;
+        public ProductionOrder(String id, String customerName, String date, String service, int quantity, String specs, String fileDesainPath, String status, String catatan) {
+            this.id = id; this.customerName = customerName; this.date = date; this.service = service;
+            this.quantity = quantity; this.specs = specs; this.fileDesainPath = fileDesainPath;
+            this.status = status; this.catatan = catatan;
         }
-
         public String getId() { return id; }
         public String getCustomerName() { return customerName; }
         public String getDate() { return date; }
         public String getService() { return service; }
         public int getQuantity() { return quantity; }
         public String getSpecs() { return specs; }
-        public String getDesignFile() { return designFile; }
+        public String getFileDesainPath() { return fileDesainPath; }
         public String getStatus() { return status; }
-        public void setStatus(String status) { this.status = status; }
+        public String getCatatan() { return catatan; }
     }
 }
