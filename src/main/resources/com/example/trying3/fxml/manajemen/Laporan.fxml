@@ -3,81 +3,104 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.text.Text?>
 
-<ScrollPane fx:id="scrollPane" fitToWidth="true"
-            xmlns="http://javafx.com/javafx/21.0.0" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.example.trying3.controller.management.LaporanController">
+<ScrollPane fitToWidth="true"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.trying3.controller.management.LaporanController"
+            stylesheets="@manajemen.css">
 
-    <VBox spacing="20">
+    <VBox spacing="24" styleClass="page-root">
         <padding>
-            <Insets top="20" right="20" bottom="20" left="20"/>
+            <Insets top="24" right="24" bottom="24" left="24"/>
         </padding>
 
-        <VBox spacing="5">
-            <Text text="Laporan" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
-            <Text text="Laporan operasional dan keuangan" style="-fx-font-size: 14px; -fx-fill: #555;" />
+        <!-- HEADER -->
+        <VBox spacing="4">
+            <Text text="Laporan" styleClass="page-title"/>
+            <Text text="Laporan operasional dan keuangan" styleClass="page-subtitle"/>
         </VBox>
 
-        <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;">
-            <Text text="Hasilkan Laporan" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
-            <Text text="Pilih jenis dan periode laporan yang ingin diunduh" style="-fx-font-size: 13px; -fx-fill: #777;" />
+        <!-- FILTER -->
+        <VBox spacing="16" styleClass="card">
+            <Text text="Hasilkan Laporan" styleClass="card-title"/>
+            <Text text="Pilih jenis dan periode laporan yang ingin diunduh"
+                  styleClass="text-muted"/>
 
-            <GridPane hgap="20" vgap="15">
+            <GridPane hgap="24" vgap="12">
                 <columnConstraints>
-                    <ColumnConstraints halignment="LEFT" percentWidth="50"/>
-                    <ColumnConstraints halignment="LEFT" percentWidth="50"/>
+                    <ColumnConstraints percentWidth="50"/>
+                    <ColumnConstraints percentWidth="50"/>
                 </columnConstraints>
 
-                <Label text="Periode Laporan" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                <ComboBox fx:id="comboPeriode" prefWidth="200" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <!-- LABEL -->
+                <Label text="Periode Laporan"
+                       GridPane.columnIndex="0"
+                       GridPane.rowIndex="0"/>
 
-                <Label text="Jenis Laporan" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-                <ComboBox fx:id="comboJenis" prefWidth="200" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                <Label text="Jenis Laporan"
+                       GridPane.columnIndex="1"
+                       GridPane.rowIndex="0"/>
+
+                <!-- COMBOBOX -->
+                <ComboBox fx:id="comboPeriode"
+                          prefWidth="800"
+                          styleClass="combo-field"
+                          GridPane.columnIndex="0"
+                          GridPane.rowIndex="1"/>
+
+                <ComboBox fx:id="comboJenis"
+                          prefWidth="800"
+                          styleClass="combo-field"
+                          GridPane.columnIndex="1"
+                          GridPane.rowIndex="1"/>
             </GridPane>
 
-            <HBox spacing="10">
-                <Button fx:id="btnExcel" text="Unduh Laporan Excel"
-                        style="-fx-background-color: #000; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20;" />
-                <Button fx:id="btnPDF" text="Unduh PDF"
-                        style="-fx-background-color: #eee; -fx-background-radius: 8; -fx-padding: 10 20;" />
+            <HBox spacing="12">
+                <Button fx:id="btnExcel" text="Unduh Laporan Excel" styleClass="btn-primary"/>
+                <Button fx:id="btnPDF" text="Unduh PDF" styleClass="btn-secondary"/>
             </HBox>
         </VBox>
 
-        <HBox spacing="15">
-            <VBox style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;" spacing="5">
-                <Label text="Total Pesanan" style="-fx-font-size: 13px; -fx-text-fill: #777;" />
-                <Label fx:id="txtTotalPesanan" text="0" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
-                <Label text="Semua periode" />
+        <!-- SUMMARY -->
+        <HBox spacing="20">
+            <VBox styleClass="stat-card">
+                <Label text="Total Pesanan" styleClass="stat-label"/>
+                <Label fx:id="txtTotalPesanan" text="0" styleClass="stat-value"/>
+                <Label text="Semua periode" styleClass="text-muted"/>
             </VBox>
 
-            <VBox style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;" spacing="5">
-                <Label text="Pesanan Selesai" style="-fx-font-size: 13px; -fx-text-fill: #777;" />
-                <Label fx:id="txtPesananSelesai" text="0" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
-                <Label fx:id="txtSelesaiPersen" text="Tingkat penyelesaian 0%" />
+            <VBox styleClass="stat-card">
+                <Label text="Pesanan Selesai" styleClass="stat-label"/>
+                <Label fx:id="txtPesananSelesai" text="0" styleClass="stat-value"/>
+                <Label fx:id="txtSelesaiPersen" text="Tingkat penyelesaian 0%"
+                       styleClass="text-muted"/>
             </VBox>
 
-            <VBox style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;" spacing="5">
-                <Label text="Total Pendapatan" style="-fx-font-size: 13px; -fx-text-fill: #777;" />
-                <Label fx:id="txtPendapatan" text="Rp 0" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
-                <Label text="Pembayaran terverifikasi" />
+            <VBox styleClass="stat-card">
+                <Label text="Total Pendapatan" styleClass="stat-label"/>
+                <Label fx:id="txtPendapatan" text="Rp 0" styleClass="stat-value"/>
+                <Label text="Pembayaran terverifikasi" styleClass="text-muted"/>
             </VBox>
 
-            <VBox style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;" spacing="5">
-                <Label text="Pesanan Tertunda" style="-fx-font-size: 13px; -fx-text-fill: #777;" />
-                <Label fx:id="txtTertunda" text="0" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
-                <Label text="Perlu tindak lanjut" />
+            <VBox styleClass="stat-card">
+                <Label text="Pesanan Tertunda" styleClass="stat-label"/>
+                <Label fx:id="txtTertunda" text="0" styleClass="stat-value"/>
+                <Label text="Perlu tindak lanjut" styleClass="text-muted"/>
             </VBox>
         </HBox>
 
-        <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;">
-            <Text text="Performa untuk Layanan" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
-            <VBox spacing="8" fx:id="layananContainer" />
+        <!-- LAYANAN -->
+        <VBox spacing="12" styleClass="card">
+            <Text text="Performa untuk Layanan" styleClass="card-title"/>
+            <VBox fx:id="layananContainer" spacing="6"/>
         </VBox>
 
-        <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12;">
-            <Text text="Aktivitas Terbaru" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
-            <VBox spacing="8" fx:id="activityContainer" />
+        <!-- AKTIVITAS -->
+        <VBox spacing="12" styleClass="card">
+            <Text text="Aktivitas Terbaru" styleClass="card-title"/>
+            <VBox fx:id="activityContainer" spacing="6"/>
         </VBox>
 
     </VBox>
