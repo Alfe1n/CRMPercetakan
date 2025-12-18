@@ -145,6 +145,11 @@
     -fx-text-fill: #7f8c8d;
 }
 
+.muted {
+    -fx-font-size: 14px;
+    -fx-text-fill: #7f8c8d;
+}
+
 
 /* ========================================
    STATISTICS BOX
@@ -198,6 +203,116 @@
 .card-subtitle {
     -fx-font-size: 14px;
     -fx-text-fill: #7f8c8d;
+}
+
+
+/* ========================================
+   ORDER DETAIL CARD (Untuk Kelola Desain)
+   ======================================== */
+.order-detail-card {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e8e8e8;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 8, 0, 0, 2);
+}
+
+.order-detail-card:hover {
+    -fx-border-color: #d0d0d0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 3);
+}
+
+.field-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #555;
+    -fx-font-size: 12px;
+    -fx-min-width: 80;
+}
+
+.field-value {
+    -fx-text-fill: #333;
+    -fx-font-size: 12px;
+}
+
+
+/* ========================================
+   STATUS PILL / BADGE
+   ======================================== */
+.status-pill {
+    -fx-padding: 6 14;
+    -fx-background-radius: 15;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+}
+
+.status-pill.waiting {
+    -fx-background-color: #f3f4f6;
+    -fx-text-fill: #374151;
+}
+
+.status-pill.revision {
+    -fx-background-color: #fef2f2;
+    -fx-text-fill: #dc2626;
+}
+
+.status-pill.approved {
+    -fx-background-color: #dcfce7;
+    -fx-text-fill: #166534;
+}
+
+
+/* ========================================
+   ACTION BUTTONS
+   ======================================== */
+.action-button-base {
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-padding: 8 16;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-cursor: hand;
+}
+
+.btn-outline {
+    -fx-background-color: white;
+    -fx-text-fill: #333;
+    -fx-border-color: #ddd;
+    -fx-border-width: 1;
+}
+
+.btn-outline:hover {
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: #ccc;
+}
+
+.btn-filled {
+    -fx-background-color: #1f1f1f;
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+}
+
+.btn-filled:hover {
+    -fx-background-color: #333;
+}
+
+.btn-success {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+}
+
+.btn-success:hover {
+    -fx-background-color: #229954;
+}
+
+.btn-danger {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+}
+
+.btn-danger:hover {
+    -fx-background-color: #c0392b;
 }
 
 
@@ -414,64 +529,6 @@
 
 
 /* ========================================
-   LIST VIEW
-   ======================================== */
-.order-list-view {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-}
-
-.order-list-view .list-cell {
-    -fx-background-color: transparent;
-    -fx-padding: 8 0;
-}
-
-.order-list-item {
-    -fx-background-color: #f8f9fa;
-    -fx-background-radius: 10;
-    -fx-padding: 15;
-}
-
-.order-list-view .list-cell:hover .order-list-item {
-    -fx-background-color: #ecf0f1;
-    -fx-cursor: hand;
-}
-
-.order-customer-name {
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #1f1f1f;
-}
-
-.order-type {
-    -fx-font-size: 13px;
-    -fx-text-fill: #7f8c8d;
-}
-
-.order-status {
-    -fx-font-size: 13px;
-    -fx-font-weight: bold;
-    -fx-padding: 4 10;
-    -fx-background-radius: 15;
-}
-
-.order-status-pending {
-    -fx-background-color: #fff3cd;
-    -fx-text-fill: #856404;
-}
-
-.order-status-process {
-    -fx-background-color: #cce5ff;
-    -fx-text-fill: #004085;
-}
-
-.order-status-completed {
-    -fx-background-color: #d4edda;
-    -fx-text-fill: #155724;
-}
-
-
-/* ========================================
    SCROLL BAR STYLING
    ======================================== */
 .scroll-bar:vertical {
@@ -511,134 +568,8 @@
 
 
 /* ========================================
-   VALIDATION & ALERTS
+   STATUS BADGES (Berdasarkan status_pesanan database)
    ======================================== */
-.text-field.error {
-    -fx-border-color: #e74c3c;
-    -fx-border-width: 2;
-}
-
-.text-area.error {
-    -fx-border-color: #e74c3c;
-    -fx-border-width: 2;
-}
-
-.text-field.success {
-    -fx-border-color: #27ae60;
-    -fx-border-width: 2;
-}
-
-.text-area.success {
-    -fx-border-color: #27ae60;
-    -fx-border-width: 2;
-}
-
-.error-label {
-    -fx-font-size: 12px;
-    -fx-text-fill: #e74c3c;
-    -fx-font-style: italic;
-}
-
-.success-label {
-    -fx-font-size: 12px;
-    -fx-text-fill: #27ae60;
-    -fx-font-weight: 600;
-}
-
-
-/* ========================================
-   PESANAN CARD LIST (Like in the image)
-   ======================================== */
-.pesanan-list-view {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-}
-
-.pesanan-list-view .list-cell {
-    -fx-background-color: transparent;
-    -fx-padding: 0 0 15 0;
-}
-
-.pesanan-list-view .list-cell:empty {
-    -fx-background-color: transparent;
-}
-
-.pesanan-card {
-    -fx-background-color: #ffffff;
-    -fx-background-radius: 10;
-    -fx-border-color: #e8e8e8;
-    -fx-border-width: 1;
-    -fx-border-radius: 10;
-    -fx-padding: 20;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 8, 0, 0, 2);
-}
-
-.pesanan-card:hover {
-    -fx-border-color: #d0d0d0;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 3);
-}
-
-.pesanan-card-header {
-    -fx-spacing: 5;
-}
-
-.pesanan-order-id {
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #1f1f1f;
-}
-
-.pesanan-order-date {
-    -fx-font-size: 12px;
-    -fx-text-fill: #95a5a6;
-}
-
-.pesanan-info-grid {
-    -fx-hgap: 30;
-    -fx-vgap: 15;
-    -fx-padding: 15 0 15 0;
-}
-
-.pesanan-label {
-    -fx-font-size: 12px;
-    -fx-text-fill: #7f8c8d;
-}
-
-.pesanan-value {
-    -fx-font-size: 14px;
-    -fx-text-fill: #2c3e50;
-    -fx-font-weight: 600;
-}
-
-.pesanan-phone {
-    -fx-font-size: 13px;
-    -fx-text-fill: #5a5a5a;
-}
-
-.pesanan-total {
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #1f1f1f;
-}
-
-.pesanan-spec-label {
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #2c3e50;
-}
-
-.pesanan-spec-text {
-    -fx-font-size: 13px;
-    -fx-text-fill: #5a5a5a;
-    -fx-wrap-text: true;
-}
-
-.pesanan-separator {
-    -fx-background-color: #f0f0f0;
-    -fx-pref-height: 1;
-}
-
-/* Status Badges */
 .status-badge {
     -fx-font-size: 11px;
     -fx-font-weight: bold;
@@ -647,71 +578,65 @@
     -fx-text-fill: white;
 }
 
-/* Status: Baru Dibuat */
+/* Status Pesanan dari database */
 .status-baru-dibuat {
-    -fx-background-color: #1f1f1f;
-    -fx-text-fill: white;
-}
-
-/* Status: Menunggu Konfirmasi */
-.status-menunggu-konfirmasi {
-    -fx-background-color: #f39c12;
-    -fx-text-fill: white;
-}
-
-/* Status: Proses Desain */
-.status-proses-desain {
     -fx-background-color: #3498db;
     -fx-text-fill: white;
 }
 
-/* Status: Revisi Desain */
-.status-revisi-desain {
-    -fx-background-color: #9b59b6;
+.status-menunggu-pembayaran {
+    -fx-background-color: #f39c12;
     -fx-text-fill: white;
 }
 
-/* Status: Produksi */
-.status-produksi {
-    -fx-background-color: #2980b9;
+.status-pembayaran-verified {
+    -fx-background-color: #27ae60;
     -fx-text-fill: white;
 }
 
-/* Status: Selesai */
+.status-menunggu-desain {
+    -fx-background-color: #f3f4f6;
+    -fx-text-fill: #374151;
+}
+
+.status-desain-direvisi {
+    -fx-background-color: #fef2f2;
+    -fx-text-fill: #dc2626;
+}
+
+.status-desain-disetujui {
+    -fx-background-color: #dcfce7;
+    -fx-text-fill: #166534;
+}
+
+.status-antrian-produksi {
+    -fx-background-color: #dbeafe;
+    -fx-text-fill: #1e40af;
+}
+
+.status-sedang-diproduksi {
+    -fx-background-color: #fef3c7;
+    -fx-text-fill: #92400e;
+}
+
+.status-produksi-selesai {
+    -fx-background-color: #d1fae5;
+    -fx-text-fill: #065f46;
+}
+
+.status-siap-dikirim {
+    -fx-background-color: #e0e7ff;
+    -fx-text-fill: #3730a3;
+}
+
 .status-selesai {
     -fx-background-color: #27ae60;
     -fx-text-fill: white;
 }
 
-/* Status: Dibatalkan */
 .status-dibatalkan {
-    -fx-background-color: #95a5a6;
-    -fx-text-fill: white;
-}
-
-/* Status: Menunggu Pembayaran */
-.status-menunggu-pembayaran {
     -fx-background-color: #e74c3c;
     -fx-text-fill: white;
-}
-
-/* Fallback untuk status lain */
-.status-badge:not([class*="status-"]) {
-    -fx-background-color: #7f8c8d;
-    -fx-text-fill: white;
-}
-
-/* Action Buttons in Card */
-.pesanan-action-button {
-    -fx-font-size: 12px;
-    -fx-font-weight: 600;
-    -fx-padding: 6 16;
-    -fx-background-radius: 6;
-    -fx-cursor: hand;
-}
-
-.pesanan-action-button:hover {
-    -fx-opacity: 0.85;
 }
 
 

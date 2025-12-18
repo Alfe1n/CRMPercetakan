@@ -1,25 +1,29 @@
 package com.example.trying3.model;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Pesanan {
     private int idPesanan;
     private String namaPelanggan;
+    private String nomorPesanan;
     private String noTelepon;
     private String email;
     private String jenisLayanan;
     private int jumlah;
     private double totalHarga;
     private String spesifikasi;
+    private String catatan;
     private String status;
     private LocalDateTime tanggalPesanan;
     private LocalDateTime updatedAt;
+    private String fileDesainPath;
 
     // Constructors
     public Pesanan() {
     }
 
-    public Pesanan(int idPesanan, String namaPelanggan, String noTelepon, String email, 
+    public Pesanan(int idPesanan, String namaPelanggan, String noTelepon, String email,
                    String jenisLayanan, int jumlah, double totalHarga, String spesifikasi,
                    String status, LocalDateTime tanggalPesanan) {
         this.idPesanan = idPesanan;
@@ -41,6 +45,17 @@ public class Pesanan {
 
     public void setIdPesanan(int idPesanan) {
         this.idPesanan = idPesanan;
+    }
+
+    public String getNomorPesanan() { return nomorPesanan; }
+
+    public void setNomorPesanan(String nomorPesanan) { this.nomorPesanan = nomorPesanan; }
+
+    public String getDisplayId() {
+        if (nomorPesanan != null && !nomorPesanan.isEmpty()) {
+            return nomorPesanan;
+        }
+        return String.format("ORD-%03d", idPesanan);
     }
 
     public String getNamaPelanggan() {
@@ -99,6 +114,14 @@ public class Pesanan {
         this.spesifikasi = spesifikasi;
     }
 
+    public String getCatatan() {
+        return catatan;
+    }
+
+    public void setCatatan(String catatan) {
+        this.catatan = catatan;
+    }
+
     public String getStatus() {
         return status;
     }
@@ -123,6 +146,20 @@ public class Pesanan {
         this.updatedAt = updatedAt;
     }
 
+    public String getFormattedDate() {
+        if (tanggalPesanan == null) return "-";
+        return tanggalPesanan.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    }
+
+    public String getFormattedDateTime() {
+        if (tanggalPesanan == null) return "-";
+        return tanggalPesanan.format(DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm"));
+    }
+
+    public String getFormattedJumlah() {
+        return jumlah + " pcs";
+    }
+
     @Override
     public String toString() {
         return "Pesanan{" +
@@ -133,5 +170,15 @@ public class Pesanan {
                 ", status='" + status + '\'' +
                 ", totalHarga=" + totalHarga +
                 '}';
+
+
+    }
+    public String getFileDesainPath() {
+        return fileDesainPath;
+    }
+
+    public void setFileDesainPath(String fileDesainPath) {
+        this.fileDesainPath = fileDesainPath;
     }
 }
+
