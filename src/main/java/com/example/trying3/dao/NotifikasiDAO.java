@@ -8,13 +8,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NotifikasiDAO {
+
     public List<Notifikasi> getAllNotifikasi() {
         List<Notifikasi> notifikasiList = new ArrayList<>();
 
-        // Ambil notifikasi dari berbagai sumber
-        notifikasiList.addAll(getRevisiDesainNotifikasi());
-        notifikasiList.addAll(getKendalaProduksiNotifikasi());
-        notifikasiList.addAll(getSiapDikirimNotifikasi());
+        List<Notifikasi> revisi = getRevisiDesainNotifikasi();
+        notifikasiList.addAll(revisi);
+
+        List<Notifikasi> kendala = getKendalaProduksiNotifikasi();
+        notifikasiList.addAll(kendala);
+
+        List<Notifikasi> siap = getSiapDikirimNotifikasi();
+        System.out.println("🔍 DAO: Siap dikirim count: " + siap.size());
+        notifikasiList.addAll(siap);
 
         // Sort berdasarkan tanggal terbaru
         notifikasiList.sort((n1, n2) -> {
@@ -23,34 +29,39 @@ public class NotifikasiDAO {
             return n2.getTanggalDibuat().compareTo(n1.getTanggalDibuat());
         });
 
+        System.out.println("🔍 DAO: Total notifikasi: " + notifikasiList.size());
         return notifikasiList;
     }
 
     /**
-     * Notifikasi Revisi Desain dari Tim Desain
+     * Notifikasi Revisi Desain
      */
     public List<Notifikasi> getRevisiDesainNotifikasi() {
         List<Notifikasi> list = new ArrayList<>();
 
+        // Query dari tabel PESANAN, bukan dari tabel desain!
         String query = """
             SELECT 
-                d.id_desain,
-                d.id_pesanan,
-                d.revisi_ke,
-                d.catatan,
-                d.updated_at,
+                p.id_pesanan,
                 p.nomor_pesanan,
+                p.catatan,
+                p.updated_at,
+                p.total_biaya,
                 pl.nama as nama_pelanggan,
-                u.nama_lengkap as designer_name,
-                sd.nama_status as status_desain
-            FROM desain d
-            JOIN pesanan p ON d.id_pesanan = p.id_pesanan
+                pl.no_telepon,
+                sp.nama_status,
+                jl.nama_layanan,
+                dp.jumlah
+            FROM pesanan p
             JOIN pelanggan pl ON p.id_pelanggan = pl.id_pelanggan
-            JOIN user u ON d.id_designer = u.id_user
-            JOIN status_desain sd ON d.id_status_desain = sd.id_status_desain
-            WHERE d.id_status_desain = 4
-            ORDER BY d.updated_at DESC
+            JOIN status_pesanan sp ON p.id_status = sp.id_status
+            LEFT JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan
+            LEFT JOIN jenis_layanan jl ON dp.id_layanan = jl.id_layanan
+            WHERE p.id_status = 5
+            ORDER BY p.updated_at DESC
             """;
+
+        System.out.println("🔍 DAO: Executing revisi desain query...");
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query);
@@ -58,25 +69,29 @@ public class NotifikasiDAO {
 
             while (rs.next()) {
                 Notifikasi notif = new Notifikasi();
-                notif.setId(rs.getInt("id_desain"));
-                notif.setIdReference(rs.getInt("id_desain"));
+                notif.setId(rs.getInt("id_pesanan"));
+                notif.setIdReference(rs.getInt("id_pesanan"));
                 notif.setIdPesanan(rs.getInt("id_pesanan"));
                 notif.setTipe(Notifikasi.TIPE_REVISI_DESAIN);
                 notif.setNomorPesanan(rs.getString("nomor_pesanan"));
                 notif.setNamaPelanggan(rs.getString("nama_pelanggan"));
 
-                int revisiKe = rs.getInt("revisi_ke");
-                String designerName = rs.getString("designer_name");
-
-                notif.setJudul("Desain memerlukan revisi (Revisi ke-" + revisiKe + ")");
+                notif.setJudul("Desain memerlukan revisi");
 
                 String catatan = rs.getString("catatan");
-                String pesan = notif.getNomorPesanan() + " - " + notif.getNamaPelanggan();
-                if (catatan != null && !catatan.isEmpty()) {
-                    pesan += "\nCatatan: " + catatan;
+                String namaLayanan = rs.getString("nama_layanan");
+                double totalBiaya = rs.getDouble("total_biaya");
+
+                StringBuilder pesan = new StringBuilder();
+                pesan.append(notif.getNomorPesanan()).append(" - ").append(notif.getNamaPelanggan());
+                if (namaLayanan != null) {
+                    pesan.append("\nLayanan: ").append(namaLayanan);
                 }
-                pesan += "\nDesigner: " + designerName;
-                notif.setPesan(pesan);
+                pesan.append("\nTotal: Rp ").append(String.format("%,.0f", totalBiaya));
+                if (catatan != null && !catatan.isEmpty()) {
+                    pesan.append("\nCatatan: ").append(catatan);
+                }
+                notif.setPesan(pesan.toString());
 
                 Timestamp timestamp = rs.getTimestamp("updated_at");
                 if (timestamp != null) {
@@ -84,16 +99,21 @@ public class NotifikasiDAO {
                 }
 
                 list.add(notif);
+                System.out.println("🔍 DAO: Found revisi - " + notif.getNomorPesanan());
             }
 
         } catch (SQLException e) {
-            System.err.println("Error fetching revisi desain notifikasi: " + e.getMessage());
+            System.err.println("❌ Error fetching revisi desain notifikasi: " + e.getMessage());
             e.printStackTrace();
         }
 
         return list;
     }
 
+    /**
+     * B. Notifikasi Kendala Produksi dari Tim Produksi
+     * Status kendala = 'open' atau 'in_progress'
+     */
     public List<Notifikasi> getKendalaProduksiNotifikasi() {
         List<Notifikasi> list = new ArrayList<>();
 
@@ -167,13 +187,16 @@ public class NotifikasiDAO {
             }
 
         } catch (SQLException e) {
-            System.err.println("Error fetching kendala produksi notifikasi: " + e.getMessage());
+            System.err.println("❌ Error fetching kendala produksi notifikasi: " + e.getMessage());
             e.printStackTrace();
         }
 
         return list;
     }
 
+    /**
+     * Notifikasi Pesanan Siap Dikirim dari Tim Produksi
+     */
     public List<Notifikasi> getSiapDikirimNotifikasi() {
         List<Notifikasi> list = new ArrayList<>();
 
@@ -240,16 +263,14 @@ public class NotifikasiDAO {
             }
 
         } catch (SQLException e) {
-            System.err.println("Error fetching siap dikirim notifikasi: " + e.getMessage());
+            System.err.println("❌ Error fetching siap dikirim notifikasi: " + e.getMessage());
             e.printStackTrace();
         }
 
         return list;
     }
 
-    /**
-     * Mendapatkan jumlah notifikasi berdasarkan tipe
-     */
+    // COUNT METHODS
     public int getCountByTipe(String tipe) {
         return switch (tipe) {
             case Notifikasi.TIPE_REVISI_DESAIN -> getRevisiDesainCount();
@@ -260,7 +281,7 @@ public class NotifikasiDAO {
     }
 
     public int getRevisiDesainCount() {
-        String query = "SELECT COUNT(*) FROM desain WHERE id_status_desain = 4";
+        String query = "SELECT COUNT(*) FROM pesanan WHERE id_status = 5";
         return executeCountQuery(query);
     }
 
@@ -287,7 +308,7 @@ public class NotifikasiDAO {
                 return rs.getInt(1);
             }
         } catch (SQLException e) {
-            System.err.println("Error executing count query: " + e.getMessage());
+            System.err.println("❌ Error executing count query: " + e.getMessage());
             e.printStackTrace();
         }
         return 0;

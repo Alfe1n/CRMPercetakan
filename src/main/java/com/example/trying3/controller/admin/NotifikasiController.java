@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,7 +37,7 @@ public class NotifikasiController {
     // Data
     private NotifikasiDAO notifikasiDAO;
     private ObservableList<Notifikasi> notifikasiList = FXCollections.observableArrayList();
-    private ObservableList<Notifikasi> allNotifikasiList = FXCollections.observableArrayList();
+    private List<Notifikasi> allNotifikasiList = new ArrayList<>();
 
     @FXML
     public void initialize() {
@@ -50,20 +51,6 @@ public class NotifikasiController {
 
         // Load data setelah komponen siap
         Platform.runLater(this::loadData);
-
-        setupAutoRefresh();
-    }
-
-    private void setupAutoRefresh() {
-        // Auto refresh ketika pane visible
-        if (notifikasiListView.getParent() != null) {
-            notifikasiListView.getParent().visibleProperty().addListener((obs, wasVisible, isNowVisible) -> {
-                if (isNowVisible) {
-                    System.out.println("🔄 Notifikasi pane visible, refreshing data...");
-                    loadData();
-                }
-            });
-        }
     }
 
     // Setup components
@@ -101,6 +88,7 @@ public class NotifikasiController {
 
     // Data loading
     private void loadData() {
+        System.out.println("📥 Loading data...");
         loadStatistics();
         loadNotifikasi();
     }
@@ -110,11 +98,18 @@ public class NotifikasiController {
             // Total
             int total = notifikasiDAO.getTotalNotifikasiCount();
             totalNotifikasiLabel.setText(String.valueOf(total));
+            System.out.println("📊 Total notifikasi count: " + total);
 
             // Per tipe
-            revisiDesainLabel.setText(String.valueOf(notifikasiDAO.getRevisiDesainCount()));
-            kendalaProduksiLabel.setText(String.valueOf(notifikasiDAO.getKendalaProduksiCount()));
-            siapDikirimLabel.setText(String.valueOf(notifikasiDAO.getSiapDikirimCount()));
+            int revisi = notifikasiDAO.getRevisiDesainCount();
+            int kendala = notifikasiDAO.getKendalaProduksiCount();
+            int siap = notifikasiDAO.getSiapDikirimCount();
+
+            revisiDesainLabel.setText(String.valueOf(revisi));
+            kendalaProduksiLabel.setText(String.valueOf(kendala));
+            siapDikirimLabel.setText(String.valueOf(siap));
+
+            System.out.println("📊 Revisi: " + revisi + ", Kendala: " + kendala + ", Siap: " + siap);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -124,25 +119,44 @@ public class NotifikasiController {
 
     private void loadNotifikasi() {
         try {
+            System.out.println("📥 Fetching all notifikasi from DAO...");
+
             List<Notifikasi> data = notifikasiDAO.getAllNotifikasi();
 
+            System.out.println("📥 Data received: " + (data != null ? data.size() : "null") + " items");
+
+            // Debug: print each item
+            if (data != null) {
+                for (Notifikasi n : data) {
+                    System.out.println("   - " + n.getTipe() + ": " + n.getJudul() + " (" + n.getNomorPesanan() + ")");
+                }
+            }
+
             allNotifikasiList.clear();
-            allNotifikasiList.addAll(data);
+            if (data != null) {
+                allNotifikasiList.addAll(data);
+            }
+
+            System.out.println("📥 allNotifikasiList size: " + allNotifikasiList.size());
 
             applyFilter();
 
         } catch (Exception e) {
+            System.err.println("❌ Error loading notifikasi:");
             e.printStackTrace();
-            AlertUtil.showError("Gagal memuat data notifikasi.");
+            AlertUtil.showError("Gagal memuat data notifikasi: " + e.getMessage());
         }
     }
 
     private void applyFilter() {
         String selectedFilter = filterComboBox.getValue();
+        System.out.println("🔍 Applying filter: " + selectedFilter);
+        System.out.println("🔍 allNotifikasiList size before filter: " + allNotifikasiList.size());
+
         List<Notifikasi> filtered;
 
         if (selectedFilter == null || "Semua Notifikasi".equals(selectedFilter)) {
-            filtered = allNotifikasiList;
+            filtered = new ArrayList<>(allNotifikasiList);
         } else {
             String tipe = switch (selectedFilter) {
                 case "Revisi Desain" -> Notifikasi.TIPE_REVISI_DESAIN;
@@ -151,18 +165,28 @@ public class NotifikasiController {
                 default -> null;
             };
 
+            System.out.println("🔍 Filtering by tipe: " + tipe);
+
             if (tipe != null) {
                 final String finalTipe = tipe;
                 filtered = allNotifikasiList.stream()
-                        .filter(n -> finalTipe.equals(n.getTipe()))
+                        .filter(n -> {
+                            boolean match = finalTipe.equals(n.getTipe());
+                            System.out.println("   Checking: " + n.getTipe() + " == " + finalTipe + " ? " + match);
+                            return match;
+                        })
                         .collect(Collectors.toList());
             } else {
-                filtered = allNotifikasiList;
+                filtered = new ArrayList<>(allNotifikasiList);
             }
         }
 
+        System.out.println("🔍 Filtered result: " + filtered.size() + " items");
+
         notifikasiList.clear();
         notifikasiList.addAll(filtered);
+
+        System.out.println("🔍 notifikasiList size after filter: " + notifikasiList.size());
 
         updateListInfo();
     }
@@ -170,6 +194,7 @@ public class NotifikasiController {
     private void updateListInfo() {
         int count = notifikasiList.size();
         notifikasiCountLabel.setText("(" + count + " notifikasi)");
+        System.out.println("📋 Updating list info, count: " + count);
 
         if (count == 0) {
             notifikasiSubtitle.setText("Tidak ada notifikasi baru");
@@ -181,6 +206,7 @@ public class NotifikasiController {
     }
 
     private void showEmptyState(boolean show) {
+        System.out.println("👁 showEmptyState: " + show);
         if (emptyStateBox != null) {
             emptyStateBox.setVisible(show);
             emptyStateBox.setManaged(show);
@@ -191,7 +217,6 @@ public class NotifikasiController {
 
     // Event handler untuk klik notifikasi
     private void handleNotifikasiClick(Notifikasi notifikasi) {
-        // Tampilkan detail notifikasi dalam dialog
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Detail Notifikasi");
         alert.setHeaderText(notifikasi.getJudul());
@@ -205,7 +230,6 @@ public class NotifikasiController {
 
         alert.setContentText(content.toString());
         alert.showAndWait();
-
     }
 
     @FXML

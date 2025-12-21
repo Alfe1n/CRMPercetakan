@@ -938,3 +938,201 @@
     -fx-background-color: #e74c3c;
     -fx-text-fill: white;
 }
+
+/* ========================================
+   NOTIFIKASI LIST VIEW
+   ======================================== */
+.notifikasi-list-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.notifikasi-list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 12 0;
+}
+
+.notifikasi-list-view .list-cell:empty {
+    -fx-background-color: transparent;
+}
+
+/* ========================================
+   NOTIFIKASI CARD
+   ======================================== */
+.notifikasi-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10;
+    -fx-border-color: #e8e8e8;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 8, 0, 0, 2);
+}
+
+.notifikasi-card:hover {
+    -fx-border-color: #d0d0d0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 3);
+    -fx-cursor: hand;
+}
+
+.notifikasi-card-unread {
+    -fx-background-color: #f8f9ff;
+    -fx-border-color: #3498db;
+    -fx-border-width: 1 1 1 4;
+}
+
+.notifikasi-card-read {
+    -fx-background-color: #fafafa;
+    -fx-border-color: #e0e0e0;
+}
+
+/* ========================================
+   NOTIFIKASI ICON
+   ======================================== */
+.notifikasi-icon {
+    -fx-font-size: 24px;
+    -fx-min-width: 50px;
+    -fx-min-height: 50px;
+    -fx-max-width: 50px;
+    -fx-max-height: 50px;
+    -fx-alignment: center;
+    -fx-background-radius: 25;
+}
+
+/* ========================================
+   NOTIFIKASI CONTENT
+   ======================================== */
+.notifikasi-judul {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f1f1f;
+}
+
+.notifikasi-pesan {
+    -fx-font-size: 13px;
+    -fx-text-fill: #5a5a5a;
+    -fx-wrap-text: true;
+}
+
+.notifikasi-meta {
+    -fx-font-size: 12px;
+    -fx-text-fill: #7f8c8d;
+}
+
+.notifikasi-separator {
+    -fx-font-size: 10px;
+    -fx-text-fill: #bdc3c7;
+}
+
+/* ========================================
+   NOTIFIKASI TIME & BADGE
+   ======================================== */
+.notifikasi-waktu {
+    -fx-font-size: 12px;
+    -fx-text-fill: #95a5a6;
+}
+
+.notifikasi-badge {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 5 12;
+    -fx-background-radius: 15;
+    -fx-text-fill: white;
+}
+
+/* Tipe badges */
+.notifikasi-badge-revisi {
+    -fx-background-color: #9b59b6;
+}
+
+.notifikasi-badge-kendala {
+    -fx-background-color: #e74c3c;
+}
+
+.notifikasi-badge-siap {
+    -fx-background-color: #27ae60;
+}
+
+/* ========================================
+   SOURCE BADGES (di stat cards)
+   ======================================== */
+.notifikasi-source-badge {
+    -fx-font-size: 10px;
+    -fx-font-weight: 600;
+    -fx-padding: 3 8;
+    -fx-background-radius: 10;
+}
+
+.source-desain {
+    -fx-background-color: #9b59b620;
+    -fx-text-fill: #9b59b6;
+}
+
+.source-produksi {
+    -fx-background-color: #e74c3c20;
+    -fx-text-fill: #e74c3c;
+}
+
+/* ========================================
+   CLICKABLE STAT BOX
+   ======================================== */
+.stat-box-clickable {
+    -fx-cursor: hand;
+}
+
+.stat-box-clickable:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 15, 0, 0, 4);
+    -fx-border-color: #3498db;
+    -fx-border-width: 2;
+    -fx-border-radius: 12;
+}
+
+/* ========================================
+   EMPTY STATE
+   ======================================== */
+.empty-state-icon {
+    -fx-font-size: 64px;
+}
+
+.empty-state-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+.empty-state-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #7f8c8d;
+}
+
+/* ========================================
+   INFO CARD
+   ======================================== */
+.info-card {
+    -fx-background-color: #f8f9fa;
+    -fx-border-color: #e8e8e8;
+}
+
+.info-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: #5a5a5a;
+}
+
+.info-list {
+    -fx-padding: 10 0 0 0;
+}
+
+.info-icon {
+    -fx-font-size: 24px;
+    -fx-min-width: 40px;
+}
+
+.info-item-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+.info-item-desc {
+    -fx-font-size: 13px;
+    -fx-text-fill: #7f8c8d;
+}

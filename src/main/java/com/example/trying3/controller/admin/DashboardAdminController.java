@@ -332,6 +332,7 @@ public class DashboardAdminController implements Initializable {
     }
 
     @FXML private void handleNotifikasiClick() {
+        loadPane("NotifikasiPane.fxml");
         setActiveButton(btnNotifikasi);
     }
 
