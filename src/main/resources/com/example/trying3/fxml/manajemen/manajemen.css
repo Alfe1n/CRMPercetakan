@@ -1,0 +1,95 @@
+/* =====================
+   ROOT
+===================== */
+.root, .page-root {
+    -fx-font-family: "Segoe UI", "Inter", sans-serif;
+    -fx-background-color: #f6f7f9;
+}
+
+/* =====================
+   TEXT
+===================== */
+.page-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.page-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #666;
+}
+
+.card-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.text-muted {
+    -fx-text-fill: #777;
+    -fx-font-size: 12px;
+}
+
+/* =====================
+   CARD
+===================== */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);
+}
+
+/* =====================
+   COMBOBOX
+===================== */
+.combo-field {
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #dcdcdc;
+    -fx-background-color: white;
+    -fx-padding: 6 10;
+}
+
+/* =====================
+   BUTTONS
+===================== */
+.btn-primary {
+    -fx-background-color: #000;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 8 16;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #222;
+}
+
+.btn-secondary {
+    -fx-background-color: #eee;
+    -fx-text-fill: #333;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 8 16;
+}
+
+/* =====================
+   STAT CARD
+===================== */
+.stat-card {
+    -fx-background-color: white;
+    -fx-padding: 20;
+    -fx-background-radius: 14;
+    -fx-pref-width: 230;
+    -fx-spacing: 6;
+}
+
+.stat-label {
+    -fx-text-fill: #777;
+    -fx-font-size: 12px;
+}
+
+.stat-value {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
