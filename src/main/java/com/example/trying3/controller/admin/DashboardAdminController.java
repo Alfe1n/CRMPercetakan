@@ -1,25 +1,20 @@
 package com.example.trying3.controller.admin;
 
 import com.example.trying3.MainApplication;
-import com.example.trying3.model.Order;
 import com.example.trying3.model.User;
-import com.example.trying3.util.OrderItemCell;
-import com.example.trying3.dao.UserDAO;
 import com.example.trying3.util.SessionManager;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 
 import java.io.IOException;
 import java.net.URL;
@@ -29,14 +24,17 @@ import java.util.ResourceBundle;
 
 public class DashboardAdminController implements Initializable {
 
-    // --- Elemen FXML dari Dashboard.fxml ---
+    // FXML BINDINGS - SIDEBAR
     @FXML private Label btnDashboard;
     @FXML private Label btnKelolaPesanan;
     @FXML private Label btnPembayaran;
     @FXML private Label btnManagementUser;
+    @FXML private Label btnPengaturan;
     @FXML private Label btnNotifikasi;
     @FXML private Label btnLogout;
     @FXML private StackPane contentArea;
+
+    // FXML BINDINGS - ICONS
     @FXML private ImageView dashboardIcon;
     @FXML private ImageView kelolaPesananIcon;
     @FXML private ImageView pembayaranIcon;
@@ -44,47 +42,49 @@ public class DashboardAdminController implements Initializable {
     @FXML private ImageView pengaturanIcon;
     @FXML private ImageView notifikasiIcon;
 
-    // Siapkan objek Image di awal agar tidak perlu load berulang kali
-    private Image iconDashboardDark;
-    private Image iconDashboardLight;
-    private Image kelolaPesananIconDark;
-    private Image kelolaPesananIconLight;
-    private Image pembayaranIconDark;
-    private Image pembayaranIconLight;
-    private Image manajemenUserIconDark;
-    private Image manajemenUserIconLight;
-    private Image notifikasiIconDark;
-    private Image notifikasiIconLight;
+    // FXML BINDINGS - HEADER
+    @FXML private Circle onlineIndicator;
+    @FXML private Label headerUserName;
+    @FXML private Label headerUserRole;
+    @FXML private Label userAvatarInitial;
 
-    // --- Kontrol untuk Elemen di dalam DashboardPane.fxml ---
-    // (Ini diakses setelah pane di-load)
-    @FXML private Label headerTitle;
-    private Label totalPesananLabel;
-    private ListView<Order> recentOrdersListView;
+    // ICON IMAGES
+    private Image iconDashboardDark, iconDashboardLight;
+    private Image kelolaPesananIconDark, kelolaPesananIconLight;
+    private Image pembayaranIconDark, pembayaranIconLight;
+    private Image manajemenUserIconDark, manajemenUserIconLight;
+    private Image pengaturanIconDark, pengaturanIconLight;
+    private Image notifikasiIconDark, notifikasiIconLight;
 
-    // --- DAO dan Data ---
-    private UserDAO userDAO;
-    private final ObservableList<Order> orderList = FXCollections.observableArrayList();
-
-    // --- Cache untuk Pane (Kunci Performa) ---
+    // NAVIGATION STATE
     private final Map<String, Node> panes = new HashMap<>();
+    private final Map<String, Object> controllers = new HashMap<>();
     private Node activePane = null;
     private Label activeButton = null;
 
-
+    // INITIALIZATION
     @Override
     public void initialize(URL location, ResourceBundle resource) {
-        userDAO = new UserDAO();
+        // Load semua icon
+        loadIcons();
 
-        imageLoad();
-
+        // Setup navigasi
         setupNavigationStyles();
 
-        // Muat halaman dashboard sebagai default saat pertama kali buka
+        // Display user info di header
+        displayUserInfo();
+
+        // Set online indicator
+        setupOnlineIndicator();
+
+        // Load halaman dashboard sebagai default
         loadPane("DashboardPane.fxml");
         setActiveButton(btnDashboard);
     }
 
+    /**
+     * Menampilkan informasi user yang sedang login di header
+     */
     private void displayUserInfo() {
         SessionManager session = SessionManager.getInstance();
 
@@ -92,23 +92,52 @@ public class DashboardAdminController implements Initializable {
             User currentUser = session.getCurrentUser();
             String roleName = getRoleName(currentUser.getIdRole());
 
-            // Update header label (tambahkan ke FXML dulu)
-            System.out.println("Welcome: " + currentUser.getNamaLengkap() +
-                    " (" + roleName + ")");
+            // Update header labels
+            if (headerUserName != null) {
+                headerUserName.setText(currentUser.getNamaLengkap());
+            }
+            if (headerUserRole != null) {
+                headerUserRole.setText(roleName);
+            }
+            if (userAvatarInitial != null) {
+                // Ambil initial dari nama
+                String initial = currentUser.getNamaLengkap().substring(0, 1).toUpperCase();
+                userAvatarInitial.setText(initial);
+            }
+        } else {
+            // Default jika tidak ada session
+            if (headerUserName != null) headerUserName.setText("Administrator");
+            if (headerUserRole != null) headerUserRole.setText("Administrator");
+            if (userAvatarInitial != null) userAvatarInitial.setText("A");
         }
     }
 
+    /**
+     * Setup online indicator (hijau = online)
+     */
+    private void setupOnlineIndicator() {
+        if (onlineIndicator != null) {
+            onlineIndicator.setFill(Color.web("#27ae60"));
+        }
+    }
+
+    /**
+     * Mendapatkan nama role berdasarkan id_role
+     */
     private String getRoleName(int roleId) {
         return switch (roleId) {
             case 1 -> "Administrator";
             case 2 -> "Designer";
-            case 3 -> "Operator Produksi";
-            case 4 -> "Manager";
+            case 3 -> "Manager";
+            case 4 -> "Operator Produksi";
             default -> "Unknown";
         };
     }
 
-    private void imageLoad() {
+    /**
+     * Load semua icon untuk navigasi
+     */
+    private void loadIcons() {
         try {
             iconDashboardDark = new Image(getClass().getResourceAsStream("/com/example/trying3/pictures/dashboardDark.png"));
             iconDashboardLight = new Image(getClass().getResourceAsStream("/com/example/trying3/pictures/dashboardLight.png"));
@@ -118,6 +147,8 @@ public class DashboardAdminController implements Initializable {
             pembayaranIconLight = new Image(getClass().getResourceAsStream("/com/example/trying3/pictures/credit-cardLight.png"));
             manajemenUserIconDark = new Image(getClass().getResourceAsStream("/com/example/trying3/pictures/usersDark.png"));
             manajemenUserIconLight = new Image(getClass().getResourceAsStream("/com/example/trying3/pictures/usersLight.png"));
+            pengaturanIconDark = new Image(getClass().getResourceAsStream("/com/example/trying3/pictures/settingsDark.png"));
+            pengaturanIconLight = new Image(getClass().getResourceAsStream("/com/example/trying3/pictures/settingsLight.png"));
             notifikasiIconDark = new Image(getClass().getResourceAsStream("/com/example/trying3/pictures/bellDark.png"));
             notifikasiIconLight = new Image(getClass().getResourceAsStream("/com/example/trying3/pictures/bellLight.png"));
         } catch (Exception e) {
@@ -127,41 +158,53 @@ public class DashboardAdminController implements Initializable {
     }
 
     /**
-     * Mengatur gaya awal dan efek hover untuk tombol navigasi.
+     * Setup hover effects untuk navigasi
      */
     private void setupNavigationStyles() {
-        Label[] navButtons = {btnDashboard, btnKelolaPesanan, btnPembayaran, btnManagementUser, btnNotifikasi};
+        Label[] navButtons = {btnDashboard, btnKelolaPesanan, btnPembayaran, btnManagementUser, btnPengaturan, btnNotifikasi};
         for (Label button : navButtons) {
-            button.setOnMouseEntered(e -> {
-                if (button != activeButton) {
-                    button.getStyleClass().add("hover");
-                }
-            });
-            button.setOnMouseExited(e -> button.getStyleClass().remove("hover"));
+            if (button != null) {
+                button.setOnMouseEntered(e -> {
+                    if (button != activeButton) {
+                        button.getStyleClass().add("hover");
+                    }
+                });
+                button.setOnMouseExited(e -> button.getStyleClass().remove("hover"));
+            }
         }
 
         // Style khusus untuk logout
-        btnLogout.setOnMouseEntered(e -> btnLogout.getStyleClass().add("logout-hover"));
-        btnLogout.setOnMouseExited(e -> btnLogout.getStyleClass().remove("logout-hover"));
+        if (btnLogout != null) {
+            btnLogout.setOnMouseEntered(e -> btnLogout.getStyleClass().add("logout-hover"));
+            btnLogout.setOnMouseExited(e -> btnLogout.getStyleClass().remove("logout-hover"));
+        }
     }
 
+    // PANE LOADING
     /**
-     * Logika utama untuk memuat panel secara dinamis (Lazy Loading).
-     * Panel hanya akan dimuat dari FXML satu kali dan disimpan di cache.
+     * Load panel secara dinamis dengan caching
      */
     private void loadPane(String fxmlFile) {
         try {
-            // Sembunyikan panel yang aktif saat ini
+            // Sembunyikan panel yang aktif
             if (activePane != null) {
                 activePane.setVisible(false);
             }
 
-            // Cek apakah panel sudah ada di cache
+            // Cek cache
             if (panes.containsKey(fxmlFile)) {
                 activePane = panes.get(fxmlFile);
                 activePane.setVisible(true);
+
+                // Refresh data jika DashboardPane
+                if ("DashboardPane.fxml".equals(fxmlFile)) {
+                    Object controller = controllers.get(fxmlFile);
+                    if (controller instanceof DashboardPaneController dashboardController) {
+                        dashboardController.refresh();
+                    }
+                }
             } else {
-                // Jika belum, load dari FXML
+                // Load dari FXML
                 String relativePath = "fxml/admin/" + fxmlFile;
                 FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource(relativePath));
 
@@ -170,168 +213,115 @@ public class DashboardAdminController implements Initializable {
                 }
 
                 activePane = loader.load();
-                panes.put(fxmlFile, activePane);
-                contentArea.getChildren().add(activePane);
 
-                // Jika yang di-load adalah dashboard, inisialisasi komponennya
-                if ("DashboardPane.fxml".equals(fxmlFile)) {
-                    initializeDashboardComponents(loader);
-                }
+                // Simpan ke cache
+                panes.put(fxmlFile, activePane);
+                controllers.put(fxmlFile, loader.getController());
+                contentArea.getChildren().add(activePane);
             }
         } catch (IOException e) {
             e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error Memuat Halaman");
-            alert.setHeaderText("Gagal memuat file: " + fxmlFile);
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
-            // Tampilkan error di UI jika perlu
+            showErrorAlert("Error Memuat Halaman", "Gagal memuat file: " + fxmlFile, e.getMessage());
         }
     }
 
     /**
-     * Mengambil referensi kontrol dari DashboardPane.fxml dan memuat datanya.
+     * Set tombol aktif dan update icon
      */
-    private void initializeDashboardComponents(FXMLLoader loader) {
-        // Ambil referensi kontrol dari FXML yang baru di-load
-        totalPesananLabel = (Label) loader.getNamespace().get("totalPesananLabel");
-        recentOrdersListView = (ListView<Order>) loader.getNamespace().get("recentOrdersListView");
-
-        // Konfigurasi ListView agar efisien
-        setupRecentOrdersListView();
-
-        // Memuat data statistik dan daftar pesanan
-        loadDashboardStatistics();
-        loadRecentOrders();
-    }
-
-    /**
-     * Mengatur CellFactory untuk ListView.
-     * Ini adalah kunci performa agar ListView hanya merender item yang terlihat.
-     */
-    private void setupRecentOrdersListView() {
-        if(recentOrdersListView != null) {
-            recentOrdersListView.setItems(orderList);
-            recentOrdersListView.setCellFactory(listView -> new OrderItemCell());
-        }
-    }
-
-
-    /**
-     * Memuat data statistik (seperti total pesanan) secara asynchronous.
-     */
-    private void loadDashboardStatistics() {
-        Task<Integer> statsTask = new Task<>() {
-            @Override
-            protected Integer call() throws Exception {
-                Thread.sleep(500); // Hapus ini jika sudah pakai database asli
-                return userDAO.getTotalUsers(); // Ganti dengan method yang sesuai
-            }
-        };
-
-        statsTask.setOnSucceeded(e -> {
-            if (totalPesananLabel != null) {
-                totalPesananLabel.setText(String.valueOf(statsTask.getValue()));
-            }
-        });
-
-        statsTask.setOnFailed(e -> {
-            if (totalPesananLabel != null) {
-                totalPesananLabel.setText("0");
-            }
-            statsTask.getException().printStackTrace();
-        });
-
-        new Thread(statsTask).start();
-    }
-
-    /**
-     * Memuat data pesanan terbaru (mock data untuk contoh).
-     * Ganti dengan data dari database Anda.
-     */
-    private void loadRecentOrders() {
-        // Ini adalah data contoh, ganti dengan data dari database Anda
-        orderList.clear();
-        orderList.add(new Order("PT. Maju Jaya", "Digital Printing", "Proses Desain", "#3498db"));
-        orderList.add(new Order("Toko Berkah", "Sablon", "Produksi", "#f1c40f"));
-        orderList.add(new Order("CV. Sukses Mandiri", "Cetak Undangan", "Menunggu Konfirmasi", "#e67e22"));
-        orderList.add(new Order("Sekolah Harapan", "Offset Printing", "Selesai", "#2ecc71"));
-        orderList.add(new Order("Warung Kopi Senja", "Cetak Stiker", "Dibatalkan", "#e74c3c"));
-        orderList.add(new Order("Universitas Teknologi", "Jilid & Fotokopi", "Selesai", "#2ecc71"));
-    }
-
     private void setActiveButton(Label button) {
+        // Reset semua tombol
         if (activeButton != null) {
             activeButton.getStyleClass().remove("active");
-            if (dashboardIcon != null && iconDashboardDark != null) {
-                dashboardIcon.setImage(iconDashboardDark);
-            }
-            if (kelolaPesananIcon != null && kelolaPesananIconDark != null) {
-                kelolaPesananIcon.setImage(kelolaPesananIconDark);
-            }
-            if (pembayaranIcon != null && pembayaranIconDark != null) {
-                pembayaranIcon.setImage(pembayaranIconDark);
-            }
-            if (manajemenUserIcon != null && manajemenUserIconDark != null) {
-                manajemenUserIcon.setImage(manajemenUserIconDark);
-            }
-            if (notifikasiIcon != null && notifikasiIconDark != null) {
-                notifikasiIcon.setImage(notifikasiIconDark);
-            }
         }
 
-        // btnActive - Dashboard
-        if (button == btnDashboard && dashboardIcon != null && iconDashboardLight != null) {
-            dashboardIcon.setImage(iconDashboardLight);
-        }
+        // Reset semua icon ke dark
+        resetAllIcons();
 
-        // btnActive - Kelola Pesanan
-        if (button == btnKelolaPesanan && kelolaPesananIcon != null && kelolaPesananIconLight != null){
-            kelolaPesananIcon.setImage(kelolaPesananIconLight);
-        }
-
-        // btnActive - Pembayaran
-        if (button == btnPembayaran && pembayaranIcon != null && pembayaranIconLight != null){
-            pembayaranIcon.setImage(pembayaranIconLight);
-        }
-
-        // btnActive - Manajemen User
-        if (button == btnManagementUser && manajemenUserIcon != null && manajemenUserIconLight != null){
-            manajemenUserIcon.setImage(manajemenUserIconLight);
-        }
-
-        // btnActive - Notifikasi
-        if (button == btnNotifikasi && notifikasiIcon != null && notifikasiIconLight != null){
-            notifikasiIcon.setImage(notifikasiIconLight);
-        }
-
+        // Set active button
         activeButton = button;
-        activeButton.getStyleClass().add("active");
+        if (activeButton != null) {
+            activeButton.getStyleClass().add("active");
+        }
+
+        // Update icon untuk tombol aktif
+        updateActiveIcon(button);
     }
 
-    // --- Event Handlers ---
+    /**
+     * Reset semua icon ke versi dark
+     */
+    private void resetAllIcons() {
+        if (dashboardIcon != null && iconDashboardDark != null) dashboardIcon.setImage(iconDashboardDark);
+        if (kelolaPesananIcon != null && kelolaPesananIconDark != null) kelolaPesananIcon.setImage(kelolaPesananIconDark);
+        if (pembayaranIcon != null && pembayaranIconDark != null) pembayaranIcon.setImage(pembayaranIconDark);
+        if (manajemenUserIcon != null && manajemenUserIconDark != null) manajemenUserIcon.setImage(manajemenUserIconDark);
+        if (pengaturanIcon != null && pengaturanIconDark != null) pengaturanIcon.setImage(pengaturanIconDark);
+        if (notifikasiIcon != null && notifikasiIconDark != null) notifikasiIcon.setImage(notifikasiIconDark);
+    }
 
-    @FXML private void handleDashboardClick() {
+    /**
+     * Update icon tombol aktif ke versi light
+     */
+    private void updateActiveIcon(Label button) {
+        if (button == btnDashboard && dashboardIcon != null && iconDashboardLight != null) {
+            dashboardIcon.setImage(iconDashboardLight);
+        } else if (button == btnKelolaPesanan && kelolaPesananIcon != null && kelolaPesananIconLight != null) {
+            kelolaPesananIcon.setImage(kelolaPesananIconLight);
+        } else if (button == btnPembayaran && pembayaranIcon != null && pembayaranIconLight != null) {
+            pembayaranIcon.setImage(pembayaranIconLight);
+        } else if (button == btnManagementUser && manajemenUserIcon != null && manajemenUserIconLight != null) {
+            manajemenUserIcon.setImage(manajemenUserIconLight);
+        } else if (button == btnPengaturan && pengaturanIcon != null && pengaturanIconLight != null) {
+            pengaturanIcon.setImage(pengaturanIconLight);
+        } else if (button == btnNotifikasi && notifikasiIcon != null && notifikasiIconLight != null) {
+            notifikasiIcon.setImage(notifikasiIconLight);
+        }
+    }
+
+    /**
+     * Menampilkan alert error
+     */
+    private void showErrorAlert(String title, String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    // EVENT HANDLERS
+    @FXML
+    private void handleDashboardClick() {
         loadPane("DashboardPane.fxml");
         setActiveButton(btnDashboard);
     }
 
-    @FXML private void handleKelolaPesananClick() {
+    @FXML
+    private void handleKelolaPesananClick() {
         loadPane("KelolaPesananPane.fxml");
         setActiveButton(btnKelolaPesanan);
     }
 
-    @FXML private void handlePembayaranClick() {
+    @FXML
+    private void handlePembayaranClick() {
         loadPane("KelolaPembayaranPane.fxml");
         setActiveButton(btnPembayaran);
     }
 
-    @FXML private void handleManajemenUserClick() {
+    @FXML
+    private void handleManajemenUserClick() {
         loadPane("ManajemenUserPane.fxml");
         setActiveButton(btnManagementUser);
     }
 
-    @FXML private void handleNotifikasiClick() {
+    @FXML
+    private void handlePengaturanClick() {
+        loadPane("SettingsPane.fxml");
+        setActiveButton(btnPengaturan);
+    }
+
+    @FXML
+    private void handleNotifikasiClick() {
         loadPane("NotifikasiPane.fxml");
         setActiveButton(btnNotifikasi);
     }
@@ -342,8 +332,11 @@ public class DashboardAdminController implements Initializable {
         alert.setTitle("Konfirmasi Logout");
         alert.setHeaderText(null);
         alert.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.YES) System.exit(0);
+            if (response == ButtonType.YES) {
+                // Clear session
+                SessionManager.getInstance().clearSession();
+                System.exit(0);
+            }
         });
     }
-
 }
