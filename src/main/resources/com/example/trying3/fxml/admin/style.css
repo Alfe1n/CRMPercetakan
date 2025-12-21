@@ -1136,3 +1136,299 @@
     -fx-font-size: 13px;
     -fx-text-fill: #7f8c8d;
 }
+
+/* ========================================
+   HEADER USER INFO
+   ======================================== */
+.header {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #e8e8e8 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.online-status {
+    -fx-padding: 6 12;
+    -fx-background-color: #f0fdf4;
+    -fx-background-radius: 20;
+    -fx-border-color: #bbf7d0;
+    -fx-border-width: 1;
+    -fx-border-radius: 20;
+}
+
+.online-indicator {
+    -fx-fill: #22c55e;
+}
+
+.online-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #166534;
+}
+
+.header-icon-box {
+    -fx-padding: 10;
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+}
+
+.header-icon-box:hover {
+    -fx-background-color: #e9ecef;
+}
+
+.user-profile-box {
+    -fx-padding: 8 15;
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 12;
+    -fx-cursor: hand;
+}
+
+.user-profile-box:hover {
+    -fx-background-color: #e9ecef;
+}
+
+.header-user-name {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f1f1f;
+}
+
+.header-user-role {
+    -fx-font-size: 12px;
+    -fx-text-fill: #7f8c8d;
+}
+
+.user-avatar {
+    -fx-min-width: 40px;
+    -fx-min-height: 40px;
+    -fx-max-width: 40px;
+    -fx-max-height: 40px;
+    -fx-background-color: #1f1f1f;
+    -fx-background-radius: 20;
+    -fx-alignment: center;
+}
+
+.user-avatar-text {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+/* ========================================
+   STAT VALUE CURRENCY (untuk Rupiah)
+   ======================================== */
+.stat-value-currency {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f1f1f;
+    -fx-padding: 8 0 5 0;
+}
+
+/* ========================================
+   DASHBOARD LIST VIEW
+   ======================================== */
+.dashboard-list-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.dashboard-list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 8 0;
+}
+
+.dashboard-list-view .list-cell:empty {
+    -fx-background-color: transparent;
+}
+
+.dashboard-list-view .list-cell:selected {
+    -fx-background-color: transparent;
+}
+
+.dashboard-list-view .list-cell:selected .dashboard-pesanan-item,
+.dashboard-list-view .list-cell:selected .dashboard-user-item {
+    -fx-background-color: #f0f0f0;
+    -fx-border-color: #d0d0d0;
+}
+
+/* ========================================
+   DASHBOARD PESANAN ITEM
+   ======================================== */
+.dashboard-pesanan-item {
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 10;
+    -fx-border-color: #e8e8e8;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+}
+
+.dashboard-pesanan-item:hover {
+    -fx-background-color: #f0f0f0;
+    -fx-border-color: #d0d0d0;
+    -fx-cursor: hand;
+}
+
+.dashboard-pesanan-nama {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f1f1f;
+}
+
+.dashboard-pesanan-layanan {
+    -fx-font-size: 13px;
+    -fx-text-fill: #7f8c8d;
+}
+
+
+/* ========================================
+   DASHBOARD STATUS BADGES
+   ======================================== */
+.dashboard-status-badge {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 6 14;
+    -fx-background-radius: 15;
+    -fx-text-fill: white;
+    -fx-background-color: #7f8c8d;
+}
+
+/* Status Badge Colors */
+.status-baru {
+    -fx-background-color: #1f1f1f;
+}
+
+.status-menunggu-pembayaran {
+    -fx-background-color: #e74c3c;
+}
+
+.status-pembayaran-verified {
+    -fx-background-color: #27ae60;
+}
+
+.status-menunggu-desain {
+    -fx-background-color: #3498db;
+}
+
+.status-desain-revisi {
+    -fx-background-color: #9b59b6;
+}
+
+.status-desain-disetujui {
+    -fx-background-color: #27ae60;
+}
+
+.status-antrian-produksi {
+    -fx-background-color: #f39c12;
+}
+
+.status-sedang-produksi {
+    -fx-background-color: #2980b9;
+}
+
+.status-produksi-selesai {
+    -fx-background-color: #27ae60;
+}
+
+.status-siap-kirim {
+    -fx-background-color: #16a085;
+}
+
+.status-selesai {
+    -fx-background-color: #27ae60;
+}
+
+.status-dibatalkan {
+    -fx-background-color: #95a5a6;
+}
+
+.status-default {
+    -fx-background-color: #7f8c8d;
+}
+
+
+/* ========================================
+   DASHBOARD USER ITEM
+   ======================================== */
+.dashboard-user-item {
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 10;
+    -fx-border-color: #e8e8e8;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+}
+
+.dashboard-user-item:hover {
+    -fx-background-color: #f0f0f0;
+    -fx-border-color: #d0d0d0;
+    -fx-cursor: hand;
+}
+
+.dashboard-user-role-name {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f1f1f;
+}
+
+.dashboard-user-email {
+    -fx-font-size: 13px;
+    -fx-text-fill: #7f8c8d;
+}
+
+
+/* ========================================
+   DASHBOARD ROLE BADGES
+   ======================================== */
+.dashboard-role-badge {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 6 14;
+    -fx-background-radius: 15;
+    -fx-text-fill: white;
+    -fx-background-color: #7f8c8d;
+}
+
+.role-badge-admin {
+    -fx-background-color: #1f1f1f;
+}
+
+.role-badge-desain {
+    -fx-background-color: #3498db;
+}
+
+.role-badge-manajemen {
+    -fx-background-color: #27ae60;
+}
+
+.role-badge-produksi {
+    -fx-background-color: #9b59b6;
+}
+
+.role-badge-default {
+    -fx-background-color: #95a5a6;
+}
+
+
+/* ========================================
+   DASHBOARD CONTENT LAYOUT
+   ======================================== */
+.dashboard-content {
+    -fx-background-color: transparent;
+}
+
+/* Override page header untuk dashboard */
+.dashboard-content .page-header {
+    -fx-spacing: 5;
+    -fx-padding: 0 0 5 0;
+}
+
+.dashboard-content .page-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f1f1f;
+}
+
+.dashboard-content .page-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #7f8c8d;
+}
