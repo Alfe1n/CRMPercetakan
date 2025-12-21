@@ -43,7 +43,7 @@ public class PesananCardCell extends ListCell<Pesanan> {
 
     // Komponen interaktif
     private final ComboBox<String> ubahStatusComboBox = new ComboBox<>();
-    private final Button editButton = new Button("✏ Edit");
+    private final Button editButton = new Button("✎ Edit");
     private final Button deleteButton = new Button("🗑 Hapus");
     private final Button konfirmasiButton = new Button("✅ Konfirmasi");
 
@@ -83,7 +83,7 @@ public class PesananCardCell extends ListCell<Pesanan> {
         layananValue.getStyleClass().add("pesanan-value");
         jumlahValue.getStyleClass().add("pesanan-value");
 
-        phoneValue.getStyleClass().add("pesanan-phone"); 
+        phoneValue.getStyleClass().add("pesanan-phone");
         totalValue.getStyleClass().add("pesanan-total");
 
         // Menyusun grid informasi
@@ -98,8 +98,8 @@ public class PesananCardCell extends ListCell<Pesanan> {
 
         // Area spesifikasi (catatan pesanan)
         Label specLabel = new Label("Spesifikasi:");
-        specLabel.getStyleClass().add("pesanan-spec-label"); 
-        specText.getStyleClass().add("pesanan-spec-text");   
+        specLabel.getStyleClass().add("pesanan-spec-label");
+        specText.getStyleClass().add("pesanan-spec-text");
         specText.setWrapText(true);
 
         VBox specBox = new VBox(5);
@@ -148,7 +148,7 @@ public class PesananCardCell extends ListCell<Pesanan> {
         return box;
     }
 
-    // METHOD PENTING: Dipanggil otomatis setiap kali data pesanan perlu ditampilkan
+    // Dipanggil otomatis setiap kali data pesanan perlu ditampilkan
     @Override
     protected void updateItem(Pesanan pesanan, boolean empty) {
         super.updateItem(pesanan, empty);
@@ -167,17 +167,11 @@ public class PesananCardCell extends ListCell<Pesanan> {
         jumlahValue.setText(pesanan.getJumlah() + " pcs");
         totalValue.setText("Rp" + String.format("%,.0f", pesanan.getTotalHarga()));
 
-        // Logika warna badge status (misal: hijau untuk selesai, merah untuk batal)
         statusBadge.setText(pesanan.getStatus());
-        String targetStyle = "status-" + pesanan.getStatus().toLowerCase().replace(" ", "-");
-        if (!statusBadge.getStyleClass().contains(targetStyle)) {
-            statusBadge.getStyleClass().removeAll(
-                    "status-baru-dibuat", "status-menunggu-pembayaran",
-                    "status-pembayaran-verified", "status-diproses",
-                    "status-selesai", "status-dibatalkan"
-            );
-            statusBadge.getStyleClass().add(targetStyle);
-        }
+        statusBadge.getStyleClass().removeIf(styleClass -> styleClass.startsWith("status-"));
+        statusBadge.getStyleClass().add("status-badge");
+        String statusStyleClass = getStatusStyleClass(pesanan.getStatus());
+        statusBadge.getStyleClass().add(statusStyleClass);
 
         // Hanya tampilkan box spesifikasi jika ada isinya
         if (pesanan.getSpesifikasi() != null && !pesanan.getSpesifikasi().isEmpty()) {
@@ -189,7 +183,7 @@ public class PesananCardCell extends ListCell<Pesanan> {
             specBox.setManaged(false);
         }
 
-        // LOGIKA TOMBOL: Hanya muncul jika status masih "Baru Dibuat"
+        // Hanya muncul jika status masih "Baru Dibuat"
         String status = pesanan.getStatus();
         boolean isBaru = status.equalsIgnoreCase("Baru Dibuat");
         konfirmasiButton.setVisible(isBaru);
@@ -208,9 +202,33 @@ public class PesananCardCell extends ListCell<Pesanan> {
         setGraphic(cardContainer); // Tampilkan kartu
     }
 
+    /**
+     * Menentukan style class berdasarkan status pesanan
+     * Mapping status dari database ke CSS class
+     */
+    private String getStatusStyleClass(String status) {
+        if (status == null) return "status-default";
+
+        return switch (status) {
+            case "Baru Dibuat" -> "status-baru-dibuat";
+            case "Menunggu Pembayaran" -> "status-menunggu-pembayaran";
+            case "Pembayaran Verified" -> "status-pembayaran-verified";
+            case "Menunggu Desain" -> "status-menunggu-desain";
+            case "Desain Direvisi" -> "status-desain-direvisi";
+            case "Desain Disetujui" -> "status-desain-disetujui";
+            case "Antrian Produksi" -> "status-antrian-produksi";
+            case "Sedang Diproduksi" -> "status-sedang-diproduksi";
+            case "Produksi Selesai" -> "status-produksi-selesai";
+            case "Siap Dikirim" -> "status-siap-dikirim";
+            case "Selesai" -> "status-selesai";
+            case "Dibatalkan" -> "status-dibatalkan";
+            default -> "status-default";
+        };
+    }
+
     // Mengatur isi dropdown "Ubah Status"
     private void setupComboBox(Pesanan pesanan) {
-        ubahStatusComboBox.setOnAction(null); 
+        ubahStatusComboBox.setOnAction(null);
         ubahStatusComboBox.setValue(null);
         ubahStatusComboBox.setPromptText("Ubah Status");
 

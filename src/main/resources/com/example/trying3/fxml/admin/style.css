@@ -638,7 +638,7 @@
     -fx-pref-height: 1;
 }
 
-/* Status Badges */
+/* Base Status Badge */
 .status-badge {
     -fx-font-size: 11px;
     -fx-font-weight: bold;
@@ -647,51 +647,81 @@
     -fx-text-fill: white;
 }
 
-/* Status: Baru Dibuat */
+/* Status: Baru Dibuat (Hitam) */
 .status-baru-dibuat {
     -fx-background-color: #1f1f1f;
     -fx-text-fill: white;
 }
 
-/* Status: Menunggu Konfirmasi */
-.status-menunggu-konfirmasi {
-    -fx-background-color: #f39c12;
+/* Status: Menunggu Pembayaran (Merah) */
+.status-menunggu-pembayaran {
+    -fx-background-color: #e74c3c;
     -fx-text-fill: white;
 }
 
-/* Status: Proses Desain */
-.status-proses-desain {
+/* Status: Pembayaran Verified (Hijau) */
+.status-pembayaran-verified {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+}
+
+/* Status: Menunggu Desain (Biru) */
+.status-menunggu-desain {
     -fx-background-color: #3498db;
     -fx-text-fill: white;
 }
 
-/* Status: Revisi Desain */
-.status-revisi-desain {
+/* Status: Desain Direvisi (Ungu) */
+.status-desain-direvisi {
     -fx-background-color: #9b59b6;
     -fx-text-fill: white;
 }
 
-/* Status: Produksi */
-.status-produksi {
+/* Status: Desain Disetujui (Hijau Tua) */
+.status-desain-disetujui {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+}
+
+/* Status: Antrian Produksi (Orange) */
+.status-antrian-produksi {
+    -fx-background-color: #f39c12;
+    -fx-text-fill: white;
+}
+
+/* Status: Sedang Diproduksi (Biru Tua) */
+.status-sedang-diproduksi {
     -fx-background-color: #2980b9;
     -fx-text-fill: white;
 }
 
-/* Status: Selesai */
+/* Status: Produksi Selesai (Hijau) */
+.status-produksi-selesai {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+}
+
+/* Status: Siap Dikirim (Teal) */
+.status-siap-dikirim {
+    -fx-background-color: #16a085;
+    -fx-text-fill: white;
+}
+
+/* Status: Selesai (Hijau) */
 .status-selesai {
     -fx-background-color: #27ae60;
     -fx-text-fill: white;
 }
 
-/* Status: Dibatalkan */
+/* Status: Dibatalkan (Abu-abu) */
 .status-dibatalkan {
     -fx-background-color: #95a5a6;
     -fx-text-fill: white;
 }
 
-/* Status: Menunggu Pembayaran */
-.status-menunggu-pembayaran {
-    -fx-background-color: #e74c3c;
+/* Status: Default/Unknown (Abu-abu) */
+.status-default {
+    -fx-background-color: #7f8c8d;
     -fx-text-fill: white;
 }
 

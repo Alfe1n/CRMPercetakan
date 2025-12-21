@@ -49,7 +49,11 @@ public class DashboardStatsDAO {
      * Mengambil jumlah pembayaran dengan status 'pending'
      */
     public int getPembayaranPending() {
-        String sql = "SELECT COUNT(*) FROM pembayaran WHERE status_pembayaran = 'pending'";
+        String sql = """
+            SELECT COUNT(*) FROM pesanan p
+            JOIN status_pesanan sp ON p.id_status = sp.id_status
+            WHERE sp.nama_status = 'Menunggu Pembayaran'
+        """;
         return executeCountQuery(sql);
     }
 
