@@ -66,9 +66,20 @@ public class KelolaDesignController implements Initializable {
 
         for (Pesanan p : orders) {
             String status = p.getStatus();
-            if (status.contains("Menunggu") || status.contains("Verified")) countMenunggu++;
-            else if (status.contains("Revisi")) countRevisi++;
-            else if (status.contains("Disetujui") || status.contains("Antrian")) countDisetujui++;
+
+            // NULL SAFETY
+            if (status == null) continue;
+
+            // Kategorikan berdasarkan status
+            if (status.equals("Menunggu Desain") || status.equals("Pembayaran Verified")) {
+                countMenunggu++;
+            }
+            else if (status.equals("Desain Direvisi")) {
+                countRevisi++;
+            }
+            else if (status.equals("Desain Disetujui") || status.equals("Antrian Produksi")) {
+                countDisetujui++;
+            }
 
             if (ordersContainer != null) {
                 ordersContainer.getChildren().add(createOrderCard(p));
@@ -82,48 +93,71 @@ public class KelolaDesignController implements Initializable {
 
     private VBox createOrderCard(Pesanan p) {
         VBox card = new VBox(10);
-        // Menggunakan styling CSS yang sama dengan Produksi (Card Style)
         card.setStyle("-fx-background-color: white; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);");
         card.setPadding(new Insets(15));
 
-        // --- Header ---
+        // ===========================================
+        // HEADER: Tanggal + Nomor Pesanan | Status Badge
+        // ===========================================
         HBox header = new HBox();
         header.setAlignment(Pos.CENTER_LEFT);
 
         VBox titleBox = new VBox(2);
-        Label lblId = new Label("PO-" + p.getNomorPesanan());
-        lblId.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
-        Label lblDate = new Label(p.getTanggalPesanan() != null ? p.getTanggalPesanan().toLocalDate().toString() : "-");
+
+        // Tanggal pesanan
+        Label lblDate = new Label(p.getTanggalPesanan() != null ?
+                p.getTanggalPesanan().toLocalDate().toString() : "-");
         lblDate.setStyle("-fx-text-fill: #757575; -fx-font-size: 11px;");
-        titleBox.getChildren().addAll(lblId, lblDate);
+
+        // Nomor Pesanan
+        String nomorPesanan = p.getNomorPesanan();
+        Label lblNomor = new Label(nomorPesanan != null ? nomorPesanan : "-");
+        lblNomor.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #333;");
+
+        titleBox.getChildren().addAll(lblDate, lblNomor);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        Label lblStatus = new Label(p.getStatus());
-        lblStatus.setStyle("-fx-background-color: #e3f2fd; -fx-text-fill: #1565c0; -fx-padding: 5 10; -fx-background-radius: 15;");
-        if (p.getStatus().contains("Revisi")) {
+        // Status Badge
+        String statusText = p.getStatus() != null ? p.getStatus() : "Unknown";
+        Label lblStatus = new Label(statusText);
+        if (statusText.contains("Revisi")) {
             lblStatus.setStyle("-fx-background-color: #ffebee; -fx-text-fill: #c62828; -fx-padding: 5 10; -fx-background-radius: 15;");
+        } else if (statusText.contains("Verified")) {
+            lblStatus.setStyle("-fx-background-color: #e8f5e9; -fx-text-fill: #2e7d32; -fx-padding: 5 10; -fx-background-radius: 15;");
+        } else {
+            lblStatus.setStyle("-fx-background-color: #e3f2fd; -fx-text-fill: #1565c0; -fx-padding: 5 10; -fx-background-radius: 15;");
         }
+
         header.getChildren().addAll(titleBox, spacer, lblStatus);
 
-        // --- Info Customer ---
-        Label lblCust = new Label(p.getNamaPelanggan());
-        lblCust.setStyle("-fx-text-fill: #333; -fx-font-weight: bold; -fx-font-size: 12px;");
+        // ===========================================
+        // NAMA PELANGGAN (Terpisah dari header)
+        // ===========================================
+        String namaPelanggan = p.getNamaPelanggan();
+        Label lblCustomer = new Label(namaPelanggan != null && !namaPelanggan.isEmpty() ? namaPelanggan : "Pelanggan");
+        lblCustomer.setStyle("-fx-text-fill: #333; -fx-font-weight: bold; -fx-font-size: 14px;");
 
-        // --- Detail Grid ---
+        // ===========================================
+        // DETAILS: Layanan, Jumlah, Spesifikasi (GridPane)
+        // ===========================================
         GridPane grid = new GridPane();
         grid.setHgap(15);
         grid.setVgap(5);
+        grid.setPadding(new Insets(10, 0, 0, 0));
 
-        addDetailRow(grid, 0, "Layanan:", p.getJenisLayanan());
+        addDetailRow(grid, 0, "Layanan:", p.getJenisLayanan() != null ? p.getJenisLayanan() : "-");
         addDetailRow(grid, 1, "Jumlah:", p.getJumlah() + " pcs");
-        addDetailRow(grid, 2, "Spesifikasi:", p.getSpesifikasi());
+        addDetailRow(grid, 2, "Spesifikasi:", p.getSpesifikasi() != null ? p.getSpesifikasi() : "-");
 
-        // File Link
+        // ===========================================
+        // FILE DESAIN INFO
+        // ===========================================
         HBox fileBox = new HBox(5);
-        if (p.getFileDesainPath() != null && !p.getFileDesainPath().isEmpty()) {
-            Label lblFile = new Label("File: " + new File(p.getFileDesainPath()).getName());
+        String filePath = p.getFileDesainPath();
+        if (filePath != null && !filePath.isEmpty()) {
+            Label lblFile = new Label("File: " + new File(filePath).getName());
             lblFile.setStyle("-fx-text-fill: #27ae60; -fx-font-style: italic; -fx-font-size: 11px;");
             fileBox.getChildren().add(lblFile);
         } else {
@@ -132,7 +166,9 @@ public class KelolaDesignController implements Initializable {
             fileBox.getChildren().add(lblFile);
         }
 
-        // --- Tombol Aksi ---
+        // ===========================================
+        // ACTION BUTTONS
+        // ===========================================
         HBox actions = new HBox(10);
         actions.setPadding(new Insets(10, 0, 0, 0));
 
@@ -142,7 +178,7 @@ public class KelolaDesignController implements Initializable {
 
         Button btnApprove = new Button("Setujui Desain");
         btnApprove.setStyle("-fx-background-color: #2e2e2e; -fx-text-fill: white; -fx-cursor: hand;");
-        if (p.getFileDesainPath() == null || p.getFileDesainPath().isEmpty()) {
+        if (filePath == null || filePath.isEmpty()) {
             btnApprove.setDisable(true);
             btnApprove.setTooltip(new Tooltip("Upload desain dulu sebelum approve"));
         }
@@ -153,18 +189,34 @@ public class KelolaDesignController implements Initializable {
         btnRevisi.setOnAction(e -> handleOpenRevisiPopup(p));
 
         actions.getChildren().addAll(btnUpload, btnApprove, btnRevisi);
-        card.getChildren().addAll(header, lblCust, grid, fileBox, actions);
+
+        // ===========================================
+        // ASSEMBLE CARD
+        // Urutan: Header, Nama Customer, Grid Details, File Info, Buttons
+        // ===========================================
+        card.getChildren().addAll(header, lblCustomer, grid, fileBox, actions);
+
         return card;
     }
 
+    /**
+     * Helper untuk menambahkan baris detail ke GridPane
+     */
     private void addDetailRow(GridPane grid, int row, String label, String value) {
-        Label l = new Label(label); l.setStyle("-fx-font-weight: bold; -fx-text-fill: #555; -fx-font-size: 12px;");
-        Label v = new Label(value); v.setStyle("-fx-text-fill: #333; -fx-font-size: 12px;"); v.setWrapText(true);
+        Label l = new Label(label);
+        l.setStyle("-fx-font-weight: bold; -fx-text-fill: #555; -fx-font-size: 12px;");
+
+        Label v = new Label(value);
+        v.setStyle("-fx-text-fill: #333; -fx-font-size: 12px;");
+        v.setWrapText(true);
+
         grid.add(l, 0, row);
         grid.add(v, 1, row);
     }
 
-    // --- LOGIC ACTIONS ---
+    // =======================================================
+    // ACTION HANDLERS
+    // =======================================================
 
     private void handleUpload(Pesanan p) {
         FileChooser fileChooser = new FileChooser();
@@ -217,18 +269,18 @@ public class KelolaDesignController implements Initializable {
     }
 
     // =======================================================
-    // LOGIC POPUP REVISI (Menghubungkan dengan FXML)
+    // LOGIC POPUP REVISI
     // =======================================================
 
-    // 1. Membuka Popup saat tombol "Perlu Revisi" diklik di kartu
     private void handleOpenRevisiPopup(Pesanan p) {
-        this.currentRevisiOrder = p; // Simpan pesanan mana yang sedang direvisi
-        txtRevisi.clear(); // Kosongkan text area
-        revisiPopupContainer.setVisible(true); // Tampilkan popup
-        revisiPopupContainer.setManaged(true); // Atur layout agar terlihat
+        this.currentRevisiOrder = p;
+        if (txtRevisi != null) txtRevisi.clear();
+        if (revisiPopupContainer != null) {
+            revisiPopupContainer.setVisible(true);
+            revisiPopupContainer.setManaged(true);
+        }
     }
 
-    // 2. Button Action: "Kirim Revisi" (dipanggil dari FXML onAction="#submitRevisi")
     @FXML
     private void submitRevisi() {
         if (currentRevisiOrder == null) return;
@@ -239,28 +291,25 @@ public class KelolaDesignController implements Initializable {
             return;
         }
 
-        // Update status ke "Desain Direvisi"
         boolean successStatus = pesananDAO.updateDesignStatus(currentRevisiOrder.getIdPesanan(), "revisi");
-
-        // (Opsional) Update catatan alasan revisi ke database
-        // Jika DAO kamu punya method updateCatatan, gunakan ini:
         pesananDAO.updateCatatan(currentRevisiOrder.getIdPesanan(), "REVISI: " + alasan);
 
         if (successStatus) {
             AlertUtil.showInfo("Berhasil", "Status pesanan diubah menjadi Perlu Revisi.");
-            loadData();   // Refresh data
-            cancelRevisi(); // Tutup popup
+            loadData();
+            cancelRevisi();
         } else {
             AlertUtil.showError("Gagal", "Terjadi kesalahan saat update status.");
         }
     }
 
-    // 3. Button Action: "Batal" (dipanggil dari FXML onAction="#cancelRevisi")
     @FXML
     private void cancelRevisi() {
-        revisiPopupContainer.setVisible(false);
-        revisiPopupContainer.setManaged(false);
+        if (revisiPopupContainer != null) {
+            revisiPopupContainer.setVisible(false);
+            revisiPopupContainer.setManaged(false);
+        }
         currentRevisiOrder = null;
-        txtRevisi.clear();
+        if (txtRevisi != null) txtRevisi.clear();
     }
 }
