@@ -52,7 +52,7 @@
                             </value>
                         </ComboBox>
 
-                        <Button text="Ekspor 📥" styleClass="button-secondary" style="-fx-padding: 8 15;" />
+                        <Button text="Ekspor 📥" styleClass="button-secondary" style="-fx-padding: 8 15;" onAction="#handleEkspor"/>
                     </children>
                 </HBox>
 
