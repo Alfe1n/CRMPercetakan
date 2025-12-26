@@ -145,22 +145,53 @@ public class PesananDAO {
             conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false); // Transaksi Atomik
 
-            // Update Pesanan
-            String sqlPesanan = "UPDATE pesanan SET id_status = 7 WHERE id_pesanan = ?";
+            // 1. Update status Pesanan ke "Antrian Produksi" (id_status = 7)
+            String sqlPesanan = "UPDATE pesanan SET id_status = 7, updated_at = NOW() WHERE id_pesanan = ?";
             try (PreparedStatement ps = conn.prepareStatement(sqlPesanan)) {
                 ps.setInt(1, idPesanan);
                 ps.executeUpdate();
             }
 
-            // Update Desain
+            // 2. Update status Desain ke "Disetujui" (id_status_desain = 5)
             String sqlDesain = "UPDATE desain SET id_status_desain = 5, tanggal_disetujui = NOW() WHERE id_pesanan = ?";
             try (PreparedStatement ps = conn.prepareStatement(sqlDesain)) {
                 ps.setInt(1, idPesanan);
                 ps.executeUpdate();
             }
 
+            // 3. Cek apakah sudah ada data di tabel produksi
+            int idProduksi = 0;
+            String sqlCekProduksi = "SELECT id_produksi FROM produksi WHERE id_pesanan = ?";
+            try (PreparedStatement psCek = conn.prepareStatement(sqlCekProduksi)) {
+                psCek.setInt(1, idPesanan);
+                try (ResultSet rs = psCek.executeQuery()) {
+                    if (rs.next()) {
+                        idProduksi = rs.getInt("id_produksi");
+                    }
+                }
+            }
+
+            // 4. Jika belum ada, INSERT ke tabel produksi dengan status 'antrian'
+            if (idProduksi == 0) {
+                // Cari operator produksi default (user pertama dengan role Produksi)
+                int defaultOperatorId = getDefaultProduksiOperator(conn);
+
+                String sqlInsertProduksi = """
+                INSERT INTO produksi (id_pesanan, id_operator, tanggal_mulai, status_produksi, progres_persen) 
+                VALUES (?, ?, NOW(), 'antrian', 0)
+            """;
+                try (PreparedStatement psInsert = conn.prepareStatement(sqlInsertProduksi)) {
+                    psInsert.setInt(1, idPesanan);
+                    psInsert.setInt(2, defaultOperatorId);
+                    psInsert.executeUpdate();
+                    System.out.println("✅ Inserted produksi record for pesanan ID: " + idPesanan);
+                }
+            }
+
             conn.commit();
+            System.out.println("✅ Desain approved, pesanan masuk antrian produksi: " + idPesanan);
             return true;
+
         } catch (SQLException e) {
             try { if (conn != null) conn.rollback(); } catch (SQLException ex) {}
             e.printStackTrace();
@@ -412,6 +443,7 @@ public class PesananDAO {
             }
         }
     }
+
     public boolean updateCatatan(int idPesanan, String catatanBaru) {
         String sql = "UPDATE pesanan SET catatan = ? WHERE id_pesanan = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -426,192 +458,18 @@ public class PesananDAO {
             return false;
         }
     }
-// ==================================================================================
-    // BAGIAN LAPORAN & MANAJEMEN (FIXED SCHEMA BERDASARKAN KELOLAPESANANCONTROLLER)
-    // ==================================================================================
 
-    /**
-     * Mengambil ringkasan statistik
-     * FIX: Join ke tabel status_pesanan untuk filter 'Selesai'/'Pending'
-     */
-    public double[] getLaporanSummary(String periode) {
-        double[] stats = {0, 0, 0, 0};
-
-        // Query menggabungkan pesanan dengan status_pesanan untuk cek nama status
-        String sql = "SELECT " +
-                "COUNT(p.id_pesanan) as total_semua, " +
-                "SUM(CASE WHEN sp.nama_status = 'Selesai' THEN 1 ELSE 0 END) as total_selesai, " +
-                "SUM(CASE WHEN sp.nama_status NOT IN ('Selesai', 'Dibatalkan') THEN 1 ELSE 0 END) as total_tertunda, " +
-                "SUM(CASE WHEN sp.nama_status != 'Dibatalkan' THEN p.total_biaya ELSE 0 END) as total_pendapatan " +
-                "FROM pesanan p " +
-                "JOIN status_pesanan sp ON p.id_status = sp.id_status " +
-                "WHERE " + getPeriodeCondition(periode, "p.tanggal_pesanan");
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
+    private int getDefaultProduksiOperator(Connection conn) {
+        String sql = "SELECT id_user FROM user WHERE id_role = 4 AND is_active = 1 LIMIT 1";
+        try (PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-
             if (rs.next()) {
-                stats[0] = rs.getInt("total_semua");
-                stats[1] = rs.getInt("total_selesai");
-                stats[2] = rs.getInt("total_tertunda");
-                stats[3] = rs.getDouble("total_pendapatan");
+                return rs.getInt("id_user");
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return stats;
-    }
-
-    /**
-     * Mengambil performa layanan
-     * FIX: Join 3 Tabel (pesanan -> detail_pesanan -> jenis_layanan)
-     */
-    public List<String[]> getAnalisaLayanan(String periode) {
-        List<String[]> list = new ArrayList<>();
-
-        // Kita harus join dari pesanan ke detail, lalu ke jenis layanan untuk dapat namanya
-        String sql = "SELECT jl.nama_layanan, COUNT(p.id_pesanan) as jumlah, SUM(p.total_biaya) as total_uang " +
-                "FROM pesanan p " +
-                "JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan " +
-                "JOIN jenis_layanan jl ON dp.id_layanan = jl.id_layanan " +
-                "WHERE " + getPeriodeCondition(periode, "p.tanggal_pesanan") + " " +
-                "GROUP BY jl.nama_layanan " +
-                "ORDER BY total_uang DESC";
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                list.add(new String[]{
-                        rs.getString("nama_layanan"),
-                        String.valueOf(rs.getInt("jumlah")),
-                        String.valueOf(rs.getDouble("total_uang"))
-                });
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
-
-    /**
-     * Mengambil 5 aktivitas terbaru
-     * FIX: Join Lengkap (Pelanggan, Status, Detail, Layanan) agar tidak ada error column not found
-     */
-    public List<Pesanan> getAktivitasTerbaru() {
-        List<Pesanan> list = new ArrayList<>();
-
-        // Query ini meniru logika loadPesananData di KelolaPesananController
-        String sql = "SELECT p.*, " +
-                "pel.nama as nama_pelanggan, pel.no_telepon, pel.email, " +
-                "sp.nama_status, " +
-                "jl.nama_layanan as jenis_layanan " +
-                "FROM pesanan p " +
-                "JOIN pelanggan pel ON p.id_pelanggan = pel.id_pelanggan " +
-                "JOIN status_pesanan sp ON p.id_status = sp.id_status " +
-                "LEFT JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan " +
-                "LEFT JOIN jenis_layanan jl ON dp.id_layanan = jl.id_layanan " +
-                "ORDER BY p.id_pesanan DESC LIMIT 5";
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                Pesanan p = new Pesanan();
-                // Mapping manual agar aman
-                p.setIdPesanan(rs.getInt("id_pesanan"));
-                p.setNamaPelanggan(rs.getString("nama_pelanggan")); // Dari tabel pelanggan
-                p.setNoTelepon(rs.getString("no_telepon"));
-                p.setEmail(rs.getString("email"));
-                p.setStatus(rs.getString("nama_status")); // Dari tabel status_pesanan
-
-                // Layanan mungkin null jika left join gagal, kita handle
-                String layanan = rs.getString("jenis_layanan");
-                p.setJenisLayanan(layanan != null ? layanan : "-");
-
-                // Perhatikan: nama kolom di DB 'total_biaya', tapi di Model Pesanan 'totalHarga'
-                p.setTotalHarga(rs.getDouble("total_biaya"));
-
-                Timestamp ts = rs.getTimestamp("tanggal_pesanan");
-                if(ts != null) p.setTanggalPesanan(ts.toLocalDateTime());
-
-                list.add(p);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
-
-    // Helper Filter SQL (Pastikan nama kolom tanggal benar: p.tanggal_pesanan)
-    private String getPeriodeCondition(String periode, String colName) {
-        if (periode == null) return "1=1";
-
-        switch (periode) {
-            case "Harian":
-                return "DATE(" + colName + ") = CURDATE()";
-            case "Mingguan":
-                return colName + " >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
-            case "Bulanan":
-                return "MONTH(" + colName + ") = MONTH(CURDATE()) AND YEAR(" + colName + ") = YEAR(CURDATE())";
-            case "Tahunan":
-                return "YEAR(" + colName + ") = YEAR(CURDATE())";
-            default:
-                return "1=1";
-        }
-    }
-    public List<Pesanan> getPesananForExport(String periode) {
-        List<Pesanan> exportList = new ArrayList<>();
-
-        String sql = "SELECT p.*, " +
-                "pel.nama as nama_pelanggan_real, pel.no_telepon, pel.email, " +
-                "sp.nama_status, " +
-                "jl.nama_layanan " + // Ambil nama layanan dari tabel jenis_layanan
-                "FROM pesanan p " +
-                "JOIN pelanggan pel ON p.id_pelanggan = pel.id_pelanggan " +
-                "JOIN status_pesanan sp ON p.id_status = sp.id_status " +
-                "LEFT JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan " +
-                "LEFT JOIN jenis_layanan jl ON dp.id_layanan = jl.id_layanan " +
-                "WHERE " + getPeriodeCondition(periode, "p.tanggal_pesanan") + " " +
-                "ORDER BY p.tanggal_pesanan DESC";
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                Pesanan p = new Pesanan();
-
-                // 1. Mapping ID & Tanggal
-                p.setIdPesanan(rs.getInt("id_pesanan"));
-                Timestamp ts = rs.getTimestamp("tanggal_pesanan");
-                if (ts != null) p.setTanggalPesanan(ts.toLocalDateTime());
-
-                // 2. Mapping Data Pelanggan (Dari tabel Pelanggan)
-                p.setNamaPelanggan(rs.getString("nama_pelanggan_real"));
-                p.setNoTelepon(rs.getString("no_telepon"));
-                p.setEmail(rs.getString("email"));
-
-                // 3. Mapping Status (Dari tabel Status)
-                p.setStatus(rs.getString("nama_status"));
-
-                // 4. Mapping Layanan (Dari tabel Jenis Layanan)
-                String layanan = rs.getString("nama_layanan");
-                p.setJenisLayanan(layanan != null ? layanan : "-");
-
-                // 5. Mapping Keuangan
-                p.setTotalHarga(rs.getDouble("total_biaya")); // Kolom di DB kamu 'total_biaya'
-
-                // Tambahkan ke list
-                exportList.add(p);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return exportList;
+        // Fallback: return 1 jika tidak ada user produksi
+        return 1;
     }
 }
