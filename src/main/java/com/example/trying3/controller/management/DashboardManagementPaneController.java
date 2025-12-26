@@ -50,15 +50,24 @@ public class DashboardManagementPaneController implements Initializable {
     }
 
     private void setupServiceChart() {
+        // 1. Ambil data dari DAO yang sudah diperbaiki query-nya
         Map<String, Integer> data = pesananDAO.getServiceDistribution();
+
+        // 2. Bersihkan data lama di chart
+        serviceChart.getData().clear();
+
         ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
 
         if (data == null || data.isEmpty()) {
-            // Jika kosong, beri satu data dummy agar user tahu sistem bekerja tapi data belum ada
-            pieData.add(new PieChart.Data("Tidak ada data", 1));
+            pieData.add(new PieChart.Data("Data Belum Tersedia", 1));
         } else {
-            data.forEach((k, v) -> pieData.add(new PieChart.Data(k, v)));
+            data.forEach((layanan, jumlah) -> {
+                // Membuat label yang informatif (Nama Layanan + Jumlah)
+                String label = layanan + " (" + jumlah + ")";
+                pieData.add(new PieChart.Data(label, jumlah));
+            });
         }
+
         serviceChart.setData(pieData);
     }
 

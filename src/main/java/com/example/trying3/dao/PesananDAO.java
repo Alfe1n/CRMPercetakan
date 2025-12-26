@@ -648,22 +648,24 @@ public class PesananDAO {
     }
 
     public Map<String, Integer> getServiceDistribution() {
-        Map<String, Integer> map = new HashMap<>();
-        // GANTI 'id_jenis' di bawah ini dengan nama kolom asli di tabel pesanan Anda
-        String sql = "SELECT jl.nama_layanan, COUNT(*) " +
+        Map<String, Integer> dist = new LinkedHashMap<>();
+        // Query ini menghubungkan pesanan -> detail -> jenis_layanan
+        String sql = "SELECT jl.nama_layanan, COUNT(dp.id_layanan) " +
                 "FROM pesanan p " +
-                "JOIN jenis_layanan jl ON p.NAMA_KOLOM_ASLI = jl.id_layanan " +
+                "JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan " +
+                "JOIN jenis_layanan jl ON dp.id_layanan = jl.id_layanan " +
                 "GROUP BY jl.nama_layanan";
+
         try (Connection conn = DatabaseConnection.getConnection();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
-                map.put(rs.getString(1), rs.getInt(2));
+                dist.put(rs.getString(1), rs.getInt(2));
             }
         } catch (SQLException e) {
             System.err.println("Error Service Distribution: " + e.getMessage());
         }
-        return map;
+        return dist;
     }
 
     public Map<String, Integer> getStatusDistribution() {
