@@ -13,6 +13,9 @@ module com.example.trying3 {
     requires java.sql;
     requires jbcrypt;
     requires java.desktop;
+    requires org.apache.poi.poi;
+    requires org.apache.poi.ooxml;
+    requires javafx.graphics;
 
     opens com.example.trying3 to javafx.fxml;
     exports com.example.trying3;

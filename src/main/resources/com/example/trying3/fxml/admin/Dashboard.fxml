@@ -67,17 +67,6 @@
                      </image>
                   </ImageView>
                </graphic></Label>
-                <Label fx:id="btnPengaturan" onMouseClicked="#handlePengaturanClick" styleClass="nav-button" text="Pengaturan">
-               <graphic>
-                  <ImageView fx:id="pengaturanIcon" fitHeight="20.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@../../pictures/settingsDark.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <font>
-                  <Font name="Microsoft YaHei Bold" size="22.0" />
-               </font></Label>
                 <Label fx:id="btnNotifikasi" onMouseClicked="#handleNotifikasiClick" styleClass="nav-button" text="Notifikasi">
                <graphic>
                   <ImageView fx:id="notifikasiIcon" fitHeight="20.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">

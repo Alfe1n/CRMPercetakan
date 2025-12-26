@@ -8,80 +8,139 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Region?>
 
-<!-- Konten ini akan di-load ke dalam StackPane di Dashboard.fxml -->
+<!-- Dashboard Pane - Konten akan di-load ke dalam StackPane di Dashboard.fxml -->
 
-<ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="content-pane-scroll" vbarPolicy="AS_NEEDED" xmlns="http://javafx.com/javafx/21.0.0" xmlns:fx="http://javafx.com/fxml/1">
+<ScrollPane
+        fitToWidth="true"
+        hbarPolicy="NEVER"
+        styleClass="content-pane-scroll"
+        vbarPolicy="AS_NEEDED"
+        xmlns="http://javafx.com/javafx/21"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="com.example.trying3.controller.admin.DashboardPaneController">
+
     <content>
-        <VBox spacing="20.0">
+        <VBox spacing="25.0" styleClass="dashboard-content">
             <padding>
-                <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+                <Insets bottom="40.0" left="40.0" right="40.0" top="30.0" />
             </padding>
-            <children>
-                <!-- Judul Halaman -->
-                <Label styleClass="page-title" text="Dashboard Overview" />
 
-                <!-- Kotak Statistik -->
+            <children>
+                <!-- ==================== HEADER SECTION ==================== -->
+                <VBox spacing="5.0" styleClass="page-header">
+                    <children>
+                        <Label styleClass="page-title" text="Dashboard Administrator" />
+                        <Label styleClass="page-subtitle" text="Kelola semua aspek operasional percetakan" />
+                    </children>
+                </VBox>
+
+                <!-- ==================== STATISTIK CARDS ==================== -->
                 <HBox spacing="20.0">
                     <children>
-                        <!-- Kotak Total Pesanan -->
+                        <!-- Card 1: Total Pesanan -->
                         <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
                             <children>
-                                <HBox alignment="CENTER_LEFT">
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
                                     <children>
                                         <Label styleClass="stat-title" text="Total Pesanan" HBox.hgrow="ALWAYS" />
-                              <ImageView fitHeight="19.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@../../pictures/shopping-cartDark.png" />
-                                 </image>
-                              </ImageView>
+                                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" styleClass="stat-icon">
+                                            <image>
+                                                <Image url="@../../pictures/shopping-cartDark.png" />
+                                            </image>
+                                        </ImageView>
                                     </children>
                                 </HBox>
                                 <Label fx:id="totalPesananLabel" styleClass="stat-value" text="0" />
-                                <Label styleClass="stat-subtitle" text="Semua pesanan terdaftar" />
+                                <Label fx:id="totalPesananSubtitle" styleClass="stat-subtitle" text="Semua pesanan" />
                             </children>
                         </VBox>
-                        <!-- Tambahkan 3 kotak stat lainnya di sini dengan cara yang sama -->
+
+                        <!-- Card 2: Pesanan Selesai -->
                         <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
                             <children>
-                        <HBox alignment="CENTER_LEFT">
-                           <children>
-                                      <Label styleClass="stat-title" text="Pesanan Selesai" HBox.hgrow="ALWAYS" />
-                              <ImageView fitHeight="22.0" fitWidth="19.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@../../pictures/shopping-cartDark.png" />
-                                 </image>
-                              </ImageView>
-                           </children>
-                        </HBox>
-                                <Label styleClass="stat-value" text="0" />
-                                <Label styleClass="stat-subtitle" text="0% dari total" />
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <Label styleClass="stat-title" text="Pesanan Selesai" HBox.hgrow="ALWAYS" />
+                                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" styleClass="stat-icon">
+                                            <image>
+                                                <Image url="@../../pictures/shopping-cartDark.png" />
+                                            </image>
+                                        </ImageView>
+                                    </children>
+                                </HBox>
+                                <Label fx:id="pesananSelesaiLabel" styleClass="stat-value" text="0" />
+                                <Label fx:id="pesananSelesaiSubtitle" styleClass="stat-subtitle" text="0% dari total" />
                             </children>
                         </VBox>
+
+                        <!-- Card 3: Pembayaran Pending -->
                         <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
                             <children>
-                                <Label styleClass="stat-title" text="Pembayaran Pending" VBox.vgrow="ALWAYS" />
-                                <Label styleClass="stat-value" text="0" />
-                                <Label styleClass="stat-subtitle" text="Belum terverifikasi" />
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <Label styleClass="stat-title" text="Pembayaran Pending" HBox.hgrow="ALWAYS" />
+<!--                                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" styleClass="stat-icon">-->
+<!--                                            <image>-->
+<!--                                                <Image url="@../../pictures/clockDark.png" />-->
+<!--                                            </image>-->
+<!--                                        </ImageView>-->
+                                    </children>
+                                </HBox>
+                                <Label fx:id="pembayaranPendingLabel" styleClass="stat-value" text="0" />
+                                <Label fx:id="pembayaranPendingSubtitle" styleClass="stat-subtitle" text="Perlu verifikasi" />
                             </children>
                         </VBox>
+
+                        <!-- Card 4: Total Pendapatan -->
                         <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
                             <children>
-                                <Label styleClass="stat-title" text="Total Pendapatan" VBox.vgrow="ALWAYS" />
-                                <Label styleClass="stat-value" text="Rp 0" />
-                                <Label styleClass="stat-subtitle" text="Pembayaran terverifikasi" />
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <Label styleClass="stat-title" text="Total Pendapatan" HBox.hgrow="ALWAYS" />
+<!--                                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" styleClass="stat-icon">-->
+<!--                                            <image>-->
+<!--                                                <Image url="@../../pictures/dollarDark.png" />-->
+<!--                                            </image>-->
+<!--                                        </ImageView>-->
+                                    </children>
+                                </HBox>
+                                <Label fx:id="totalPendapatanLabel" styleClass="stat-value-currency" text="Rp 0" />
+                                <Label fx:id="totalPendapatanSubtitle" styleClass="stat-subtitle" text="Pembayaran terverifikasi" />
                             </children>
                         </VBox>
                     </children>
                 </HBox>
 
-                <!-- Daftar Pesanan Terbaru (Menggunakan ListView) -->
-                <VBox styleClass="card">
+                <!-- ==================== CONTENT SECTION (2 KOLOM) ==================== -->
+                <HBox spacing="20.0" VBox.vgrow="ALWAYS">
                     <children>
-                        <Label styleClass="card-title" text="Pesanan Terbaru" />
-                        <ListView fx:id="recentOrdersListView" prefHeight="500.0" styleClass="order-list-view" />
+                        <!-- Kolom Kiri: Pesanan Terbaru -->
+                        <VBox styleClass="card" HBox.hgrow="ALWAYS" prefWidth="600.0">
+                            <children>
+                                <Label styleClass="card-title" text="Pesanan Terbaru" />
+                                <Region prefHeight="15.0" />
+                                <ListView fx:id="pesananTerbaruListView"
+                                          prefHeight="400.0"
+                                          styleClass="dashboard-list-view"
+                                          VBox.vgrow="ALWAYS" />
+                            </children>
+                        </VBox>
+
+                        <!-- Kolom Kanan: Aktivitas User -->
+                        <VBox styleClass="card" HBox.hgrow="ALWAYS" prefWidth="400.0">
+                            <children>
+                                <Label styleClass="card-title" text="Aktivitas User" />
+                                <Region prefHeight="15.0" />
+                                <ListView fx:id="aktivitasUserListView"
+                                          prefHeight="400.0"
+                                          styleClass="dashboard-list-view"
+                                          VBox.vgrow="ALWAYS" />
+                            </children>
+                        </VBox>
                     </children>
-                </VBox>
+                </HBox>
             </children>
         </VBox>
     </content>

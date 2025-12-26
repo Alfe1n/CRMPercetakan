@@ -426,4 +426,192 @@ public class PesananDAO {
             return false;
         }
     }
+// ==================================================================================
+    // BAGIAN LAPORAN & MANAJEMEN (FIXED SCHEMA BERDASARKAN KELOLAPESANANCONTROLLER)
+    // ==================================================================================
+
+    /**
+     * Mengambil ringkasan statistik
+     * FIX: Join ke tabel status_pesanan untuk filter 'Selesai'/'Pending'
+     */
+    public double[] getLaporanSummary(String periode) {
+        double[] stats = {0, 0, 0, 0};
+
+        // Query menggabungkan pesanan dengan status_pesanan untuk cek nama status
+        String sql = "SELECT " +
+                "COUNT(p.id_pesanan) as total_semua, " +
+                "SUM(CASE WHEN sp.nama_status = 'Selesai' THEN 1 ELSE 0 END) as total_selesai, " +
+                "SUM(CASE WHEN sp.nama_status NOT IN ('Selesai', 'Dibatalkan') THEN 1 ELSE 0 END) as total_tertunda, " +
+                "SUM(CASE WHEN sp.nama_status != 'Dibatalkan' THEN p.total_biaya ELSE 0 END) as total_pendapatan " +
+                "FROM pesanan p " +
+                "JOIN status_pesanan sp ON p.id_status = sp.id_status " +
+                "WHERE " + getPeriodeCondition(periode, "p.tanggal_pesanan");
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                stats[0] = rs.getInt("total_semua");
+                stats[1] = rs.getInt("total_selesai");
+                stats[2] = rs.getInt("total_tertunda");
+                stats[3] = rs.getDouble("total_pendapatan");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return stats;
+    }
+
+    /**
+     * Mengambil performa layanan
+     * FIX: Join 3 Tabel (pesanan -> detail_pesanan -> jenis_layanan)
+     */
+    public List<String[]> getAnalisaLayanan(String periode) {
+        List<String[]> list = new ArrayList<>();
+
+        // Kita harus join dari pesanan ke detail, lalu ke jenis layanan untuk dapat namanya
+        String sql = "SELECT jl.nama_layanan, COUNT(p.id_pesanan) as jumlah, SUM(p.total_biaya) as total_uang " +
+                "FROM pesanan p " +
+                "JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan " +
+                "JOIN jenis_layanan jl ON dp.id_layanan = jl.id_layanan " +
+                "WHERE " + getPeriodeCondition(periode, "p.tanggal_pesanan") + " " +
+                "GROUP BY jl.nama_layanan " +
+                "ORDER BY total_uang DESC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(new String[]{
+                        rs.getString("nama_layanan"),
+                        String.valueOf(rs.getInt("jumlah")),
+                        String.valueOf(rs.getDouble("total_uang"))
+                });
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /**
+     * Mengambil 5 aktivitas terbaru
+     * FIX: Join Lengkap (Pelanggan, Status, Detail, Layanan) agar tidak ada error column not found
+     */
+    public List<Pesanan> getAktivitasTerbaru() {
+        List<Pesanan> list = new ArrayList<>();
+
+        // Query ini meniru logika loadPesananData di KelolaPesananController
+        String sql = "SELECT p.*, " +
+                "pel.nama as nama_pelanggan, pel.no_telepon, pel.email, " +
+                "sp.nama_status, " +
+                "jl.nama_layanan as jenis_layanan " +
+                "FROM pesanan p " +
+                "JOIN pelanggan pel ON p.id_pelanggan = pel.id_pelanggan " +
+                "JOIN status_pesanan sp ON p.id_status = sp.id_status " +
+                "LEFT JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan " +
+                "LEFT JOIN jenis_layanan jl ON dp.id_layanan = jl.id_layanan " +
+                "ORDER BY p.id_pesanan DESC LIMIT 5";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Pesanan p = new Pesanan();
+                // Mapping manual agar aman
+                p.setIdPesanan(rs.getInt("id_pesanan"));
+                p.setNamaPelanggan(rs.getString("nama_pelanggan")); // Dari tabel pelanggan
+                p.setNoTelepon(rs.getString("no_telepon"));
+                p.setEmail(rs.getString("email"));
+                p.setStatus(rs.getString("nama_status")); // Dari tabel status_pesanan
+
+                // Layanan mungkin null jika left join gagal, kita handle
+                String layanan = rs.getString("jenis_layanan");
+                p.setJenisLayanan(layanan != null ? layanan : "-");
+
+                // Perhatikan: nama kolom di DB 'total_biaya', tapi di Model Pesanan 'totalHarga'
+                p.setTotalHarga(rs.getDouble("total_biaya"));
+
+                Timestamp ts = rs.getTimestamp("tanggal_pesanan");
+                if(ts != null) p.setTanggalPesanan(ts.toLocalDateTime());
+
+                list.add(p);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // Helper Filter SQL (Pastikan nama kolom tanggal benar: p.tanggal_pesanan)
+    private String getPeriodeCondition(String periode, String colName) {
+        if (periode == null) return "1=1";
+
+        switch (periode) {
+            case "Harian":
+                return "DATE(" + colName + ") = CURDATE()";
+            case "Mingguan":
+                return colName + " >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
+            case "Bulanan":
+                return "MONTH(" + colName + ") = MONTH(CURDATE()) AND YEAR(" + colName + ") = YEAR(CURDATE())";
+            case "Tahunan":
+                return "YEAR(" + colName + ") = YEAR(CURDATE())";
+            default:
+                return "1=1";
+        }
+    }
+    public List<Pesanan> getPesananForExport(String periode) {
+        List<Pesanan> exportList = new ArrayList<>();
+
+        String sql = "SELECT p.*, " +
+                "pel.nama as nama_pelanggan_real, pel.no_telepon, pel.email, " +
+                "sp.nama_status, " +
+                "jl.nama_layanan " + // Ambil nama layanan dari tabel jenis_layanan
+                "FROM pesanan p " +
+                "JOIN pelanggan pel ON p.id_pelanggan = pel.id_pelanggan " +
+                "JOIN status_pesanan sp ON p.id_status = sp.id_status " +
+                "LEFT JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan " +
+                "LEFT JOIN jenis_layanan jl ON dp.id_layanan = jl.id_layanan " +
+                "WHERE " + getPeriodeCondition(periode, "p.tanggal_pesanan") + " " +
+                "ORDER BY p.tanggal_pesanan DESC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Pesanan p = new Pesanan();
+
+                // 1. Mapping ID & Tanggal
+                p.setIdPesanan(rs.getInt("id_pesanan"));
+                Timestamp ts = rs.getTimestamp("tanggal_pesanan");
+                if (ts != null) p.setTanggalPesanan(ts.toLocalDateTime());
+
+                // 2. Mapping Data Pelanggan (Dari tabel Pelanggan)
+                p.setNamaPelanggan(rs.getString("nama_pelanggan_real"));
+                p.setNoTelepon(rs.getString("no_telepon"));
+                p.setEmail(rs.getString("email"));
+
+                // 3. Mapping Status (Dari tabel Status)
+                p.setStatus(rs.getString("nama_status"));
+
+                // 4. Mapping Layanan (Dari tabel Jenis Layanan)
+                String layanan = rs.getString("nama_layanan");
+                p.setJenisLayanan(layanan != null ? layanan : "-");
+
+                // 5. Mapping Keuangan
+                p.setTotalHarga(rs.getDouble("total_biaya")); // Kolom di DB kamu 'total_biaya'
+
+                // Tambahkan ke list
+                exportList.add(p);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return exportList;
+    }
 }

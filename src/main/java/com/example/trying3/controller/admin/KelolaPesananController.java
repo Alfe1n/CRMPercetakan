@@ -16,7 +16,6 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Optional;
 
-// Controller utama untuk halaman Kelola Pesanan Admin
 public class KelolaPesananController {
 
     // Komponen UI Panel (untuk switch view antara List, Tambah, Edit)
@@ -59,9 +58,8 @@ public class KelolaPesananController {
     // Variabel Data
     private PesananDAO pesananDAO;
     private final ObservableList<Pesanan> pesananList = FXCollections.observableArrayList();
-    private Pesanan currentEditPesanan; // Menyimpan pesanan yang sedang diedit
+    private Pesanan currentEditPesanan;
 
-    // Method ini jalan otomatis saat halaman dibuka pertama kali
     @FXML
     public void initialize() {
         pesananDAO = new PesananDAO();
@@ -78,7 +76,6 @@ public class KelolaPesananController {
 
     // --- BAGIAN NAVIGASI PANEL ---
     // Fungsi-fungsi ini untuk ganti tampilan (hide/show panel)
-
     private void showDaftarPanel() {
         daftarPesananPanel.setVisible(true);
         daftarPesananPanel.setManaged(true);
@@ -95,7 +92,7 @@ public class KelolaPesananController {
         formTambahPanel.setManaged(true);
         formEditPanel.setVisible(false);
         formEditPanel.setManaged(false);
-        clearFormTambah(); // Bersihkan form sebelum dipakai
+        clearFormTambah();
     }
 
     private void showEditPanel() {
@@ -108,10 +105,8 @@ public class KelolaPesananController {
     }
 
     // --- PENGATURAN LIST VIEW ---
-
     private void setupDaftarPesanan() {
         // Mengatur tampilan sel list menggunakan class PesananCardCell
-        // Kita mengirimkan fungsi-fungsi (handleEdit, handleDelete, dll) ke dalam cell
         pesananListView.setCellFactory(param -> new PesananCardCell(
                 this::handleEditPesanan,       
                 this::handleDeletePesanan,     
@@ -159,7 +154,7 @@ public class KelolaPesananController {
     private void handleUbahStatus(Pesanan pesanan, String statusBaru) { 
         String statusLama = pesanan.getStatus();
 
-        // LOGIKA KHUSUS: Jika memilih "Pembayaran Verified", munculkan popup input uang
+        // Jika memilih "Pembayaran Verified", munculkan popup input uang
         if (statusBaru.equalsIgnoreCase("Pembayaran Verified")) {
             showPembayaranVerifiedDialog(pesanan);
             return;
@@ -177,8 +172,7 @@ public class KelolaPesananController {
         }
     }
 
-    // --- BAGIAN QUERY DATABASE (PENTING) ---
-
+    // --- BAGIAN QUERY DATABASE ---
     private void loadPesananData() {
         pesananListView.getSelectionModel().clearSelection();
         pesananList.clear();
@@ -217,7 +211,6 @@ public class KelolaPesananController {
 
             while (rs.next()) {
                 Pesanan pesanan = new Pesanan();
-                // Mapping data dari database ke objek Java
                 pesanan.setIdPesanan(rs.getInt("id_pesanan"));
                 pesanan.setNamaPelanggan(rs.getString("nama"));
                 pesanan.setNoTelepon(rs.getString("no_telepon"));
@@ -244,7 +237,6 @@ public class KelolaPesananController {
     }
 
     // --- BAGIAN FORM TAMBAH PESANAN ---
-
     private void setupFormTambah() {
         simpanPesananButton.setOnAction(e -> simpanPesanan());
         batalTambahButton.setOnAction(e -> {
@@ -280,7 +272,6 @@ public class KelolaPesananController {
 
     // Simpan pesanan baru ke database
     private void simpanPesanan() {
-        // Ambil value dari form
         String namaPelanggan = namaPelangganField.getText().trim();
         String noTelepon = noTeleponField.getText().trim();
         String email = emailField.getText().trim();
@@ -300,7 +291,6 @@ public class KelolaPesananController {
             int jumlah = Integer.parseInt(jumlahStr);
             double totalHarga = Double.parseDouble(totalHargaStr);
 
-            // Panggil DAO untuk insert ke DB
             boolean isSuccess = pesananDAO.createPesanan(
                     namaPelanggan, noTelepon, email, jenisLayanan, jumlah, totalHarga, spesifikasi
             );
@@ -309,7 +299,7 @@ public class KelolaPesananController {
                 AlertUtil.showSuccess("Berhasil", "Pesanan berhasil dibuat!");
                 clearFormTambah();
                 showDaftarPanel();
-                loadPesananData(); // Refresh list
+                loadPesananData();
             } else {
                 AlertUtil.showError("Gagal menyimpan pesanan ke database.");
             }
@@ -333,7 +323,6 @@ public class KelolaPesananController {
     }
 
     // --- BAGIAN EDIT PESANAN ---
-
     private void setupFormEdit() {
         updatePesananButton.setOnAction(e -> updatePesanan());
         batalEditButton.setOnAction(e -> {
@@ -370,7 +359,6 @@ public class KelolaPesananController {
             return;
         }
 
-        // Ambil data baru dari form edit
         String namaPelanggan = editNamaPelangganField.getText().trim();
         String noTelepon = editNoTeleponField.getText().trim();
         String email = editEmailField.getText().trim();
@@ -499,7 +487,6 @@ public class KelolaPesananController {
     }
 
     // --- HANDLER AKSI TOMBOL DI KARTU PESANAN ---
-
     private void handleEditPesanan(Pesanan pesanan) {
         loadDataToEditForm(pesanan); // Buka form edit
     }

@@ -1,5 +1,6 @@
 package com.example.trying3.controller.production;
 
+import com.example.trying3.config.DatabaseConnection;
 import com.example.trying3.dao.PesananDAO;
 import com.example.trying3.model.Pesanan;
 import javafx.fxml.FXML;
@@ -11,9 +12,13 @@ import javafx.scene.layout.*;
 
 import java.awt.Desktop;
 import java.io.File;
-import java.io.FileWriter; // Import untuk tulis file TXT
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -70,7 +75,11 @@ public class ProduksiController implements Initializable {
     private void refreshDashboard() {
         long waiting = orderList.stream().filter(o -> o.getStatus().equalsIgnoreCase("Antrian Produksi")).count();
         long inProgress = orderList.stream().filter(o -> o.getStatus().equalsIgnoreCase("Sedang Diproduksi")).count();
-        long completed = orderList.stream().filter(o -> o.getStatus().equalsIgnoreCase("Selesai")).count();
+        // FIX: Hitung yang sudah Siap Dikirim juga sebagai "completed" untuk statistik
+        long completed = orderList.stream().filter(o ->
+                o.getStatus().equalsIgnoreCase("Siap Dikirim") ||
+                        o.getStatus().equalsIgnoreCase("Selesai")
+        ).count();
 
         if (waitingLabel != null) waitingLabel.setText(String.valueOf(waiting));
         if (inProgressLabel != null) inProgressLabel.setText(String.valueOf(inProgress));
@@ -83,8 +92,10 @@ public class ProduksiController implements Initializable {
         if (orderListContainer != null) {
             orderListContainer.getChildren().clear();
 
+            // FIX: Filter untuk tampilkan yang belum Siap Dikirim/Selesai
             List<ProductionOrder> activeOrders = orderList.stream()
-                    .filter(o -> !o.getStatus().equalsIgnoreCase("Selesai"))
+                    .filter(o -> !o.getStatus().equalsIgnoreCase("Siap Dikirim") &&
+                            !o.getStatus().equalsIgnoreCase("Selesai"))
                     .collect(Collectors.toList());
 
             if (activeOrders.isEmpty()) {
@@ -183,15 +194,14 @@ public class ProduksiController implements Initializable {
         }
 
         Button btnIssue = new Button("⚠️ Laporkan Kendala");
-        btnIssue.getStyleClass().add("button-secondary");
+        btnIssue.getStyleClass().add("button-danger");
         btnIssue.setOnAction(e -> showKendalaForm(order));
 
-        // [UPDATE] Tombol Print ke TXT
-        Button btnPrint = new Button("🖨️ Print Job Sheet (TXT)");
-        btnPrint.getStyleClass().add("button-secondary");
-        btnPrint.setOnAction(e -> generateTxtJobSheet(order));
+        Button btnJobSheet = new Button("📋 Cetak Job Sheet");
+        btnJobSheet.getStyleClass().add("button-secondary");
+        btnJobSheet.setOnAction(e -> generateJobSheet(order));
 
-        actions.getChildren().addAll(btnMain, btnIssue, btnPrint);
+        actions.getChildren().addAll(btnMain, btnIssue, btnJobSheet);
 
         card.getChildren().addAll(header, grid, fileBox, actions);
         return card;
@@ -200,64 +210,47 @@ public class ProduksiController implements Initializable {
     private void addDetailRow(GridPane grid, int row, String label, String value) {
         Label l = new Label(label);
         l.getStyleClass().add("field-label");
-
-        Label v = new Label(value);
+        Label v = new Label(value != null ? value : "-");
         v.getStyleClass().add("field-value");
         v.setWrapText(true);
-
         grid.add(l, 0, row);
         grid.add(v, 1, row);
     }
 
-    // =====================================================================
-    // FITUR PRINT KE TXT (NOTEPAD)
-    // =====================================================================
-    private void generateTxtJobSheet(ProductionOrder order) {
-        // 1. Siapkan konten teks
-        StringBuilder sb = new StringBuilder();
-        sb.append("============================================================\n");
-        sb.append("               CRM PERCETAKAN - JOB SHEET                   \n");
-        sb.append("============================================================\n");
-        sb.append("Tanggal Cetak : ").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"))).append("\n");
-        sb.append("Nomor Pesanan : PO-").append(order.getId()).append("\n");
-        sb.append("------------------------------------------------------------\n\n");
-
-        sb.append("DATA PELANGGAN:\n");
-        sb.append("Nama          : ").append(order.getCustomerName()).append("\n");
-        sb.append("Tanggal Masuk : ").append(order.getDate()).append("\n\n");
-
-        sb.append("DETAIL PESANAN:\n");
-        sb.append("Layanan       : ").append(order.getService()).append("\n");
-        sb.append("Jumlah        : ").append(order.getQuantity()).append(" pcs\n");
-        sb.append("Spesifikasi   :\n").append(order.getSpecs()).append("\n\n");
-
-        if (!order.getCatatan().isEmpty()) {
-            sb.append("CATATAN KENDALA:\n");
-            sb.append(order.getCatatan()).append("\n\n");
-        }
-
-        sb.append("------------------------------------------------------------\n");
-        sb.append("\n\n");
-        sb.append("   Admin / CS                       Operator Produksi\n");
-        sb.append("\n\n");
-        sb.append(" (______________)                 (________________)\n");
-        sb.append("============================================================\n");
-
-        // 2. Buat file TXT
+    private void generateJobSheet(ProductionOrder order) {
         try {
-            // Buat folder khusus 'print_jobs' biar rapi
-            File dir = new File("print_jobs");
+            // Buat folder jika belum ada
+            File dir = new File("job_sheets");
             if (!dir.exists()) dir.mkdirs();
 
-            String fileName = "JobSheet_PO-" + order.getId() + ".txt";
+            // Nama file unik
+            String fileName = "JobSheet_PO-" + order.getId() + "_" +
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".txt";
             File file = new File(dir, fileName);
 
-            // Tulis konten ke file
-            FileWriter writer = new FileWriter(file);
-            writer.write(sb.toString());
-            writer.close();
+            // Tulis isi Job Sheet
+            try (FileWriter writer = new FileWriter(file)) {
+                writer.write("============================================\n");
+                writer.write("              JOB SHEET PRODUKSI            \n");
+                writer.write("============================================\n\n");
+                writer.write("No. Pesanan   : PO-" + order.getId() + "\n");
+                writer.write("Pelanggan     : " + order.getCustomerName() + "\n");
+                writer.write("Tanggal Order : " + order.getDate() + "\n");
+                writer.write("--------------------------------------------\n");
+                writer.write("Layanan       : " + order.getService() + "\n");
+                writer.write("Jumlah        : " + order.getQuantity() + " pcs\n");
+                writer.write("Spesifikasi   : " + order.getSpecs() + "\n");
+                if (!order.getCatatan().isEmpty()) {
+                    writer.write("Catatan       : " + order.getCatatan() + "\n");
+                }
+                writer.write("--------------------------------------------\n");
+                writer.write("File Desain   : " + (order.getFileDesainPath().isEmpty() ? "Belum ada" : order.getFileDesainPath()) + "\n");
+                writer.write("\n============================================\n");
+                writer.write("Dicetak pada  : " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + "\n");
+                writer.write("============================================\n");
+            }
 
-            // 3. Buka file otomatis dengan Notepad
+            // Buka file otomatis
             if (Desktop.isDesktopSupported()) {
                 Desktop.getDesktop().open(file);
             } else {
@@ -283,12 +276,24 @@ public class ProduksiController implements Initializable {
         loadDataFromDatabase(); refreshDashboard();
     }
 
+    /**
+     * FIX: Selesai Produksi -> Status "Siap Dikirim" (bukan "Selesai")
+     * Status "Selesai" akan diubah oleh Admin setelah barang dikirim/diambil
+     */
     private void handleFinishProduction(ProductionOrder order) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Selesaikan pesanan ini?", ButtonType.YES, ButtonType.NO);
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                "Selesaikan produksi pesanan ini?\n\nStatus akan berubah menjadi 'Siap Dikirim' dan Admin akan mendapat notifikasi.",
+                ButtonType.YES, ButtonType.NO);
+        alert.setTitle("Konfirmasi Selesai Produksi");
+        alert.setHeaderText("PO-" + order.getId() + " - " + order.getCustomerName());
+
         alert.showAndWait().ifPresent(resp -> {
             if (resp == ButtonType.YES) {
-                pesananDAO.updateStatus(Integer.parseInt(order.getId()), "Selesai");
-                loadDataFromDatabase(); refreshDashboard();
+                // FIX: Update ke "Siap Dikirim" bukan "Selesai"
+                pesananDAO.updateStatus(Integer.parseInt(order.getId()), "Siap Dikirim");
+                showAlert("Berhasil", "Produksi selesai! Pesanan siap untuk dikirim.\nAdmin akan mendapat notifikasi.");
+                loadDataFromDatabase();
+                refreshDashboard();
             }
         });
     }
@@ -303,10 +308,97 @@ public class ProduksiController implements Initializable {
         }
     }
 
-    @FXML private void submitKendala() {
-        if (selectedOrderForIssue != null && txtKendala != null) {
-            pesananDAO.updateCatatan(Integer.parseInt(selectedOrderForIssue.getId()), "KENDALA: " + txtKendala.getText());
-            loadDataFromDatabase(); refreshDashboard(); cancelKendala();
+    @FXML
+    private void submitKendala() {
+        // 1. Validasi Input
+        String kendala = txtKendala.getText();
+        if (kendala == null || kendala.trim().isEmpty() || selectedOrderForIssue == null) {
+            showAlert("Peringatan", "Mohon isi deskripsi kendala dan pilih pesanan.");
+            return;
+        }
+
+        // 2. Ambil ID Pesanan dari String
+        int pesananId = 0;
+        try {
+            String displayId = selectedOrderForIssue.getId();
+            String numberOnly = displayId.substring(displayId.lastIndexOf("-") + 1);
+            pesananId = Integer.parseInt(numberOnly);
+        } catch (Exception e) {
+            // Jika tidak ada strip, coba parse langsung
+            try {
+                pesananId = Integer.parseInt(selectedOrderForIssue.getId());
+            } catch (Exception ex) {
+                showAlert("Error Data", "Format ID Pesanan tidak valid: " + selectedOrderForIssue.getId());
+                return;
+            }
+        }
+
+        // 3. Simpan ke Database
+        Connection conn = null;
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            // A. Cek apakah sudah ada data di tabel 'produksi'
+            int idProduksi = 0;
+            String sqlCek = "SELECT id_produksi FROM produksi WHERE id_pesanan = ?";
+            try (PreparedStatement psCek = conn.prepareStatement(sqlCek)) {
+                psCek.setInt(1, pesananId);
+                try (ResultSet rs = psCek.executeQuery()) {
+                    if (rs.next()) {
+                        idProduksi = rs.getInt("id_produksi");
+                    }
+                }
+            }
+
+            // B. Jika belum ada di tabel produksi, buat dulu
+            if (idProduksi == 0) {
+                String sqlInsertProd = "INSERT INTO produksi (id_pesanan, id_operator, tanggal_mulai, status_produksi) VALUES (?, ?, NOW(), 'terkendala')";
+                try (PreparedStatement psProd = conn.prepareStatement(sqlInsertProd, Statement.RETURN_GENERATED_KEYS)) {
+                    psProd.setInt(1, pesananId);
+                    int currentUserId = com.example.trying3.util.SessionManager.getInstance().getCurrentUserId();
+                    psProd.setInt(2, currentUserId);
+                    psProd.executeUpdate();
+                    try (ResultSet rsKey = psProd.getGeneratedKeys()) {
+                        if (rsKey.next()) idProduksi = rsKey.getInt(1);
+                    }
+                }
+            } else {
+                String sqlUpdateStatus = "UPDATE produksi SET status_produksi = 'terkendala' WHERE id_produksi = ?";
+                try (PreparedStatement psUpd = conn.prepareStatement(sqlUpdateStatus)) {
+                    psUpd.setInt(1, idProduksi);
+                    psUpd.executeUpdate();
+                }
+            }
+
+            // C. Masukkan laporan ke tabel 'kendala_produksi'
+            String sqlKendala = "INSERT INTO kendala_produksi (id_produksi, deskripsi, status, tanggal_lapor, dilaporkan_oleh) VALUES (?, ?, 'open', NOW(), ?)";
+            try (PreparedStatement psKendala = conn.prepareStatement(sqlKendala)) {
+                psKendala.setInt(1, idProduksi);
+                psKendala.setString(2, kendala);
+                int currentUserId = com.example.trying3.util.SessionManager.getInstance().getCurrentUserId();
+                psKendala.setInt(3, currentUserId);
+                psKendala.executeUpdate();
+            }
+
+            conn.commit();
+            showAlert("Berhasil", "Kendala berhasil dilaporkan ke Admin.");
+
+            // Tutup form dan reset
+            kendalaFormContainer.setVisible(false);
+            kendalaFormContainer.setManaged(false);
+            txtKendala.clear();
+            selectedOrderForIssue = null;
+
+            // Refresh tampilan
+            initialize(null, null);
+
+        } catch (Exception e) {
+            if (conn != null) try { conn.rollback(); } catch (Exception ex) {}
+            e.printStackTrace();
+            showAlert("Gagal Database", "Error: " + e.getMessage());
+        } finally {
+            if (conn != null) try { conn.close(); } catch (Exception ex) {}
         }
     }
 
