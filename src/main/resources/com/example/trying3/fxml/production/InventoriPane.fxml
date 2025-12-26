@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
 <ScrollPane fitToWidth="true"
@@ -28,16 +26,14 @@
                     <children>
                         <VBox spacing="5.0">
                             <children>
-                                <Label styleClass="page-title" text="Inventori Bahan Baku" />
-                                <Label styleClass="muted" text="Monitor ketersediaan stok untuk produksi" />
+                                <Label styleClass="page-title" text="Inventori" />
+                                <Label styleClass="muted" text="Kelola stok bahan dan supplies" />
                             </children>
                         </VBox>
-                        <Region HBox.hgrow="ALWAYS" />
-                        <Button styleClass="btn-primary" text="Tambah Stok Baru" onAction="#handleRestock"/>
                     </children>
                 </HBox>
 
-                <FlowPane fx:id="inventoryContainer" hgap="20.0" vgap="20.0" prefWrapLength="800.0" />
+                <FlowPane fx:id="inventoryContainer" hgap="25.0" vgap="25.0" prefWrapLength="800.0" />
 
             </children>
         </VBox>
