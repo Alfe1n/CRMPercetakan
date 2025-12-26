@@ -177,7 +177,7 @@ public class KelolaPembayaranController {
                 pesanan.setNamaPelanggan(rs.getString("nama_pelanggan"));
                 pesanan.setJenisLayanan(rs.getString("nama_layanan"));
                 pesanan.setJumlah(rs.getInt("jumlah"));
-                pesanan.setTotalHarga(rs.getDouble("total_biaya"));
+                pesanan.setTotalBiaya(rs.getDouble("total_biaya"));
                 pesanan.setTanggalPesanan(rs.getTimestamp("tanggal_pesanan").toLocalDateTime());
 
                 pendingList.add(pesanan);
@@ -218,7 +218,7 @@ public class KelolaPembayaranController {
                 pesanan.setNamaPelanggan(rs.getString("nama_pelanggan"));
                 pesanan.setJenisLayanan(rs.getString("nama_layanan"));
                 pesanan.setJumlah(rs.getInt("jumlah"));
-                pesanan.setTotalHarga(rs.getDouble("jumlah")); // jumlah dari pembayaran
+                pesanan.setTotalBiaya(rs.getDouble("jumlah")); // jumlah dari pembayaran
                 pesanan.setSpesifikasi(rs.getString("nama_metode")); // Temp use for metode
 
                 Timestamp verifikasi = rs.getTimestamp("tanggal_verifikasi");

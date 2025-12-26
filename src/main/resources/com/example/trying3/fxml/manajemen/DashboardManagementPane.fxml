@@ -1,74 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.PieChart?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.StackPane?>
 
-<VBox spacing="30.0" xmlns="http://javafx.com/javafx/21.0.0" xmlns:fx="http://javafx.com/fxml/1">
-    <padding><Insets top="30" left="30" right="30" bottom="30"/></padding>
+<VBox spacing="25.0" style="-fx-background-color: #f8f9fa;" xmlns="http://javafx.com/javafx/21.0.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.trying3.controller.management.DashboardManagementPaneController">
+    <padding><Insets bottom="30" left="30" right="30" top="30" /></padding>
     <children>
-        <Label styleClass="page-title" text="Pemantauan dan Analisis Bisnis"/>
+        <VBox spacing="5.0">
+            <children>
+                <Label text="Dashboard Manajemen" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                <Label text="Ringkasan performa dan kesehatan bisnis secara real-time" style="-fx-text-fill: #7f8c8d;" />
+            </children>
+        </VBox>
 
-        <!-- METRIC BOXES -->
         <HBox spacing="20.0">
             <children>
-                <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
+                <VBox alignment="CENTER_LEFT" spacing="5.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);" HBox.hgrow="ALWAYS">
                     <children>
-                        <Label styleClass="stat-title" text="Total Pesanan"/>
-                        <Label fx:id="totalOrderLabel" styleClass="stat-value" text="4"/>
-                        <Label styleClass="stat-subtitle" text="Semua periode"/>
+                        <Label text="Total Pesanan" style="-fx-text-fill: #7f8c8d;" />
+                        <Label fx:id="totalOrderLabel" text="0" style="-fx-font-size: 26px; -fx-font-weight: bold;" />
                     </children>
                 </VBox>
-
-                <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
+                <VBox alignment="CENTER_LEFT" spacing="5.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10;" HBox.hgrow="ALWAYS">
                     <children>
-                        <Label styleClass="stat-title" text="Tingkat Penyelesaian"/>
-                        <Label fx:id="completionLabel" styleClass="stat-value" text="25%"/>
-                        <Label styleClass="stat-subtitle" text="1 dari 4 pesanan"/>
+                        <Label text="Tingkat Penyelesaian" style="-fx-text-fill: #7f8c8d;" />
+                        <Label fx:id="completionLabel" text="0%" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #27ae60;" />
                     </children>
                 </VBox>
-
-                <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
+                <VBox alignment="CENTER_LEFT" spacing="5.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10;" HBox.hgrow="ALWAYS">
                     <children>
-                        <Label styleClass="stat-title" text="Total Pendapatan"/>
-                        <Label fx:id="revenueLabel" styleClass="stat-value" text="Rp 3.750.000"/>
-                        <Label styleClass="stat-subtitle" text="Pembayaran terverifikasi"/>
+                        <Label text="Total Pendapatan" style="-fx-text-fill: #7f8c8d;" />
+                        <Label fx:id="revenueLabel" text="Rp 0" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2980b9;" />
                     </children>
                 </VBox>
-
-                <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
+                <VBox alignment="CENTER_LEFT" spacing="5.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10;" HBox.hgrow="ALWAYS">
                     <children>
-                        <Label styleClass="stat-title" text="Rata-rata Nilai Pesanan"/>
-                        <Label fx:id="avgOrderValueLabel" styleClass="stat-value" text="Rp 1.250.000"/>
-                        <Label styleClass="stat-subtitle" text="Untuk pesanan"/>
+                        <Label text="Rerata Per Pesanan" style="-fx-text-fill: #7f8c8d;" />
+                        <Label fx:id="avgOrderValueLabel" text="Rp 0" style="-fx-font-size: 22px; -fx-font-weight: bold;" />
                     </children>
                 </VBox>
             </children>
         </HBox>
 
-        <!-- DISTRIBUSI & STATUS -->
-        <HBox spacing="20.0">
+        <HBox spacing="20.0" VBox.vgrow="ALWAYS">
             <children>
-                <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                <VBox spacing="10.0" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10;" HBox.hgrow="ALWAYS">
                     <children>
-                        <Label styleClass="card-title" text="Distribusi Layanan"/>
-                        <Label text="Pencetakan Digital"/>
-                        <Label text="Cetak Offset"/>
-                        <Label text="Sablon"/>
-                        <Label text="Cetak Undangan"/>
+                        <Label text="Distribusi Layanan" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+                        <PieChart fx:id="serviceChart" legendSide="BOTTOM" />
                     </children>
                 </VBox>
-
-                <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                <VBox spacing="10.0" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10;" HBox.hgrow="ALWAYS">
                     <children>
-                        <Label styleClass="card-title" text="Status Pesanan"/>
-                        <Label text="Menunggu Konfirmasi"/>
-                        <Label text="Telah Dikonfirmasi"/>
-                        <Label text="Proses Desain"/>
-                        <Label text="Produksi"/>
-                        <Label text="Selesai"/>
+                        <Label text="Status Operasional" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+                        <PieChart fx:id="statusChart" legendSide="BOTTOM" />
                     </children>
                 </VBox>
             </children>

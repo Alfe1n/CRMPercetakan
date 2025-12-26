@@ -217,7 +217,7 @@ public class KelolaPesananController {
                 pesanan.setEmail(rs.getString("email"));
                 pesanan.setStatus(rs.getString("nama_status"));
                 pesanan.setJumlah(rs.getInt("jumlah"));
-                pesanan.setTotalHarga(rs.getDouble("total_biaya"));
+                pesanan.setTotalBiaya(rs.getDouble("total_biaya"));
                 pesanan.setSpesifikasi(rs.getString("spesifikasi"));
                 pesanan.setTanggalPesanan(rs.getTimestamp("tanggal_pesanan").toLocalDateTime());
 
@@ -346,7 +346,7 @@ public class KelolaPesananController {
         editEmailField.setText(pesanan.getEmail() != null ? pesanan.getEmail() : "");
         editJenisLayananComboBox.setValue(pesanan.getJenisLayanan());
         editJumlahField.setText(String.valueOf(pesanan.getJumlah()));
-        editTotalHargaField.setText(String.valueOf((int) pesanan.getTotalHarga()));
+        editTotalHargaField.setText(String.valueOf((int) pesanan.getTotalBiaya()));
         editSpesifikasiArea.setText(pesanan.getSpesifikasi() != null ? pesanan.getSpesifikasi() : "");
 
         showEditPanel();
@@ -603,7 +603,7 @@ public class KelolaPesananController {
         // Info Pesanan
         Label infoLabel = new Label(
                 "Pesanan: " + pesanan.getNamaPelanggan() +
-                        "\nTotal Tagihan: Rp" + String.format("%,.2f", pesanan.getTotalHarga())
+                        "\nTotal Tagihan: Rp" + String.format("%,.2f", pesanan.getTotalBiaya())
         );
         infoLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666;");
 

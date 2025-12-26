@@ -110,7 +110,7 @@ public class DaftarPesananController {
         // Total Harga Column with Currency Format
         totalHargaColumn.setCellValueFactory(data -> {
             NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
-            return new SimpleStringProperty(currencyFormat.format(data.getValue().getTotalHarga()));
+            return new SimpleStringProperty(currencyFormat.format(data.getValue().getTotalBiaya()));
         });
 
         // Status Column with Custom Cell
@@ -336,7 +336,7 @@ public class DaftarPesananController {
                 pesanan.setEmail(rs.getString("email"));
                 pesanan.setJenisLayanan(rs.getString("jenis_layanan"));
                 pesanan.setJumlah(rs.getInt("jumlah"));
-                pesanan.setTotalHarga(rs.getDouble("total_harga"));
+                pesanan.setTotalBiaya(rs.getDouble("total_biaya"));
                 pesanan.setStatus(rs.getString("status"));
                 pesanan.setTanggalPesanan(rs.getTimestamp("tanggal_pesanan").toLocalDateTime());
 

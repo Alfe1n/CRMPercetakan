@@ -284,7 +284,7 @@ public class DashboardStatsDAO {
         
         pesanan.setJenisLayanan(rs.getString("nama_layanan"));
         pesanan.setJumlah(rs.getInt("jumlah"));
-        pesanan.setTotalHarga(rs.getDouble("total_harga"));
+        pesanan.setTotalBiaya(rs.getDouble("total_biaya"));
         
         try { pesanan.setSpesifikasi(rs.getString("spesifikasi")); } catch (SQLException ignored) {}
         

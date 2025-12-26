@@ -96,7 +96,7 @@ public class PembayaranRiwayatCell extends ListCell<Pesanan> {
 
         layananValue.setText(pesanan.getJenisLayanan());
         jumlahValue.setText(pesanan.getJumlah() + " pcs");
-        totalValue.setText(currencyFormat.format(pesanan.getTotalHarga()));
+        totalValue.setText(currencyFormat.format(pesanan.getTotalBiaya()));
 
         setGraphic(cardContainer);
     }
