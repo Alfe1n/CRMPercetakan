@@ -271,14 +271,92 @@ public class ProduksiController implements Initializable {
         } catch (IOException e) { e.printStackTrace(); }
     }
 
+    /**
+     * Handler untuk tombol "Mulai Produksi"
+     * 1. INSERT ke tabel produksi (jika belum ada)
+     * 2. Update status pesanan ke "Sedang Diproduksi"
+     */
     private void handleStartProduction(ProductionOrder order) {
-        pesananDAO.updateStatus(Integer.parseInt(order.getId()), "Sedang Diproduksi");
-        loadDataFromDatabase(); refreshDashboard();
+        int pesananId = Integer.parseInt(order.getId());
+
+        Connection conn = null;
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            // 1. Cek apakah sudah ada di tabel produksi
+            int idProduksi = 0;
+            String sqlCek = "SELECT id_produksi FROM produksi WHERE id_pesanan = ?";
+            try (PreparedStatement psCek = conn.prepareStatement(sqlCek)) {
+                psCek.setInt(1, pesananId);
+                try (ResultSet rs = psCek.executeQuery()) {
+                    if (rs.next()) {
+                        idProduksi = rs.getInt("id_produksi");
+                    }
+                }
+            }
+
+            // 2. Jika belum ada, INSERT ke tabel produksi
+            if (idProduksi == 0) {
+                String sqlInsert = """
+                    INSERT INTO produksi (id_pesanan, id_operator, tanggal_mulai, status_produksi, progres_persen) 
+                    VALUES (?, ?, NOW(), 'proses', 0)
+                """;
+                try (PreparedStatement psInsert = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS)) {
+                    psInsert.setInt(1, pesananId);
+                    int currentUserId = com.example.trying3.util.SessionManager.getInstance().getCurrentUserId();
+                    psInsert.setInt(2, currentUserId);
+                    psInsert.executeUpdate();
+
+                    try (ResultSet rsKey = psInsert.getGeneratedKeys()) {
+                        if (rsKey.next()) {
+                            idProduksi = rsKey.getInt(1);
+                            System.out.println("✅ Inserted produksi record, id_produksi: " + idProduksi);
+                        }
+                    }
+                }
+            } else {
+                // Jika sudah ada, update status_produksi ke 'proses'
+                String sqlUpdate = "UPDATE produksi SET status_produksi = 'proses', tanggal_mulai = NOW() WHERE id_produksi = ?";
+                try (PreparedStatement psUpdate = conn.prepareStatement(sqlUpdate)) {
+                    psUpdate.setInt(1, idProduksi);
+                    psUpdate.executeUpdate();
+                    System.out.println("✅ Updated existing produksi record, id_produksi: " + idProduksi);
+                }
+            }
+
+            // 3. Update status pesanan ke "Sedang Diproduksi"
+            String sqlUpdatePesanan = """
+                UPDATE pesanan 
+                SET id_status = (SELECT id_status FROM status_pesanan WHERE nama_status = 'Sedang Diproduksi'),
+                    updated_at = NOW()
+                WHERE id_pesanan = ?
+            """;
+            try (PreparedStatement psUpdatePesanan = conn.prepareStatement(sqlUpdatePesanan)) {
+                psUpdatePesanan.setInt(1, pesananId);
+                psUpdatePesanan.executeUpdate();
+            }
+
+            conn.commit();
+            System.out.println("✅ Produksi dimulai untuk pesanan ID: " + pesananId);
+
+        } catch (Exception e) {
+            if (conn != null) try { conn.rollback(); } catch (Exception ex) {}
+            e.printStackTrace();
+            showAlert("Error", "Gagal memulai produksi: " + e.getMessage());
+            return;
+        } finally {
+            if (conn != null) try { conn.close(); } catch (Exception ex) {}
+        }
+
+        loadDataFromDatabase();
+        refreshDashboard();
     }
 
     /**
      * FIX: Selesai Produksi -> Status "Siap Dikirim" (bukan "Selesai")
      * Status "Selesai" akan diubah oleh Admin setelah barang dikirim/diambil
+     * Juga update tabel produksi: status_produksi = 'selesai', progres = 100%
      */
     private void handleFinishProduction(ProductionOrder order) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
@@ -289,9 +367,51 @@ public class ProduksiController implements Initializable {
 
         alert.showAndWait().ifPresent(resp -> {
             if (resp == ButtonType.YES) {
-                // FIX: Update ke "Siap Dikirim" bukan "Selesai"
-                pesananDAO.updateStatus(Integer.parseInt(order.getId()), "Siap Dikirim");
-                showAlert("Berhasil", "Produksi selesai! Pesanan siap untuk dikirim.\nAdmin akan mendapat notifikasi.");
+                int pesananId = Integer.parseInt(order.getId());
+
+                Connection conn = null;
+                try {
+                    conn = DatabaseConnection.getConnection();
+                    conn.setAutoCommit(false);
+
+                    // 1. Update tabel produksi: status = selesai, progres = 100%
+                    String sqlUpdateProduksi = """
+                        UPDATE produksi 
+                        SET status_produksi = 'selesai', 
+                            progres_persen = 100, 
+                            tanggal_selesai = NOW(),
+                            updated_at = NOW()
+                        WHERE id_pesanan = ?
+                    """;
+                    try (PreparedStatement psUpdateProduksi = conn.prepareStatement(sqlUpdateProduksi)) {
+                        psUpdateProduksi.setInt(1, pesananId);
+                        psUpdateProduksi.executeUpdate();
+                    }
+
+                    // 2. Update status pesanan ke "Siap Dikirim"
+                    String sqlUpdatePesanan = """
+                        UPDATE pesanan 
+                        SET id_status = (SELECT id_status FROM status_pesanan WHERE nama_status = 'Siap Dikirim'),
+                            updated_at = NOW()
+                        WHERE id_pesanan = ?
+                    """;
+                    try (PreparedStatement psUpdatePesanan = conn.prepareStatement(sqlUpdatePesanan)) {
+                        psUpdatePesanan.setInt(1, pesananId);
+                        psUpdatePesanan.executeUpdate();
+                    }
+
+                    conn.commit();
+                    showAlert("Berhasil", "Produksi selesai! Pesanan siap untuk dikirim.\nAdmin akan mendapat notifikasi.");
+
+                } catch (Exception e) {
+                    if (conn != null) try { conn.rollback(); } catch (Exception ex) {}
+                    e.printStackTrace();
+                    showAlert("Error", "Gagal menyelesaikan produksi: " + e.getMessage());
+                    return;
+                } finally {
+                    if (conn != null) try { conn.close(); } catch (Exception ex) {}
+                }
+
                 loadDataFromDatabase();
                 refreshDashboard();
             }
