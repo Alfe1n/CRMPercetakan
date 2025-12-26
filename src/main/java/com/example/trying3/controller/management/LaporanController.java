@@ -125,7 +125,7 @@ public class LaporanController {
             String title = "PO-" + p.getIdPesanan() + " - " + p.getNamaPelanggan();
             String tgl = p.getTanggalPesanan() != null ? p.getTanggalPesanan().toLocalDate().toString() : "-";
             String subtitle = p.getJenisLayanan() + " • " + tgl;
-            String price = currencyFormat.format(p.getTotalHarga());
+            String price = currencyFormat.format(p.getTotalBiaya());
 
             activityContainer.getChildren().add(makeActivityRow(title, subtitle, price, p.getStatus()));
         }
@@ -161,7 +161,7 @@ public class LaporanController {
                     String layanan = p.getJenisLayanan().replace(",", " ");
 
                     writer.write(String.format("%d,%s,%s,%s,%s,%s,%.0f\n",
-                            p.getIdPesanan(), tgl, nama, p.getNoTelepon(), layanan, p.getStatus(), p.getTotalHarga()));
+                            p.getIdPesanan(), tgl, nama, p.getNoTelepon(), layanan, p.getStatus(), p.getTotalBiaya()));
                 }
 
                 showAlert("Sukses", "Laporan berhasil diekspor ke Excel (CSV)!");
@@ -244,9 +244,9 @@ public class LaporanController {
             addCell(table, 2, row, p.getNamaPelanggan(), false);
             addCell(table, 3, row, p.getJenisLayanan(), false);
             addCell(table, 4, row, p.getStatus(), false);
-            addCell(table, 5, row, currencyFormat.format(p.getTotalHarga()), false);
+            addCell(table, 5, row, currencyFormat.format(p.getTotalBiaya()), false);
 
-            totalOmset += p.getTotalHarga();
+            totalOmset += p.getTotalBiaya();
             row++;
         }
 

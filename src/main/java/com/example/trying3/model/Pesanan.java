@@ -11,7 +11,7 @@ public class Pesanan {
     private String email;
     private String jenisLayanan;
     private int jumlah;
-    private double totalHarga;
+    private double totalBiaya; // DIUBAH: dari totalHarga menjadi totalBiaya (sesuai DB)
     private String spesifikasi;
     private String catatan;
     private String status;
@@ -24,7 +24,7 @@ public class Pesanan {
     }
 
     public Pesanan(int idPesanan, String namaPelanggan, String noTelepon, String email,
-                   String jenisLayanan, int jumlah, double totalHarga, String spesifikasi,
+                   String jenisLayanan, int jumlah, double totalBiaya, String spesifikasi,
                    String status, LocalDateTime tanggalPesanan) {
         this.idPesanan = idPesanan;
         this.namaPelanggan = namaPelanggan;
@@ -32,23 +32,17 @@ public class Pesanan {
         this.email = email;
         this.jenisLayanan = jenisLayanan;
         this.jumlah = jumlah;
-        this.totalHarga = totalHarga;
+        this.totalBiaya = totalBiaya; // Sesuaikan
         this.spesifikasi = spesifikasi;
         this.status = status;
         this.tanggalPesanan = tanggalPesanan;
     }
 
     // Getters and Setters
-    public int getIdPesanan() {
-        return idPesanan;
-    }
-
-    public void setIdPesanan(int idPesanan) {
-        this.idPesanan = idPesanan;
-    }
+    public int getIdPesanan() { return idPesanan; }
+    public void setIdPesanan(int idPesanan) { this.idPesanan = idPesanan; }
 
     public String getNomorPesanan() { return nomorPesanan; }
-
     public void setNomorPesanan(String nomorPesanan) { this.nomorPesanan = nomorPesanan; }
 
     public String getDisplayId() {
@@ -58,94 +52,44 @@ public class Pesanan {
         return String.format("ORD-%03d", idPesanan);
     }
 
-    public String getNamaPelanggan() {
-        return namaPelanggan;
-    }
+    public String getNamaPelanggan() { return namaPelanggan; }
+    public void setNamaPelanggan(String namaPelanggan) { this.namaPelanggan = namaPelanggan; }
 
-    public void setNamaPelanggan(String namaPelanggan) {
-        this.namaPelanggan = namaPelanggan;
-    }
+    public String getNoTelepon() { return noTelepon; }
+    public void setNoTelepon(String noTelepon) { this.noTelepon = noTelepon; }
 
-    public String getNoTelepon() {
-        return noTelepon;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public void setNoTelepon(String noTelepon) {
-        this.noTelepon = noTelepon;
-    }
+    public String getJenisLayanan() { return jenisLayanan; }
+    public void setJenisLayanan(String jenisLayanan) { this.jenisLayanan = jenisLayanan; }
 
-    public String getEmail() {
-        return email;
-    }
+    public int getJumlah() { return jumlah; }
+    public void setJumlah(int jumlah) { this.jumlah = jumlah; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    // GETTER & SETTER DISESUAIKAN KE totalBiaya
+    public double getTotalBiaya() { return totalBiaya; }
+    public void setTotalBiaya(double totalBiaya) { this.totalBiaya = totalBiaya; }
 
-    public String getJenisLayanan() {
-        return jenisLayanan;
-    }
+    public String getSpesifikasi() { return spesifikasi; }
+    public void setSpesifikasi(String spesifikasi) { this.spesifikasi = spesifikasi; }
 
-    public void setJenisLayanan(String jenisLayanan) {
-        this.jenisLayanan = jenisLayanan;
-    }
+    public String getCatatan() { return catatan; }
+    public void setCatatan(String catatan) { this.catatan = catatan; }
 
-    public int getJumlah() {
-        return jumlah;
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
-    public void setJumlah(int jumlah) {
-        this.jumlah = jumlah;
-    }
+    public LocalDateTime getTanggalPesanan() { return tanggalPesanan; }
+    public void setTanggalPesanan(LocalDateTime tanggalPesanan) { this.tanggalPesanan = tanggalPesanan; }
 
-    public double getTotalHarga() {
-        return totalHarga;
-    }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
-    public void setTotalHarga(double totalHarga) {
-        this.totalHarga = totalHarga;
-    }
+    public String getFileDesainPath() { return fileDesainPath; }
+    public void setFileDesainPath(String fileDesainPath) { this.fileDesainPath = fileDesainPath; }
 
-    public String getSpesifikasi() {
-        return spesifikasi;
-    }
-
-    public void setSpesifikasi(String spesifikasi) {
-        this.spesifikasi = spesifikasi;
-    }
-
-    public String getCatatan() {
-        return catatan;
-    }
-
-    public void setCatatan(String catatan) {
-        this.catatan = catatan;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getTanggalPesanan() {
-        return tanggalPesanan;
-    }
-
-    public void setTanggalPesanan(LocalDateTime tanggalPesanan) {
-        this.tanggalPesanan = tanggalPesanan;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
+    // Helpers untuk tampilan
     public String getFormattedDate() {
         if (tanggalPesanan == null) return "-";
         return tanggalPesanan.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -165,20 +109,8 @@ public class Pesanan {
         return "Pesanan{" +
                 "idPesanan=" + idPesanan +
                 ", namaPelanggan='" + namaPelanggan + '\'' +
-                ", noTelepon='" + noTelepon + '\'' +
-                ", jenisLayanan='" + jenisLayanan + '\'' +
                 ", status='" + status + '\'' +
-                ", totalHarga=" + totalHarga +
+                ", totalBiaya=" + totalBiaya +
                 '}';
-
-
-    }
-    public String getFileDesainPath() {
-        return fileDesainPath;
-    }
-
-    public void setFileDesainPath(String fileDesainPath) {
-        this.fileDesainPath = fileDesainPath;
     }
 }
-

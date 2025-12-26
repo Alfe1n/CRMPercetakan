@@ -6,6 +6,9 @@ import com.example.trying3.util.SessionManager;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 public class PesananDAO {
 
@@ -357,7 +360,7 @@ public class PesananDAO {
 
         pesanan.setJenisLayanan(rs.getString("nama_layanan")); // Alias dari query
         pesanan.setJumlah(rs.getInt("jumlah"));
-        pesanan.setTotalHarga(rs.getDouble("total_harga"));
+        pesanan.setTotalBiaya(rs.getDouble("total_biaya"));
         pesanan.setSpesifikasi(rs.getString("spesifikasi"));
         pesanan.setStatus(rs.getString("status"));
 
@@ -532,8 +535,7 @@ public class PesananDAO {
                 String layanan = rs.getString("jenis_layanan");
                 p.setJenisLayanan(layanan != null ? layanan : "-");
 
-                // Perhatikan: nama kolom di DB 'total_biaya', tapi di Model Pesanan 'totalHarga'
-                p.setTotalHarga(rs.getDouble("total_biaya"));
+                p.setTotalBiaya(rs.getDouble("total_biaya"));
 
                 Timestamp ts = rs.getTimestamp("tanggal_pesanan");
                 if(ts != null) p.setTanggalPesanan(ts.toLocalDateTime());
@@ -603,7 +605,7 @@ public class PesananDAO {
                 p.setJenisLayanan(layanan != null ? layanan : "-");
 
                 // 5. Mapping Keuangan
-                p.setTotalHarga(rs.getDouble("total_biaya")); // Kolom di DB kamu 'total_biaya'
+                p.setTotalBiaya(rs.getDouble("total_biaya")); // Kolom di DB kamu 'total_biaya'
 
                 // Tambahkan ke list
                 exportList.add(p);
@@ -614,4 +616,120 @@ public class PesananDAO {
 
         return exportList;
     }
+
+    public int getTotalPesananCount() {
+        String sql = "SELECT COUNT(*) FROM pesanan";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public double getTotalRevenue() {
+        String sql = "SELECT SUM(total_biaya) FROM pesanan";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            if (rs.next()) return rs.getDouble(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public int getSelesaiCount() {
+        String sql = "SELECT COUNT(*) FROM pesanan p JOIN status_pesanan s ON p.id_status = s.id_status WHERE s.nama_status = 'Selesai'";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public Map<String, Integer> getServiceDistribution() {
+        Map<String, Integer> map = new HashMap<>();
+        // Gunakan LEFT JOIN agar data tetap muncul meskipun id_layanan belum terisi sempurna
+        String sql = "SELECT IFNULL(jl.nama_layanan, 'Belum Ditentukan') as layanan, COUNT(p.id_pesanan) " +
+                "FROM pesanan p " +
+                "LEFT JOIN jenis_layanan jl ON p.id_layanan = jl.id_layanan " +
+                "GROUP BY jl.nama_layanan";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+
+            while (rs.next()) {
+                map.put(rs.getString(1), rs.getInt(2));
+            }
+            // Debugging: Cek di console apakah data benar-benar ada
+            System.out.println("DEBUG Service Chart Data: " + map);
+
+        } catch (SQLException e) {
+            System.err.println("Error getServiceDistribution: " + e.getMessage());
+        }
+        return map;
+    }
+
+    public Map<String, Integer> getStatusDistribution() {
+        Map<String, Integer> map = new HashMap<>();
+        // Gunakan LEFT JOIN untuk status
+        String sql = "SELECT IFNULL(s.nama_status, 'Tanpa Status'), COUNT(p.id_pesanan) " +
+                "FROM pesanan p " +
+                "LEFT JOIN status_pesanan s ON p.id_status = s.id_status " +
+                "GROUP BY s.nama_status";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+
+            while (rs.next()) {
+                map.put(rs.getString(1), rs.getInt(2));
+            }
+            System.out.println("DEBUG Status Chart Data: " + map);
+
+        } catch (SQLException e) {
+            System.err.println("Error getStatusDistribution: " + e.getMessage());
+        }
+        return map;
+    }
+
+    public Map<String, Integer> getOrderTrend() {
+        Map<String, Integer> trend = new LinkedHashMap<>(); // Linked agar urutan tanggal terjaga
+        String sql = "SELECT DATE_FORMAT(tanggal_pesanan, '%d %b') as tgl, COUNT(*) FROM pesanan " +
+                "GROUP BY DATE(tanggal_pesanan) ORDER BY tanggal_pesanan ASC LIMIT 7";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next()) trend.put(rs.getString(1), rs.getInt(2));
+        } catch (SQLException e) { e.printStackTrace(); }
+        return trend;
+    }
+
+    public Map<String, Double> getRevenueDistribution() {
+        Map<String, Double> dist = new HashMap<>();
+        // Gunakan LEFT JOIN agar pesanan tanpa ID layanan tetap terhitung
+        // Gunakan COALESCE untuk mengganti nama layanan yang NULL menjadi 'Lainnya'
+        String sql = "SELECT COALESCE(jl.nama_layanan, 'Lainnya') as kategori, SUM(p.total_biaya) " +
+                "FROM pesanan p " +
+                "LEFT JOIN jenis_layanan jl ON p.id_layanan = jl.id_layanan " +
+                "GROUP BY kategori";
+
+        try (Connection conn = com.example.trying3.config.DatabaseConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+
+            while (rs.next()) {
+                dist.put(rs.getString(1), rs.getDouble(2));
+            }
+            // Tambahkan print ini untuk cek di terminal saat aplikasi jalan
+            System.out.println("Data Pendapatan: " + dist);
+
+        } catch (SQLException e) {
+            System.err.println("Error pada getRevenueDistribution: " + e.getMessage());
+        }
+        return dist;
+    }
+
+
 }
