@@ -1,5 +1,6 @@
 package com.example.trying3.controller.production;
 
+import com.example.trying3.config.DatabaseConnection;
 import com.example.trying3.dao.PesananDAO;
 import com.example.trying3.model.Pesanan;
 import javafx.fxml.FXML;
@@ -14,6 +15,10 @@ import java.io.File;
 import java.io.FileWriter; // Import untuk tulis file TXT
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -303,10 +308,113 @@ public class ProduksiController implements Initializable {
         }
     }
 
-    @FXML private void submitKendala() {
-        if (selectedOrderForIssue != null && txtKendala != null) {
-            pesananDAO.updateCatatan(Integer.parseInt(selectedOrderForIssue.getId()), "KENDALA: " + txtKendala.getText());
-            loadDataFromDatabase(); refreshDashboard(); cancelKendala();
+    @FXML
+    private void submitKendala() {
+        // 1. Validasi Input
+        String kendala = txtKendala.getText();
+        if (kendala == null || kendala.trim().isEmpty() || selectedOrderForIssue == null) {
+            showAlert("Peringatan", "Mohon isi deskripsi kendala dan pilih pesanan.");
+            return;
+        }
+
+        // 2. Ambil ID Pesanan dari String (Misal: "ORD-015" -> ambil 15)
+        int pesananId = 0;
+        try {
+            String displayId = selectedOrderForIssue.getId(); // Format: "ORD-015"
+            // Ambil angka setelah strip terakhir
+            String numberOnly = displayId.substring(displayId.lastIndexOf("-") + 1);
+            pesananId = Integer.parseInt(numberOnly);
+        } catch (Exception e) {
+            showAlert("Error Data", "Format ID Pesanan tidak valid: " + selectedOrderForIssue.getId());
+            return;
+        }
+
+        // 3. Simpan ke Database (Tabel 'produksi' & 'kendala_produksi')
+        Connection conn = null;
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false); // Biar aman (Transaksi)
+
+            // A. Cek apakah sudah ada data di tabel 'produksi' untuk pesanan ini?
+            int idProduksi = 0;
+            String sqlCek = "SELECT id_produksi FROM produksi WHERE id_pesanan = ?";
+            try (PreparedStatement psCek = conn.prepareStatement(sqlCek)) {
+                psCek.setInt(1, pesananId);
+                try (ResultSet rs = psCek.executeQuery()) {
+                    if (rs.next()) {
+                        idProduksi = rs.getInt("id_produksi");
+                    }
+                }
+            }
+
+            // B. Jika belum ada di tabel produksi, buat dulu (Insert otomatis)
+            if (idProduksi == 0) {
+                // Query dengan DUA tanda tanya (?, ?)
+                String sqlInsertProd = "INSERT INTO produksi (id_pesanan, id_operator, tanggal_mulai, status_produksi) VALUES (?, ?, NOW(), 'terkendala')";
+
+                try (PreparedStatement psProd = conn.prepareStatement(sqlInsertProd, Statement.RETURN_GENERATED_KEYS)) {
+
+                    // Parameter 1: ID Pesanan (Sudah ada)
+                    psProd.setInt(1, pesananId);
+
+                    // --- TAMBAHKAN BAGIAN INI (Solusi Error) ---
+                    // Ambil ID User yang sedang login
+                    int currentUserId = com.example.trying3.util.SessionManager.getInstance().getCurrentUserId();
+
+                    // Parameter 2: ID Operator (Ini yang tadinya lupa diisi)
+                    psProd.setInt(2, currentUserId);
+                    // -------------------------------------------
+
+                    psProd.executeUpdate();
+
+                    try (ResultSet rsKey = psProd.getGeneratedKeys()) {
+                        if (rsKey.next()) idProduksi = rsKey.getInt(1);
+                    }
+                }
+            } else {
+                // Jika sudah ada, update statusnya jadi 'terkendala'
+                String sqlUpdateStatus = "UPDATE produksi SET status_produksi = 'terkendala' WHERE id_produksi = ?";
+                try (PreparedStatement psUpd = conn.prepareStatement(sqlUpdateStatus)) {
+                    psUpd.setInt(1, idProduksi);
+                    psUpd.executeUpdate();
+                }
+            }
+
+            // C. Masukkan laporan ke tabel 'kendala_produksi' (Inilah yang dibaca Admin!)
+            String sqlKendala = "INSERT INTO kendala_produksi (id_produksi, deskripsi, status, tanggal_lapor, dilaporkan_oleh) VALUES (?, ?, 'open', NOW(), ?)";
+
+            try (PreparedStatement psKendala = conn.prepareStatement(sqlKendala)) {
+                psKendala.setInt(1, idProduksi);
+                psKendala.setString(2, kendala);
+
+                // --- TAMBAHAN BARU ---
+                // Ambil ID User yang login (misal: Alvin)
+                int currentUserId = com.example.trying3.util.SessionManager.getInstance().getCurrentUserId();
+                psKendala.setInt(3, currentUserId);
+                // ---------------------
+
+                psKendala.executeUpdate();
+            }
+
+            conn.commit();
+
+            showAlert("Berhasil", "Kendala berhasil dilaporkan ke Admin.");
+
+            // Tutup form dan reset text
+            kendalaFormContainer.setVisible(false);
+            kendalaFormContainer.setManaged(false);
+            txtKendala.clear();
+            selectedOrderForIssue = null;
+
+            // Refresh tampilan list agar status berubah (opsional)
+            initialize(null, null);
+
+        } catch (Exception e) {
+            if (conn != null) try { conn.rollback(); } catch (Exception ex) {}
+            e.printStackTrace();
+            showAlert("Gagal Database", "Error: " + e.getMessage());
+        } finally {
+            if (conn != null) try { conn.close(); } catch (Exception ex) {}
         }
     }
 

@@ -31,8 +31,7 @@ public class KelolaDesignController implements Initializable {
     @FXML private Label lblCountRevision;
     @FXML private Label lblCountApproved;
 
-    // --- POPUP REVISI ELEMENTS (Sesuai FXML) ---
-    @FXML private VBox revisiPopupContainer;
+    @FXML private StackPane revisiPopupContainer;
     @FXML private TextArea txtRevisi;
 
     private PesananDAO pesananDAO;

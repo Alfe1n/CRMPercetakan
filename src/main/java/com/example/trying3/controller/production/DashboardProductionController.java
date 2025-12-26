@@ -5,10 +5,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
@@ -94,7 +97,30 @@ public class DashboardProductionController implements Initializable {
         alert.setTitle("Konfirmasi Logout");
         alert.setHeaderText(null);
         alert.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.YES) System.exit(0);
+            if (response == ButtonType.YES) {
+                try {
+                    // 1. Load file Login.fxml (sesuaikan path foldernya)
+                    // Berdasarkan struktur folder di screenshot kamu: fxml/auth/Login.fxml
+                    URL loginResource = MainApplication.class.getResource("fxml/auth/Login.fxml");
+                    FXMLLoader loader = new FXMLLoader(loginResource);
+                    Parent root = loader.load();
+
+                    // 2. Ambil stage (window) yang sekarang sedang terbuka
+                    Stage stage = (Stage) btnLogout.getScene().getWindow();
+
+                    // 3. Set scene baru dengan root login
+                    Scene scene = new Scene(root);
+                    stage.setScene(scene);
+
+                    // 4. (Opsional) Ketengahkan window agar rapi
+                    stage.centerOnScreen();
+                    stage.show();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    System.err.println("Gagal memuat halaman login: " + e.getMessage());
+                }
+            }
         });
     }
 }
