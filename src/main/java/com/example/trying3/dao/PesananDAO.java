@@ -4,8 +4,7 @@ import com.example.trying3.config.DatabaseConnection;
 import com.example.trying3.model.Pesanan;
 import com.example.trying3.util.SessionManager;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class PesananDAO {
 
@@ -613,5 +612,183 @@ public class PesananDAO {
         }
 
         return exportList;
+    }
+
+    public int getTotalPesananCount() {
+        String sql = "SELECT COUNT(*) FROM pesanan";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public double getTotalRevenue() {
+        String sql = "SELECT SUM(total_biaya) FROM pesanan";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            if (rs.next()) return rs.getDouble(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public int getSelesaiCount() {
+        String sql = "SELECT COUNT(*) FROM pesanan p JOIN status_pesanan s ON p.id_status = s.id_status WHERE s.nama_status = 'Selesai'";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public Map<String, Integer> getServiceDistribution() {
+        Map<String, Integer> dist = new LinkedHashMap<>();
+        // Query ini menghubungkan pesanan -> detail -> jenis_layanan
+        String sql = "SELECT jl.nama_layanan, COUNT(dp.id_layanan) " +
+                "FROM pesanan p " +
+                "JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan " +
+                "JOIN jenis_layanan jl ON dp.id_layanan = jl.id_layanan " +
+                "GROUP BY jl.nama_layanan";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next()) {
+                dist.put(rs.getString(1), rs.getInt(2));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error Service Distribution: " + e.getMessage());
+        }
+        return dist;
+    }
+
+    public Map<String, Integer> getStatusDistribution() {
+        Map<String, Integer> map = new HashMap<>();
+        // Gunakan LEFT JOIN untuk status
+        String sql = "SELECT IFNULL(s.nama_status, 'Tanpa Status'), COUNT(p.id_pesanan) " +
+                "FROM pesanan p " +
+                "LEFT JOIN status_pesanan s ON p.id_status = s.id_status " +
+                "GROUP BY s.nama_status";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+
+            while (rs.next()) {
+                map.put(rs.getString(1), rs.getInt(2));
+            }
+            System.out.println("DEBUG Status Chart Data: " + map);
+
+        } catch (SQLException e) {
+            System.err.println("Error getStatusDistribution: " + e.getMessage());
+        }
+        return map;
+    }
+
+    public Map<String, Integer> getOrderTrend() {
+        Map<String, Integer> trend = new LinkedHashMap<>();
+        String sql = "SELECT DATE_FORMAT(tanggal_pesanan, '%d %b') as label_tgl, COUNT(*) " +
+                "FROM pesanan " +
+                "GROUP BY label_tgl, DATE(tanggal_pesanan) " +
+                "ORDER BY DATE(tanggal_pesanan) ASC LIMIT 7";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next()) {
+                trend.put(rs.getString(1), rs.getInt(2));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return trend;
+    }
+
+    public Map<String, Double> getRevenueDistribution() {
+        Map<String, Double> dist = new HashMap<>();
+        String sql = "SELECT jl.nama_layanan, SUM(p.total_biaya) " +
+                "FROM pesanan p " +
+                "JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan " +
+                "JOIN jenis_layanan jl ON dp.id_layanan = jl.id_layanan " +
+                "GROUP BY jl.nama_layanan";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next()) {
+                dist.put(rs.getString(1), rs.getDouble(2));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error Revenue: " + e.getMessage());
+        }
+        return dist;
+    }
+
+    public List<Pesanan> getAllPesananForExport() {
+        List<Pesanan> list = new ArrayList<>();
+        // QUERY DIPERBAIKI: JOIN ke pelanggan dan status_pesanan
+        String sql = "SELECT p.id_pesanan, pl.nama_pelanggan, " +
+                "COALESCE(jl.nama_layanan, 'N/A') as nama_layanan, " +
+                "p.total_biaya, s.nama_status, p.tanggal_pesanan " +
+                "FROM pesanan p " +
+                "JOIN pelanggan pl ON p.id_pelanggan = pl.id_pelanggan " +
+                "JOIN status_pesanan s ON p.id_status = s.id_status " + // Ambil teks status
+                "LEFT JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan " +
+                "LEFT JOIN jenis_layanan jl ON dp.id_layanan = jl.id_layanan " +
+                "ORDER BY p.tanggal_pesanan DESC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Pesanan p = new Pesanan();
+                p.setIdPesanan(rs.getInt("id_pesanan"));
+                p.setNamaPelanggan(rs.getString("nama_pelanggan"));
+                p.setJenisLayanan(rs.getString("nama_layanan"));
+                p.setTotalHarga(rs.getDouble("total_biaya"));
+                p.setStatus(rs.getString("nama_status")); // Mengambil teks 'Baru Dibuat', 'Selesai', dll
+
+                Timestamp ts = rs.getTimestamp("tanggal_pesanan");
+                if (ts != null) p.setTanggalPesanan(ts.toLocalDateTime());
+
+                list.add(p);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error Export Data: " + e.getMessage());
+        }
+        return list;
+    }
+
+    // Tambahkan/Update metode ini di PesananDAO.java
+    public List<Pesanan> getLaporanProduksi() {
+        List<Pesanan> list = new ArrayList<>();
+        // Query khusus produksi untuk melihat status pengerjaan
+        String sql = "SELECT p.id_pesanan, pl.nama_pelanggan, s.nama_status, p.total_biaya " +
+                "FROM pesanan p " +
+                "JOIN pelanggan pl ON p.id_pelanggan = pl.id_pelanggan " +
+                "JOIN status_pesanan s ON p.id_status = s.id_status " +
+                "WHERE s.nama_status != 'Selesai'"; // Contoh: hanya yang sedang diproses
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Pesanan p = new Pesanan();
+                p.setIdPesanan(rs.getInt("id_pesanan"));
+                p.setNamaPelanggan(rs.getString("nama_pelanggan"));
+                p.setJenisLayanan(rs.getString("nama_status"));
+                p.setTotalHarga(rs.getDouble("total_biaya"));
+
+                list.add(p);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error Export Data: " + e.getMessage());
+        }
+
+        return list;
     }
 }
