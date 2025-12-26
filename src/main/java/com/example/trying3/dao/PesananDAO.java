@@ -145,22 +145,53 @@ public class PesananDAO {
             conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false); // Transaksi Atomik
 
-            // Update Pesanan
-            String sqlPesanan = "UPDATE pesanan SET id_status = 7 WHERE id_pesanan = ?";
+            // 1. Update status Pesanan ke "Antrian Produksi" (id_status = 7)
+            String sqlPesanan = "UPDATE pesanan SET id_status = 7, updated_at = NOW() WHERE id_pesanan = ?";
             try (PreparedStatement ps = conn.prepareStatement(sqlPesanan)) {
                 ps.setInt(1, idPesanan);
                 ps.executeUpdate();
             }
 
-            // Update Desain
+            // 2. Update status Desain ke "Disetujui" (id_status_desain = 5)
             String sqlDesain = "UPDATE desain SET id_status_desain = 5, tanggal_disetujui = NOW() WHERE id_pesanan = ?";
             try (PreparedStatement ps = conn.prepareStatement(sqlDesain)) {
                 ps.setInt(1, idPesanan);
                 ps.executeUpdate();
             }
 
+            // 3. Cek apakah sudah ada data di tabel produksi
+            int idProduksi = 0;
+            String sqlCekProduksi = "SELECT id_produksi FROM produksi WHERE id_pesanan = ?";
+            try (PreparedStatement psCek = conn.prepareStatement(sqlCekProduksi)) {
+                psCek.setInt(1, idPesanan);
+                try (ResultSet rs = psCek.executeQuery()) {
+                    if (rs.next()) {
+                        idProduksi = rs.getInt("id_produksi");
+                    }
+                }
+            }
+
+            // 4. Jika belum ada, INSERT ke tabel produksi dengan status 'antrian'
+            if (idProduksi == 0) {
+                // Cari operator produksi default (user pertama dengan role Produksi)
+                int defaultOperatorId = getDefaultProduksiOperator(conn);
+
+                String sqlInsertProduksi = """
+                INSERT INTO produksi (id_pesanan, id_operator, tanggal_mulai, status_produksi, progres_persen) 
+                VALUES (?, ?, NOW(), 'antrian', 0)
+            """;
+                try (PreparedStatement psInsert = conn.prepareStatement(sqlInsertProduksi)) {
+                    psInsert.setInt(1, idPesanan);
+                    psInsert.setInt(2, defaultOperatorId);
+                    psInsert.executeUpdate();
+                    System.out.println("✅ Inserted produksi record for pesanan ID: " + idPesanan);
+                }
+            }
+
             conn.commit();
+            System.out.println("✅ Desain approved, pesanan masuk antrian produksi: " + idPesanan);
             return true;
+
         } catch (SQLException e) {
             try { if (conn != null) conn.rollback(); } catch (SQLException ex) {}
             e.printStackTrace();
@@ -412,6 +443,7 @@ public class PesananDAO {
             }
         }
     }
+
     public boolean updateCatatan(int idPesanan, String catatanBaru) {
         String sql = "UPDATE pesanan SET catatan = ? WHERE id_pesanan = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -425,5 +457,19 @@ public class PesananDAO {
             e.printStackTrace();
             return false;
         }
+    }
+
+    private int getDefaultProduksiOperator(Connection conn) {
+        String sql = "SELECT id_user FROM user WHERE id_role = 4 AND is_active = 1 LIMIT 1";
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("id_user");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        // Fallback: return 1 jika tidak ada user produksi
+        return 1;
     }
 }
