@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true" styleClass="content-pane-scroll" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.trying3.controller.admin.NotifikasiController">
+    <content>
+        <VBox spacing="30.0" styleClass="content-pane">
+            <padding>
+                <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+            </padding>
+
+            <children>
+
+                <!-- ============================================
+                     HEADER SECTION
+                     ============================================ -->
+                <VBox spacing="8.0" styleClass="page-header">
+                    <children>
+                        <Label styleClass="page-title" text="Notifikasi" />
+                        <Label styleClass="page-subtitle" text="Kelola notifikasi sistem dari tim desain dan produksi" />
+                    </children>
+                </VBox>
+
+                <!-- ============================================
+                     STATISTICS CARDS
+                     ============================================ -->
+                <HBox spacing="20.0">
+                    <children>
+
+                        <!-- Total Notifikasi -->
+                        <VBox onMouseClicked="#handleFilterSemua" styleClass="stat-box, stat-box-clickable" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="stat-title" text="Total Notifikasi" />
+                                <Label fx:id="totalNotifikasiLabel" styleClass="stat-value" text="0" />
+                                <Label styleClass="stat-subtitle" text="Semua notifikasi aktif" />
+                            </children>
+                        </VBox>
+
+                        <!-- Revisi Desain -->
+                        <VBox onMouseClicked="#handleFilterRevisiDesain" styleClass="stat-box, stat-box-clickable" HBox.hgrow="ALWAYS">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="8">
+                                    <children>
+                                        <Label styleClass="stat-title" text="Revisi Desain" />
+                                        <Label styleClass="notifikasi-source-badge, source-desain" text="Tim Desain" />
+                                    </children>
+                                </HBox>
+                                <Label fx:id="revisiDesainLabel" styleClass="stat-value" text="0" />
+                                <Label styleClass="stat-subtitle" text="Menunggu tindakan" />
+                            </children>
+                        </VBox>
+
+                        <!-- Kendala Produksi -->
+                        <VBox onMouseClicked="#handleFilterKendalaProduksi" styleClass="stat-box, stat-box-clickable" HBox.hgrow="ALWAYS">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="8">
+                                    <children>
+                                        <Label styleClass="stat-title" text="Kendala Produksi" />
+                                        <Label styleClass="notifikasi-source-badge, source-produksi" text="Tim Produksi" />
+                                    </children>
+                                </HBox>
+                                <Label fx:id="kendalaProduksiLabel" styleClass="stat-value" text="0" />
+                                <Label styleClass="stat-subtitle" text="Perlu ditangani" />
+                            </children>
+                        </VBox>
+
+                        <!-- Siap Dikirim -->
+                        <VBox onMouseClicked="#handleFilterSiapDikirim" styleClass="stat-box, stat-box-clickable" HBox.hgrow="ALWAYS">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="8">
+                                    <children>
+                                        <Label styleClass="stat-title" text="Siap Dikirim" />
+                                        <Label styleClass="notifikasi-source-badge, source-produksi" text="Tim Produksi" />
+                                    </children>
+                                </HBox>
+                                <Label fx:id="siapDikirimLabel" styleClass="stat-value" text="0" />
+                                <Label styleClass="stat-subtitle" text="Siap untuk pengiriman" />
+                            </children>
+                        </VBox>
+
+                    </children>
+                </HBox>
+
+                <!-- ============================================
+                     NOTIFIKASI LIST
+                     ============================================ -->
+                <VBox styleClass="card" spacing="20.0">
+                    <children>
+
+                        <!-- Header with Filter -->
+                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                            <children>
+                                <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <HBox alignment="BASELINE_LEFT" spacing="10">
+                                            <children>
+                                                <Label styleClass="card-title" text="Notifikasi Terbaru" />
+                                                <Label fx:id="notifikasiCountLabel" styleClass="text-muted" text="(0 notifikasi)" />
+                                            </children>
+                                        </HBox>
+                                        <Label fx:id="notifikasiSubtitle" styleClass="card-subtitle" text="..." />
+                                    </children>
+                                </VBox>
+
+                                <!-- Filter ComboBox -->
+                                <ComboBox fx:id="filterComboBox" prefWidth="200.0" promptText="Filter" />
+
+                                <!-- Refresh Button -->
+                                <Button fx:id="refreshButton" styleClass="button-secondary" text="↻ Refresh">
+                                    <padding>
+                                        <Insets bottom="8.0" left="16.0" right="16.0" top="8.0" />
+                                    </padding>
+                                </Button>
+                            </children>
+                        </HBox>
+
+                        <!-- Empty State -->
+                        <VBox fx:id="emptyStateBox" alignment="CENTER" spacing="15" visible="false" managed="false">
+                            <padding>
+                                <Insets bottom="60" top="60" />
+                            </padding>
+                            <children>
+                                <Label styleClass="empty-state-icon" text="🔔" />
+                                <Label styleClass="empty-state-title" text="Tidak Ada Notifikasi" />
+                                <Label styleClass="empty-state-subtitle" text="Semua notifikasi sudah ditangani. Bagus!" />
+                            </children>
+                        </VBox>
+
+                        <!-- List Notifikasi -->
+                        <ListView fx:id="notifikasiListView" styleClass="notifikasi-list-view" prefHeight="500.0">
+                            <padding>
+                                <Insets bottom="0" left="0" right="0" top="0" />
+                            </padding>
+                        </ListView>
+
+                    </children>
+                </VBox>
+
+                <!-- ============================================
+                     INFO SECTION
+                     ============================================ -->
+                <VBox styleClass="card, info-card" spacing="15.0">
+                    <children>
+                        <Label styleClass="card-title" text="📋 Tentang Notifikasi" />
+                        <Label styleClass="info-text" wrapText="true" 
+                               text="Halaman ini menampilkan notifikasi penting yang memerlukan perhatian Administrator:" />
+                        
+                        <VBox spacing="10" styleClass="info-list">
+                            <children>
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <children>
+                                        <Label styleClass="info-icon" text="🎨" />
+                                        <VBox spacing="2">
+                                            <children>
+                                                <Label styleClass="info-item-title" text="Revisi Desain" />
+                                                <Label styleClass="info-item-desc" text="Desain yang memerlukan revisi dari Tim Desain" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                                
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <children>
+                                        <Label styleClass="info-icon" text="⚠" />
+                                        <VBox spacing="2">
+                                            <children>
+                                                <Label styleClass="info-item-title" text="Kendala Produksi" />
+                                                <Label styleClass="info-item-desc" text="Masalah produksi yang dilaporkan oleh Tim Produksi" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                                
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <children>
+                                        <Label styleClass="info-icon" text="📦" />
+                                        <VBox spacing="2">
+                                            <children>
+                                                <Label styleClass="info-item-title" text="Pesanan Siap Dikirim" />
+                                                <Label styleClass="info-item-desc" text="Pesanan yang sudah selesai produksi dan siap untuk dikirim" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>

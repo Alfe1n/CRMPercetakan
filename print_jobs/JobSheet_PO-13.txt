@@ -1,0 +1,28 @@
+============================================================
+               CRM PERCETAKAN - JOB SHEET                   
+============================================================
+Tanggal Cetak : 25-12-2025 03:27
+Nomor Pesanan : PO-13
+------------------------------------------------------------
+
+DATA PELANGGAN:
+Nama          : PT Maju Jaya Berkah
+Tanggal Masuk : 2025-11-20
+
+DETAIL PESANAN:
+Layanan       : Digital Printing A4
+Jumlah        : 1000 pcs
+Spesifikasi   :
+Brosur A4, kertas art paper 150gsm, full color
+
+CATATAN KENDALA:
+KENDALA: Ada anomali
+
+------------------------------------------------------------
+
+
+   Admin / CS                       Operator Produksi
+
+
+ (______________)                 (________________)
+============================================================

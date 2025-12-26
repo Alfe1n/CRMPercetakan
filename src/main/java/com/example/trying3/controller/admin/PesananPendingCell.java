@@ -17,10 +17,7 @@ import java.util.Locale;
  */
 public class PesananPendingCell extends ListCell<Pesanan> {
     
-    // =====================================================
     // CALLBACK INTERFACE - Untuk komunikasi dengan Controller
-    // =====================================================
-    
     public interface PembayaranCallback {
         /**
          * Dipanggil ketika tombol Verifikasi diklik
@@ -38,10 +35,7 @@ public class PesananPendingCell extends ListCell<Pesanan> {
         void loadMetodePembayaran(ComboBox<String> comboBox);
     }
     
-    // =====================================================
     // FIELDS
-    // =====================================================
-    
     private final PembayaranCallback callback;
     
     // Components - CREATE SEKALI saat konstruktor
@@ -64,24 +58,18 @@ public class PesananPendingCell extends ListCell<Pesanan> {
     private final GridPane formGrid = new GridPane();
     private final HBox actionBox = new HBox(10, verifikasiButton, tolakButton);
     
-    // =====================================================
     // CONSTRUCTOR
-    // =====================================================
-    
     public PesananPendingCell(PembayaranCallback callback) {
         this.callback = callback;
         setupCard();
     }
     
-    // =====================================================
     // SETUP - Dipanggil SEKALI di constructor
-    // =====================================================
-    
     private void setupCard() {
         cardContainer.getStyleClass().add("pesanan-card");
         cardContainer.setSpacing(15);
 
-        // ===== STYLING =====
+        // styling
         orderIdLabel.getStyleClass().add("pesanan-order-id");
         orderDateLabel.getStyleClass().add("pesanan-order-date");
         statusBadge.getStyleClass().addAll("status-badge", "status-menunggu-pembayaran");
@@ -91,18 +79,18 @@ public class PesananPendingCell extends ListCell<Pesanan> {
         jumlahValue.getStyleClass().add("pesanan-value");
         totalValue.getStyleClass().add("pesanan-total");
 
-        // ===== NOMINAL FIELD =====
+        // nomial text field
         nominalField.getStyleClass().add("text-field");
         nominalField.setPromptText("Masukkan nominal");
 
-        // Numeric only - hanya angka yang bisa diinput
+        // numeric only validation
         nominalField.textProperty().addListener((obs, old, newVal) -> {
             if (!newVal.matches("\\d*")) {
                 nominalField.setText(newVal.replaceAll("[^\\d]", ""));
             }
         });
 
-        // ===== METODE COMBOBOX =====
+        // combo box metode pembayaran
         metodeComboBox.getStyleClass().add("combo-box");
         metodeComboBox.setPromptText("Pilih metode");
         
@@ -111,19 +99,19 @@ public class PesananPendingCell extends ListCell<Pesanan> {
             callback.loadMetodePembayaran(metodeComboBox);
         }
 
-        // ===== BUTTONS =====
+        // buttons
         verifikasiButton.getStyleClass().addAll("button-success", "pesanan-action-button");
         tolakButton.getStyleClass().addAll("button-danger", "pesanan-action-button");
         verifikasiButton.setDisable(true);
         tolakButton.setDisable(true);
 
-        // ===== BUILD HEADER =====
+        // build header
         VBox leftHeader = new VBox(2, orderIdLabel, orderDateLabel);
         HBox.setHgrow(leftHeader, Priority.ALWAYS);
         headerBox.setAlignment(Pos.CENTER_LEFT);
         headerBox.getChildren().addAll(leftHeader, statusBadge);
 
-        // ===== BUILD INFO GRID =====
+        // build info grid
         infoGrid.setHgap(30);
         infoGrid.setVgap(12);
         infoGrid.setPadding(new Insets(10, 0, 10, 0));
@@ -139,12 +127,12 @@ public class PesananPendingCell extends ListCell<Pesanan> {
         infoGrid.add(new VBox(3, layananLabel, layananValue, jumlahValue), 1, 0);
         infoGrid.add(new VBox(3, totalLabel, totalValue), 2, 0);
 
-        // ===== SEPARATOR =====
+        // separator
         Region separator = new Region();
         separator.getStyleClass().add("pesanan-separator");
         separator.setPrefHeight(1);
 
-        // ===== FORM INPUT =====
+        // form input pembayaran
         Label inputLabel = new Label("Input Pembayaran:");
         inputLabel.getStyleClass().add("form-label");
 
@@ -161,10 +149,10 @@ public class PesananPendingCell extends ListCell<Pesanan> {
         formGrid.add(metodeLabel, 0, 1);
         formGrid.add(metodeComboBox, 1, 1);
 
-        // ===== ACTION BUTTONS =====
+        // action buttons
         actionBox.setAlignment(Pos.CENTER_RIGHT);
 
-        // ===== ASSEMBLE CARD - SEKALI SAJA =====
+        // assemble card
         cardContainer.getChildren().addAll(
                 headerBox,
                 infoGrid,
@@ -175,10 +163,7 @@ public class PesananPendingCell extends ListCell<Pesanan> {
         );
     }
     
-    // =====================================================
     // UPDATE ITEM - Dipanggil setiap kali data berubah
-    // =====================================================
-    
     @Override
     protected void updateItem(Pesanan pesanan, boolean empty) {
         super.updateItem(pesanan, empty);
