@@ -1,5 +1,6 @@
 package com.example.trying3.controller.production;
 
+import com.example.trying3.config.DatabaseConnection;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -11,6 +12,12 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -20,29 +27,75 @@ public class JadwalProduksiController implements Initializable {
     @FXML
     private VBox scheduleContainer;
 
-    // List untuk menampung data dummy
+    @FXML
+    private Label lblDateRange; // Pastikan fx:id ini ada di FXML untuk range tanggal
+
     private List<ScheduleItem> scheduleList = new ArrayList<>();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        loadDummyData();
+        loadDataFromDatabase();
         renderSchedule();
     }
 
-    private void loadDummyData() {
-        // Data dummy sesuai konteks gambar referensi
-        scheduleList.add(new ScheduleItem("ORD-002", "Sablon", "Toko Berkah", 50, "Sedang Diproduksi"));
-        scheduleList.add(new ScheduleItem("ORD-005", "Offset", "Universitas Jenderal Achmad Yani", 1000, "Menunggu Bahan"));
-        scheduleList.add(new ScheduleItem("ORD-006", "Digital Printing", "Cafe Kopi Senja", 25, "Siap Produksi"));
-        scheduleList.add(new ScheduleItem("ORD-007", "Cetak Undangan", "Pernikahan Budi & Ani", 300, "Dalam Antrian"));
+    private void loadDataFromDatabase() {
+        scheduleList.clear();
+
+        // Query untuk mengambil data produksi aktif
+        String query = """
+            SELECT 
+                p.nomor_pesanan, 
+                jl.nama_layanan, 
+                pl.nama AS nama_pelanggan, 
+                dp.jumlah, 
+                pr.status_produksi
+            FROM produksi pr
+            JOIN pesanan p ON pr.id_pesanan = p.id_pesanan
+            JOIN pelanggan pl ON p.id_pelanggan = pl.id_pelanggan
+            JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan
+            JOIN jenis_layanan jl ON dp.id_layanan = jl.id_layanan
+            WHERE pr.status_produksi IN ('antrian', 'proses', 'terkendala')
+            ORDER BY pr.tanggal_mulai ASC
+        """;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                // Mapping hasil database ke Model ScheduleItem
+                String statusDisplay = formatStatus(rs.getString("status_produksi"));
+
+                scheduleList.add(new ScheduleItem(
+                        rs.getString("nomor_pesanan"),
+                        rs.getString("nama_layanan"),
+                        rs.getString("nama_pelanggan"),
+                        rs.getInt("jumlah"),
+                        statusDisplay
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String formatStatus(String statusDb) {
+        // Konversi enum database ke teks UI
+        return switch (statusDb.toLowerCase()) {
+            case "antrian" -> "Antrian Produksi";
+            case "proses" -> "Sedang Diproduksi";
+            case "terkendala" -> "Terkendala";
+            case "selesai" -> "Selesai Produksi";
+            default -> statusDb;
+        };
     }
 
     private void renderSchedule() {
         scheduleContainer.getChildren().clear();
 
         if (scheduleList.isEmpty()) {
-            Label emptyLabel = new Label("Belum ada jadwal produksi minggu ini.");
-            emptyLabel.getStyleClass().add("muted");
+            Label emptyLabel = new Label("Tidak ada jadwal produksi aktif saat ini.");
+            emptyLabel.setStyle("-fx-text-fill: #999; -fx-padding: 20; -fx-font-style: italic;");
             scheduleContainer.getChildren().add(emptyLabel);
             return;
         }
@@ -51,61 +104,49 @@ public class JadwalProduksiController implements Initializable {
             ScheduleItem item = scheduleList.get(i);
             HBox row = createScheduleRow(item);
 
-            // Tambahkan garis pemisah (border bawah) kecuali untuk item terakhir
-            if (i < scheduleList.size() - 1) {
-                row.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0;");
-            }
-
+            // Tambahkan border bawah untuk pemisah antar baris
+            row.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0; -fx-padding: 15 0;");
             scheduleContainer.getChildren().add(row);
         }
     }
 
     private HBox createScheduleRow(ScheduleItem item) {
         HBox row = new HBox();
-        row.setPadding(new Insets(15, 0, 15, 0)); // Padding atas bawah
         row.setAlignment(Pos.CENTER_LEFT);
 
-        // --- BAGIAN KIRI (Teks Utama) ---
-        VBox leftContent = new VBox(5); // Spacing antar baris teks
-
-        // Judul: "ORD-002 - Sablon"
+        // Kiri: Info Utama
+        VBox leftContent = new VBox(5);
         Label titleLabel = new Label(item.getOrderId() + " - " + item.getServiceType());
         titleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #222;");
 
-        // Subjudul: "Toko Berkah - 50 pcs"
-        Label subtitleLabel = new Label(item.getCustomerName() + " - " + item.getQuantity() + " pcs");
-        subtitleLabel.getStyleClass().add("muted"); // Menggunakan class .muted dari production.css
+        Label subtitleLabel = new Label(item.getCustomerName() + " • " + item.getQuantity() + " pcs");
+        subtitleLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 12px;");
 
         leftContent.getChildren().addAll(titleLabel, subtitleLabel);
 
-        // --- SPACER (Agar status terdorong ke kanan) ---
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        // --- BAGIAN KANAN (Status Pill) ---
+        // Kanan: Status Pill
         Label statusLabel = new Label(item.getStatus());
-        statusLabel.getStyleClass().add("status-pill");
+        String statusStyle = "-fx-padding: 5 15; -fx-background-radius: 20; -fx-font-weight: bold; -fx-font-size: 11px; ";
 
-        // Kustomisasi warna status sederhana
-        if (item.getStatus().contains("Menunggu") || item.getStatus().contains("Antrian")) {
-            statusLabel.setStyle("-fx-background-color: #f0f0f0; -fx-text-fill: #666;");
-        } else if (item.getStatus().equals("Sedang Diproduksi")) {
-            // Default style hitam (sesuai css .status-pill)
+        if (item.getStatus().equals("Sedang Diproduksi")) {
+            statusLabel.setStyle(statusStyle + "-fx-background-color: #222; -fx-text-fill: white;");
+        } else if (item.getStatus().equals("Terkendala")) {
+            statusLabel.setStyle(statusStyle + "-fx-background-color: #ffebee; -fx-text-fill: #c62828;");
+        } else {
+            statusLabel.setStyle(statusStyle + "-fx-background-color: #f0f0f0; -fx-text-fill: #666;");
         }
 
-        // Gabungkan ke dalam Row
         row.getChildren().addAll(leftContent, spacer, statusLabel);
-
         return row;
     }
 
-    // --- INNER CLASS: MODEL DATA ---
+    // Model Inner Class
     public static class ScheduleItem {
-        private String orderId;
-        private String serviceType;
-        private String customerName;
+        private String orderId, serviceType, customerName, status;
         private int quantity;
-        private String status;
 
         public ScheduleItem(String orderId, String serviceType, String customerName, int quantity, String status) {
             this.orderId = orderId;

@@ -3,14 +3,8 @@ package com.example.trying3.controller.production;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -32,100 +26,77 @@ public class InventoriController implements Initializable {
     }
 
     private void loadDummyData() {
-        // Data Dummy dengan berbagai kondisi stok
-        items.add(new InventoryItem("Kertas A4 80gr", 50, "Rim", 10, "Kertas"));
-        items.add(new InventoryItem("Tinta Cyan (C)", 2, "Botol", 5, "Tinta")); // Kritis
-        items.add(new InventoryItem("Tinta Magenta (M)", 6, "Botol", 5, "Tinta")); // Menipis
-        items.add(new InventoryItem("Tinta Yellow (Y)", 8, "Botol", 5, "Tinta"));
-        items.add(new InventoryItem("Tinta Black (K)", 25, "Botol", 5, "Tinta"));
-        items.add(new InventoryItem("Kaos Polos Hitam L", 120, "Pcs", 20, "Kaos"));
-        items.add(new InventoryItem("Kaos Polos Putih L", 15, "Pcs", 20, "Kaos")); // Kritis
-        items.add(new InventoryItem("Banner Flexi 280gr", 4, "Roll", 2, "Banner"));
+        // Data Dummy sesuai gambar image_cc120a.png
+        items.add(new InventoryItem("Kertas A4 80gsm", "50", "rim", "Normal"));
+        items.add(new InventoryItem("Tinta Cyan", "5", "botol", "Rendah"));
+        items.add(new InventoryItem("Kertas Art Paper 150gsm", "25", "rim", "Normal"));
+        items.add(new InventoryItem("Tinta Magenta", "2", "botol", "Kritis"));
     }
 
     private void renderInventory() {
         inventoryContainer.getChildren().clear();
-
         for (InventoryItem item : items) {
             inventoryContainer.getChildren().add(createItemCard(item));
         }
     }
 
     private VBox createItemCard(InventoryItem item) {
-        VBox card = new VBox();
-        card.getStyleClass().add("stat-box"); // Menggunakan style stat-box agar terlihat seperti kartu
-        card.setPrefWidth(220); // Lebar tetap agar rapi di grid
-        card.setSpacing(10);
-        card.setPadding(new Insets(20));
+        VBox card = new VBox(5);
+        card.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 25; " +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);");
+        card.setPrefWidth(280);
 
-        // 1. Kategori & Nama
-        Label lblCategory = new Label(item.getCategory());
-        lblCategory.getStyleClass().add("stat-subtitle");
-
+        // 1. Nama Bahan
         Label lblName = new Label(item.getName());
-        lblName.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;");
-        lblName.setWrapText(true);
+        lblName.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #333;");
 
-        // 2. Jumlah Stok (Besar)
-        Label lblQty = new Label(item.getQuantity() + " " + item.getUnit());
-        lblQty.getStyleClass().add("stat-value");
+        // 2. Jumlah (Angka Besar)
+        Label lblQty = new Label(item.getQuantity());
+        lblQty.setStyle("-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #1a1a1a;");
 
-        // 3. Status Pill (Logika Warna)
-        Label lblStatus = new Label();
-        lblStatus.getStyleClass().add("status-pill");
+        // 3. Satuan
+        Label lblUnit = new Label(item.getUnit());
+        lblUnit.setStyle("-fx-text-fill: #888; -fx-font-size: 12px;");
 
-        if (item.getQuantity() <= item.getMinThreshold()) {
-            lblStatus.setText("Stok Kritis");
-            // Merah untuk kritis
-            lblStatus.setStyle("-fx-background-color: #ffebee; -fx-text-fill: #d32f2f;");
-        } else if (item.getQuantity() <= item.getMinThreshold() + 5) {
-            lblStatus.setText("Menipis");
-            // Oranye untuk warning
-            lblStatus.setStyle("-fx-background-color: #fff3e0; -fx-text-fill: #ef6c00;");
-        } else {
-            lblStatus.setText("Aman");
-            // Hijau/Default untuk aman
-            lblStatus.setStyle("-fx-background-color: #e8f5e9; -fx-text-fill: #2e7d32;");
-        }
+        // 4. Status Pill
+        Label lblStatus = new Label(item.getStatus());
+        applyStatusStyle(lblStatus, item.getStatus());
 
-        // Spacer agar status pill ada di bawah
-        Region spacer = new Region();
-        VBox.setVgrow(spacer, Priority.ALWAYS);
+        card.getChildren().addAll(lblName, lblQty, lblUnit, lblStatus);
+        VBox.setMargin(lblStatus, new Insets(10, 0, 0, 0));
 
-        // Menambahkan elemen ke kartu
-        card.getChildren().addAll(lblCategory, lblName, lblQty, spacer, lblStatus);
         return card;
     }
 
-    @FXML
-    private void handleRestock() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Fitur");
-        alert.setHeaderText(null);
-        alert.setContentText("Fitur pemesanan bahan baku akan segera tersedia.");
-        alert.showAndWait();
+    private void applyStatusStyle(Label label, String status) {
+        String baseStyle = "-fx-padding: 4 15; -fx-background-radius: 15; -fx-font-weight: bold; -fx-font-size: 10px;";
+
+        switch (status) {
+            case "Normal":
+                label.setStyle(baseStyle + "-fx-background-color: #222; -fx-text-fill: white;");
+                break;
+            case "Rendah":
+                label.setStyle(baseStyle + "-fx-background-color: #f0f0f0; -fx-text-fill: #666;");
+                break;
+            case "Kritis":
+                label.setStyle(baseStyle + "-fx-background-color: #ff4d4d; -fx-text-fill: white;");
+                break;
+        }
     }
 
-    // --- INNER CLASS MODEL ---
     public static class InventoryItem {
-        private String name;
-        private int quantity;
-        private String unit;
-        private int minThreshold; // Batas minimal sebelum dianggap kritis
-        private String category;
+        private String name, quantity, unit, status;
 
-        public InventoryItem(String name, int quantity, String unit, int minThreshold, String category) {
+        public InventoryItem(String name, String quantity, String unit, String status) {
             this.name = name;
             this.quantity = quantity;
             this.unit = unit;
-            this.minThreshold = minThreshold;
-            this.category = category;
+            this.status = status;
         }
 
         public String getName() { return name; }
-        public int getQuantity() { return quantity; }
+        public String getQuantity() { return quantity; }
         public String getUnit() { return unit; }
-        public int getMinThreshold() { return minThreshold; }
-        public String getCategory() { return category; }
+        public String getStatus() { return status; }
     }
 }

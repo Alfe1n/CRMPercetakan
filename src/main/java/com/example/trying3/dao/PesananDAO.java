@@ -4,11 +4,8 @@ import com.example.trying3.config.DatabaseConnection;
 import com.example.trying3.model.Pesanan;
 import com.example.trying3.util.SessionManager;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.LinkedHashMap;
+import java.time.LocalDateTime;
+import java.util.*;
 
 public class PesananDAO {
 
@@ -360,7 +357,7 @@ public class PesananDAO {
 
         pesanan.setJenisLayanan(rs.getString("nama_layanan")); // Alias dari query
         pesanan.setJumlah(rs.getInt("jumlah"));
-        pesanan.setTotalBiaya(rs.getDouble("total_biaya"));
+        pesanan.setTotalBiaya(rs.getDouble("total_harga"));
         pesanan.setSpesifikasi(rs.getString("spesifikasi"));
         pesanan.setStatus(rs.getString("status"));
 
@@ -796,5 +793,484 @@ public class PesananDAO {
         return list;
     }
 
+    // ==================================================================================
+// TAMBAHKAN CODE INI KE FILE: PesananDAO.java
+// Letakkan di bagian "INTEGRASI DESIGN & PRODUKSI"
+// ==================================================================================
 
+// Import tambahan di bagian atas file:
+// import com.example.trying3.model.RevisiDesain;
+// import com.example.trying3.dao.RevisiDesainDAO;
+
+    /**
+     * Menyimpan file desain dengan dukungan revisi.
+     * Jika desain sudah ada DAN status = "Perlu Revisi" (id_status_desain = 4),
+     * maka file lama disimpan ke tabel revisi_desain sebagai history.
+     *
+     * @param idPesanan ID pesanan
+     * @param newFilePath Path file desain baru
+     * @param idDesigner ID designer yang upload
+     * @return true jika berhasil
+     */
+    // ==================================================================================
+// GANTI METHOD simpanDesainDenganRevisi() DI PesananDAO.java DENGAN INI
+// Versi dengan DEBUG LOG untuk troubleshooting
+// ==================================================================================
+
+    public boolean simpanDesainDenganRevisi(int idPesanan, String newFilePath, int idDesigner) {
+        Connection conn = null;
+
+        System.out.println("========================================");
+        System.out.println("🔍 DEBUG: simpanDesainDenganRevisi() dipanggil");
+        System.out.println("🔍 idPesanan: " + idPesanan);
+        System.out.println("🔍 newFilePath: " + newFilePath);
+        System.out.println("🔍 idDesigner: " + idDesigner);
+        System.out.println("========================================");
+
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            // 1. Cek apakah desain sudah ada dan ambil data existing
+            String checkSql = """
+            SELECT id_desain, file_desain_path, revisi_ke, id_status_desain 
+            FROM desain 
+            WHERE id_pesanan = ?
+            """;
+
+            int idDesain = -1;
+            String oldFilePath = null;
+            int currentRevisiKe = 1;
+            int currentStatusDesain = 0;
+
+            try (PreparedStatement ps = conn.prepareStatement(checkSql)) {
+                ps.setInt(1, idPesanan);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        idDesain = rs.getInt("id_desain");
+                        oldFilePath = rs.getString("file_desain_path");
+                        currentRevisiKe = rs.getInt("revisi_ke");
+                        currentStatusDesain = rs.getInt("id_status_desain");
+                    }
+                }
+            }
+
+            System.out.println("🔍 DEBUG: Data desain existing:");
+            System.out.println("   - idDesain: " + idDesain);
+            System.out.println("   - oldFilePath: " + oldFilePath);
+            System.out.println("   - currentRevisiKe: " + currentRevisiKe);
+            System.out.println("   - currentStatusDesain: " + currentStatusDesain);
+
+            if (idDesain == -1) {
+                // Desain belum ada, insert baru (revisi_ke = 1)
+                System.out.println("🔍 DEBUG: Desain belum ada, INSERT baru...");
+
+                String insertSql = """
+                INSERT INTO desain 
+                (id_pesanan, id_designer, id_status_desain, file_desain_path, revisi_ke) 
+                VALUES (?, ?, 2, ?, 1)
+                """;
+
+                try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
+                    ps.setInt(1, idPesanan);
+                    ps.setInt(2, idDesigner);
+                    ps.setString(3, newFilePath);
+                    int rows = ps.executeUpdate();
+                    System.out.println("🔍 DEBUG: INSERT rows affected: " + rows);
+                }
+
+                System.out.println("✅ Desain baru berhasil dibuat untuk pesanan: " + idPesanan);
+
+            } else {
+                // Desain sudah ada
+                System.out.println("🔍 DEBUG: Desain sudah ada, cek apakah revisi...");
+
+                // Cek apakah ini adalah revisi (status = 4 "Perlu Revisi")
+                // ATAU file lama ada (berarti ini update/revisi)
+                boolean isRevisi = (currentStatusDesain == 4) ||
+                        (oldFilePath != null && !oldFilePath.isEmpty());
+
+                System.out.println("🔍 DEBUG: isRevisi = " + isRevisi);
+                System.out.println("   - currentStatusDesain == 4? " + (currentStatusDesain == 4));
+                System.out.println("   - oldFilePath ada? " + (oldFilePath != null && !oldFilePath.isEmpty()));
+
+                if (isRevisi && oldFilePath != null && !oldFilePath.isEmpty()) {
+                    System.out.println("🔍 DEBUG: Menyimpan file lama ke revisi_desain...");
+
+                    // 2. Simpan file lama ke tabel revisi_desain sebagai history
+                    String insertRevisiSql = """
+                    INSERT INTO revisi_desain 
+                    (id_desain, revisi_ke, file_path, catatan_revisi, direvisi_oleh, tanggal_revisi) 
+                    VALUES (?, ?, ?, ?, ?, NOW())
+                    """;
+
+                    try (PreparedStatement ps = conn.prepareStatement(insertRevisiSql)) {
+                        ps.setInt(1, idDesain);
+                        ps.setInt(2, currentRevisiKe);
+                        ps.setString(3, oldFilePath);
+                        ps.setString(4, "Revisi dari file sebelumnya");
+                        ps.setInt(5, idDesigner);
+
+                        int rows = ps.executeUpdate();
+                        System.out.println("🔍 DEBUG: INSERT revisi_desain rows affected: " + rows);
+                    }
+
+                    System.out.println("✅ File lama disimpan ke history revisi: " + oldFilePath);
+
+                    // Increment revisi_ke untuk file baru
+                    currentRevisiKe++;
+                    System.out.println("🔍 DEBUG: revisi_ke setelah increment: " + currentRevisiKe);
+                } else {
+                    System.out.println("⚠️ DEBUG: TIDAK menyimpan ke revisi_desain karena kondisi tidak terpenuhi!");
+                }
+
+                // 3. Update tabel desain dengan file baru
+                System.out.println("🔍 DEBUG: Update tabel desain dengan file baru...");
+
+                String updateSql = """
+                UPDATE desain 
+                SET file_desain_path = ?, 
+                    id_designer = ?, 
+                    revisi_ke = ?,
+                    id_status_desain = 2,
+                    updated_at = NOW() 
+                WHERE id_desain = ?
+                """;
+
+                try (PreparedStatement ps = conn.prepareStatement(updateSql)) {
+                    ps.setString(1, newFilePath);
+                    ps.setInt(2, idDesigner);
+                    ps.setInt(3, currentRevisiKe);
+                    ps.setInt(4, idDesain);
+                    int rows = ps.executeUpdate();
+                    System.out.println("🔍 DEBUG: UPDATE desain rows affected: " + rows);
+                }
+
+                System.out.println("✅ Desain berhasil diupdate. Revisi ke-" + currentRevisiKe);
+            }
+
+            conn.commit();
+            System.out.println("✅ COMMIT berhasil!");
+            System.out.println("========================================");
+            return true;
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error menyimpan desain dengan revisi: " + e.getMessage());
+            e.printStackTrace();
+
+            if (conn != null) {
+                try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            }
+            return false;
+
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) { e.printStackTrace(); }
+            }
+        }
+    }
+
+    /**
+     * Mengambil data desain lengkap untuk pesanan tertentu
+     * Termasuk info revisi_ke
+     */
+    public DesainInfo getDesainInfo(int idPesanan) {
+        String sql = """
+        SELECT 
+            d.id_desain,
+            d.file_desain_path,
+            d.revisi_ke,
+            d.id_status_desain,
+            sd.nama_status as status_desain,
+            d.tanggal_dibuat,
+            d.tanggal_disetujui,
+            u.nama_lengkap as nama_designer
+        FROM desain d
+        JOIN status_desain sd ON d.id_status_desain = sd.id_status_desain
+        JOIN user u ON d.id_designer = u.id_user
+        WHERE d.id_pesanan = ?
+        """;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, idPesanan);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    DesainInfo info = new DesainInfo();
+                    info.setIdDesain(rs.getInt("id_desain"));
+                    info.setFilePath(rs.getString("file_desain_path"));
+                    info.setRevisiKe(rs.getInt("revisi_ke"));
+                    info.setIdStatusDesain(rs.getInt("id_status_desain"));
+                    info.setStatusDesain(rs.getString("status_desain"));
+                    info.setNamaDesigner(rs.getString("nama_designer"));
+
+                    Timestamp tanggalDibuat = rs.getTimestamp("tanggal_dibuat");
+                    if (tanggalDibuat != null) {
+                        info.setTanggalDibuat(tanggalDibuat.toLocalDateTime());
+                    }
+
+                    Timestamp tanggalDisetujui = rs.getTimestamp("tanggal_disetujui");
+                    if (tanggalDisetujui != null) {
+                        info.setTanggalDisetujui(tanggalDisetujui.toLocalDateTime());
+                    }
+
+                    return info;
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error mengambil info desain: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * Menyimpan kendala produksi ke tabel kendala_produksi
+     * @param idPesanan ID pesanan
+     * @param deskripsi Deskripsi kendala
+     * @param idUser ID user yang melaporkan
+     * @return true jika berhasil
+     */
+    public boolean simpanKendalaProduksi(int idPesanan, String deskripsi, int idUser) {
+        Connection conn = null;
+
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            // 1. Cari id_produksi dari pesanan ini
+            int idProduksi = -1;
+            String findProduksiSql = "SELECT id_produksi FROM produksi WHERE id_pesanan = ?";
+            try (PreparedStatement ps = conn.prepareStatement(findProduksiSql)) {
+                ps.setInt(1, idPesanan);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        idProduksi = rs.getInt("id_produksi");
+                    }
+                }
+            }
+
+            // Jika belum ada record produksi, buat dulu
+            if (idProduksi == -1) {
+                String insertProduksiSql = """
+                INSERT INTO produksi (id_pesanan, id_operator, status_produksi) 
+                VALUES (?, ?, 'terkendala')
+                """;
+                try (PreparedStatement ps = conn.prepareStatement(insertProduksiSql, Statement.RETURN_GENERATED_KEYS)) {
+                    ps.setInt(1, idPesanan);
+                    ps.setInt(2, idUser);
+                    ps.executeUpdate();
+
+                    ResultSet rs = ps.getGeneratedKeys();
+                    if (rs.next()) {
+                        idProduksi = rs.getInt(1);
+                    }
+                }
+            } else {
+                // Update status produksi ke 'terkendala'
+                String updateProduksiSql = "UPDATE produksi SET status_produksi = 'terkendala' WHERE id_produksi = ?";
+                try (PreparedStatement ps = conn.prepareStatement(updateProduksiSql)) {
+                    ps.setInt(1, idProduksi);
+                    ps.executeUpdate();
+                }
+            }
+
+            // 2. Insert kendala ke tabel kendala_produksi
+            String insertKendalaSql = """
+            INSERT INTO kendala_produksi 
+            (id_produksi, deskripsi, status, dilaporkan_oleh, tanggal_lapor) 
+            VALUES (?, ?, 'open', ?, NOW())
+            """;
+            try (PreparedStatement ps = conn.prepareStatement(insertKendalaSql)) {
+                ps.setInt(1, idProduksi);
+                ps.setString(2, deskripsi);
+                ps.setInt(3, idUser);
+                ps.executeUpdate();
+            }
+
+            // 3. Update status pesanan ke menunjukkan ada kendala (opsional)
+            // Bisa juga update catatan
+            String updateCatatanSql = "UPDATE pesanan SET catatan = CONCAT(IFNULL(catatan, ''), '\nKENDALA: ', ?) WHERE id_pesanan = ?";
+            try (PreparedStatement ps = conn.prepareStatement(updateCatatanSql)) {
+                ps.setString(1, deskripsi);
+                ps.setInt(2, idPesanan);
+                ps.executeUpdate();
+            }
+
+            conn.commit();
+            System.out.println("✅ Kendala produksi berhasil disimpan untuk pesanan: " + idPesanan);
+            return true;
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error menyimpan kendala produksi: " + e.getMessage());
+            e.printStackTrace();
+            if (conn != null) {
+                try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            }
+            return false;
+
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) { e.printStackTrace(); }
+            }
+        }
+    }
+
+    /**
+     * Menyelesaikan produksi DAN resolve semua kendala terkait
+     * @param idPesanan ID pesanan
+     * @return true jika berhasil
+     */
+    public boolean selesaikanProduksi(int idPesanan) {
+        Connection conn = null;
+
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            // 1. Update status pesanan ke "Selesai"
+            String updatePesananSql = "UPDATE pesanan SET id_status = 9 WHERE id_pesanan = ?";
+            try (PreparedStatement ps = conn.prepareStatement(updatePesananSql)) {
+                ps.setInt(1, idPesanan);
+                ps.executeUpdate();
+            }
+
+            // 2. Update status produksi ke "selesai"
+            String updateProduksiSql = """
+            UPDATE produksi 
+            SET status_produksi = 'selesai', 
+                tanggal_selesai = NOW(),
+                progres_persen = 100
+            WHERE id_pesanan = ?
+            """;
+            try (PreparedStatement ps = conn.prepareStatement(updateProduksiSql)) {
+                ps.setInt(1, idPesanan);
+                ps.executeUpdate();
+            }
+
+            // 3. ✅ KUNCI: Resolve SEMUA kendala terkait pesanan ini
+            String resolveKendalaSql = """
+            UPDATE kendala_produksi kp
+            JOIN produksi pr ON kp.id_produksi = pr.id_produksi
+            SET kp.status = 'resolved', 
+                kp.tanggal_selesai = NOW()
+            WHERE pr.id_pesanan = ? 
+            AND kp.status IN ('open', 'in_progress')
+            """;
+            try (PreparedStatement ps = conn.prepareStatement(resolveKendalaSql)) {
+                ps.setInt(1, idPesanan);
+                int resolved = ps.executeUpdate();
+                System.out.println("✅ " + resolved + " kendala di-resolve untuk pesanan: " + idPesanan);
+            }
+
+            conn.commit();
+            System.out.println("✅ Produksi selesai untuk pesanan: " + idPesanan);
+            return true;
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error menyelesaikan produksi: " + e.getMessage());
+            e.printStackTrace();
+            if (conn != null) {
+                try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            }
+            return false;
+
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) { e.printStackTrace(); }
+            }
+        }
+    }
+
+    /**
+     * Resolve kendala spesifik (untuk tombol "Selesaikan Kendala" di UI)
+     * @param idKendala ID kendala
+     * @param solusi Solusi yang dilakukan
+     * @return true jika berhasil
+     */
+    public boolean resolveKendala(int idKendala, String solusi) {
+        String sql = """
+        UPDATE kendala_produksi 
+        SET status = 'resolved', 
+            solusi = ?,
+            tanggal_selesai = NOW() 
+        WHERE id_kendala = ?
+        """;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, solusi);
+            ps.setInt(2, idKendala);
+
+            int affected = ps.executeUpdate();
+            if (affected > 0) {
+                System.out.println("✅ Kendala " + idKendala + " berhasil di-resolve");
+                return true;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error resolve kendala: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+
+    // ==================================================================================
+// INNER CLASS untuk menyimpan info desain (atau buat file terpisah)
+// ==================================================================================
+    public static class DesainInfo {
+        private int idDesain;
+        private String filePath;
+        private int revisiKe;
+        private int idStatusDesain;
+        private String statusDesain;
+        private String namaDesigner;
+        private LocalDateTime tanggalDibuat;
+        private LocalDateTime tanggalDisetujui;
+
+        // Getters and Setters
+        public int getIdDesain() { return idDesain; }
+        public void setIdDesain(int idDesain) { this.idDesain = idDesain; }
+
+        public String getFilePath() { return filePath; }
+        public void setFilePath(String filePath) { this.filePath = filePath; }
+
+        public int getRevisiKe() { return revisiKe; }
+        public void setRevisiKe(int revisiKe) { this.revisiKe = revisiKe; }
+
+        public int getIdStatusDesain() { return idStatusDesain; }
+        public void setIdStatusDesain(int idStatusDesain) { this.idStatusDesain = idStatusDesain; }
+
+        public String getStatusDesain() { return statusDesain; }
+        public void setStatusDesain(String statusDesain) { this.statusDesain = statusDesain; }
+
+        public String getNamaDesigner() { return namaDesigner; }
+        public void setNamaDesigner(String namaDesigner) { this.namaDesigner = namaDesigner; }
+
+        public LocalDateTime getTanggalDibuat() { return tanggalDibuat; }
+        public void setTanggalDibuat(LocalDateTime tanggalDibuat) { this.tanggalDibuat = tanggalDibuat; }
+
+        public LocalDateTime getTanggalDisetujui() { return tanggalDisetujui; }
+        public void setTanggalDisetujui(LocalDateTime tanggalDisetujui) { this.tanggalDisetujui = tanggalDisetujui; }
+
+        public boolean isPerluRevisi() {
+            return idStatusDesain == 4; // Status "Perlu Revisi"
+        }
+    }
 }
