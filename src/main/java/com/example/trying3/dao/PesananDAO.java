@@ -1031,6 +1031,206 @@ public class PesananDAO {
         return null;
     }
 
+    /**
+     * Menyimpan kendala produksi ke tabel kendala_produksi
+     * @param idPesanan ID pesanan
+     * @param deskripsi Deskripsi kendala
+     * @param idUser ID user yang melaporkan
+     * @return true jika berhasil
+     */
+    public boolean simpanKendalaProduksi(int idPesanan, String deskripsi, int idUser) {
+        Connection conn = null;
+
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            // 1. Cari id_produksi dari pesanan ini
+            int idProduksi = -1;
+            String findProduksiSql = "SELECT id_produksi FROM produksi WHERE id_pesanan = ?";
+            try (PreparedStatement ps = conn.prepareStatement(findProduksiSql)) {
+                ps.setInt(1, idPesanan);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        idProduksi = rs.getInt("id_produksi");
+                    }
+                }
+            }
+
+            // Jika belum ada record produksi, buat dulu
+            if (idProduksi == -1) {
+                String insertProduksiSql = """
+                INSERT INTO produksi (id_pesanan, id_operator, status_produksi) 
+                VALUES (?, ?, 'terkendala')
+                """;
+                try (PreparedStatement ps = conn.prepareStatement(insertProduksiSql, Statement.RETURN_GENERATED_KEYS)) {
+                    ps.setInt(1, idPesanan);
+                    ps.setInt(2, idUser);
+                    ps.executeUpdate();
+
+                    ResultSet rs = ps.getGeneratedKeys();
+                    if (rs.next()) {
+                        idProduksi = rs.getInt(1);
+                    }
+                }
+            } else {
+                // Update status produksi ke 'terkendala'
+                String updateProduksiSql = "UPDATE produksi SET status_produksi = 'terkendala' WHERE id_produksi = ?";
+                try (PreparedStatement ps = conn.prepareStatement(updateProduksiSql)) {
+                    ps.setInt(1, idProduksi);
+                    ps.executeUpdate();
+                }
+            }
+
+            // 2. Insert kendala ke tabel kendala_produksi
+            String insertKendalaSql = """
+            INSERT INTO kendala_produksi 
+            (id_produksi, deskripsi, status, dilaporkan_oleh, tanggal_lapor) 
+            VALUES (?, ?, 'open', ?, NOW())
+            """;
+            try (PreparedStatement ps = conn.prepareStatement(insertKendalaSql)) {
+                ps.setInt(1, idProduksi);
+                ps.setString(2, deskripsi);
+                ps.setInt(3, idUser);
+                ps.executeUpdate();
+            }
+
+            // 3. Update status pesanan ke menunjukkan ada kendala (opsional)
+            // Bisa juga update catatan
+            String updateCatatanSql = "UPDATE pesanan SET catatan = CONCAT(IFNULL(catatan, ''), '\nKENDALA: ', ?) WHERE id_pesanan = ?";
+            try (PreparedStatement ps = conn.prepareStatement(updateCatatanSql)) {
+                ps.setString(1, deskripsi);
+                ps.setInt(2, idPesanan);
+                ps.executeUpdate();
+            }
+
+            conn.commit();
+            System.out.println("✅ Kendala produksi berhasil disimpan untuk pesanan: " + idPesanan);
+            return true;
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error menyimpan kendala produksi: " + e.getMessage());
+            e.printStackTrace();
+            if (conn != null) {
+                try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            }
+            return false;
+
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) { e.printStackTrace(); }
+            }
+        }
+    }
+
+    /**
+     * Menyelesaikan produksi DAN resolve semua kendala terkait
+     * @param idPesanan ID pesanan
+     * @return true jika berhasil
+     */
+    public boolean selesaikanProduksi(int idPesanan) {
+        Connection conn = null;
+
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            // 1. Update status pesanan ke "Selesai"
+            String updatePesananSql = "UPDATE pesanan SET id_status = 9 WHERE id_pesanan = ?";
+            try (PreparedStatement ps = conn.prepareStatement(updatePesananSql)) {
+                ps.setInt(1, idPesanan);
+                ps.executeUpdate();
+            }
+
+            // 2. Update status produksi ke "selesai"
+            String updateProduksiSql = """
+            UPDATE produksi 
+            SET status_produksi = 'selesai', 
+                tanggal_selesai = NOW(),
+                progres_persen = 100
+            WHERE id_pesanan = ?
+            """;
+            try (PreparedStatement ps = conn.prepareStatement(updateProduksiSql)) {
+                ps.setInt(1, idPesanan);
+                ps.executeUpdate();
+            }
+
+            // 3. ✅ KUNCI: Resolve SEMUA kendala terkait pesanan ini
+            String resolveKendalaSql = """
+            UPDATE kendala_produksi kp
+            JOIN produksi pr ON kp.id_produksi = pr.id_produksi
+            SET kp.status = 'resolved', 
+                kp.tanggal_selesai = NOW()
+            WHERE pr.id_pesanan = ? 
+            AND kp.status IN ('open', 'in_progress')
+            """;
+            try (PreparedStatement ps = conn.prepareStatement(resolveKendalaSql)) {
+                ps.setInt(1, idPesanan);
+                int resolved = ps.executeUpdate();
+                System.out.println("✅ " + resolved + " kendala di-resolve untuk pesanan: " + idPesanan);
+            }
+
+            conn.commit();
+            System.out.println("✅ Produksi selesai untuk pesanan: " + idPesanan);
+            return true;
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error menyelesaikan produksi: " + e.getMessage());
+            e.printStackTrace();
+            if (conn != null) {
+                try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            }
+            return false;
+
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) { e.printStackTrace(); }
+            }
+        }
+    }
+
+    /**
+     * Resolve kendala spesifik (untuk tombol "Selesaikan Kendala" di UI)
+     * @param idKendala ID kendala
+     * @param solusi Solusi yang dilakukan
+     * @return true jika berhasil
+     */
+    public boolean resolveKendala(int idKendala, String solusi) {
+        String sql = """
+        UPDATE kendala_produksi 
+        SET status = 'resolved', 
+            solusi = ?,
+            tanggal_selesai = NOW() 
+        WHERE id_kendala = ?
+        """;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, solusi);
+            ps.setInt(2, idKendala);
+
+            int affected = ps.executeUpdate();
+            if (affected > 0) {
+                System.out.println("✅ Kendala " + idKendala + " berhasil di-resolve");
+                return true;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error resolve kendala: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+
     // ==================================================================================
 // INNER CLASS untuk menyimpan info desain (atau buat file terpisah)
 // ==================================================================================
