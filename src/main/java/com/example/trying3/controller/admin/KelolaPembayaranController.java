@@ -8,14 +8,11 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
 import java.sql.*;
 import java.text.NumberFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Optional;
 

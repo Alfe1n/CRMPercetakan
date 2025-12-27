@@ -237,11 +237,27 @@ public class KelolaDesignController implements Initializable {
                 int idDesigner = SessionManager.getInstance().getCurrentUserId();
                 if (idDesigner == -1) idDesigner = 1;
 
-                boolean success = pesananDAO.simpanDesain(p.getIdPesanan(), destFile.getPath(), idDesigner);
+                // ====== PERUBAHAN PENTING: Gunakan method BARU ======
+                boolean success = pesananDAO.simpanDesainDenganRevisi(p.getIdPesanan(), destFile.getPath(), idDesigner);
+
                 if (success) {
-                    pesananDAO.updateStatus(p.getIdPesanan(), "Menunggu Desain");
+                    // Update status pesanan
+                    String currentStatus = p.getStatus();
+                    if ("Desain Direvisi".equals(currentStatus) || "Menunggu Desain".equals(currentStatus)) {
+                        pesananDAO.updateStatus(p.getIdPesanan(), "Menunggu Desain");
+                    }
+
                     loadData();
-                    AlertUtil.showInfo("Sukses", "File berhasil diupload!");
+
+                    // Tampilkan pesan sukses dengan info revisi
+                    PesananDAO.DesainInfo info = pesananDAO.getDesainInfo(p.getIdPesanan());
+                    String message = "File berhasil diupload!";
+                    if (info != null && info.getRevisiKe() > 1) {
+                        message = "File revisi ke-" + info.getRevisiKe() + " berhasil diupload!";
+                    }
+                    AlertUtil.showInfo("Sukses", message);
+                } else {
+                    AlertUtil.showError("Error", "Gagal menyimpan desain ke database.");
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
