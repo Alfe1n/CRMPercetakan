@@ -360,7 +360,7 @@ public class PesananDAO {
 
         pesanan.setJenisLayanan(rs.getString("nama_layanan")); // Alias dari query
         pesanan.setJumlah(rs.getInt("jumlah"));
-        pesanan.setTotalBiaya(rs.getDouble("total_biaya"));
+        pesanan.setTotalBiaya(rs.getDouble("total_harga"));
         pesanan.setSpesifikasi(rs.getString("spesifikasi"));
         pesanan.setStatus(rs.getString("status"));
 
@@ -731,13 +731,13 @@ public class PesananDAO {
 
     public List<Pesanan> getAllPesananForExport() {
         List<Pesanan> list = new ArrayList<>();
-        // QUERY DIPERBAIKI: JOIN ke pelanggan dan status_pesanan
-        String sql = "SELECT p.id_pesanan, pl.nama_pelanggan, " +
+        // FIX: Gunakan alias pl.nama AS nama_pelanggan
+        String sql = "SELECT p.id_pesanan, pl.nama AS nama_pelanggan, " +
                 "COALESCE(jl.nama_layanan, 'N/A') as nama_layanan, " +
                 "p.total_biaya, s.nama_status, p.tanggal_pesanan " +
                 "FROM pesanan p " +
                 "JOIN pelanggan pl ON p.id_pelanggan = pl.id_pelanggan " +
-                "JOIN status_pesanan s ON p.id_status = s.id_status " + // Ambil teks status
+                "JOIN status_pesanan s ON p.id_status = s.id_status " +
                 "LEFT JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan " +
                 "LEFT JOIN jenis_layanan jl ON dp.id_layanan = jl.id_layanan " +
                 "ORDER BY p.tanggal_pesanan DESC";
@@ -752,7 +752,7 @@ public class PesananDAO {
                 p.setNamaPelanggan(rs.getString("nama_pelanggan"));
                 p.setJenisLayanan(rs.getString("nama_layanan"));
                 p.setTotalBiaya(rs.getDouble("total_biaya"));
-                p.setStatus(rs.getString("nama_status")); // Mengambil teks 'Baru Dibuat', 'Selesai', dll
+                p.setStatus(rs.getString("nama_status"));
 
                 Timestamp ts = rs.getTimestamp("tanggal_pesanan");
                 if (ts != null) p.setTanggalPesanan(ts.toLocalDateTime());

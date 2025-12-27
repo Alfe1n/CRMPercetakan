@@ -34,13 +34,14 @@ public class EksporDataController {
 
     @FXML
     private void handleLaporanKeuangan() {
-        // Ambil semua pesanan untuk laporan keuangan
+        // Memanggil method yang telah diperbaiki
         List<Pesanan> data = pesananDAO.getAllPesananForExport();
         generateExcel("Laporan_Keuangan", new String[]{"ID", "Tanggal", "Pelanggan", "Total Pendapatan"}, data, "KEUANGAN");
     }
 
     @FXML
     private void handleLaporanProduksi() {
+        // Memanggil data yang sama tetapi diproses dengan header Produksi
         List<Pesanan> data = pesananDAO.getAllPesananForExport();
         generateExcel("Laporan_Produksi", new String[]{"ID", "Pelanggan", "Status Produksi"}, data, "PRODUKSI");
     }
