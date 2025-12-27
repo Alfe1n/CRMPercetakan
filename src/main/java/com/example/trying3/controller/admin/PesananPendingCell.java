@@ -183,10 +183,10 @@ public class PesananPendingCell extends ListCell<Pesanan> {
         pelangganValue.setText(pesanan.getNamaPelanggan());
         layananValue.setText(pesanan.getJenisLayanan());
         jumlahValue.setText(pesanan.getJumlah() + " pcs");
-        totalValue.setText(currencyFormat.format(pesanan.getTotalHarga()));
+        totalValue.setText(currencyFormat.format(pesanan.getTotalBiaya()));
 
         // Set default values for input
-        nominalField.setText(String.valueOf((int) pesanan.getTotalHarga()));
+        nominalField.setText(String.valueOf((int) pesanan.getTotalBiaya()));
         metodeComboBox.setValue(null);
 
         // ===== BUTTON ACTIONS - Gunakan CALLBACK =====

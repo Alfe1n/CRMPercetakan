@@ -165,7 +165,7 @@ public class PesananCardCell extends ListCell<Pesanan> {
         phoneValue.setText(pesanan.getNoTelepon());
         layananValue.setText(pesanan.getJenisLayanan());
         jumlahValue.setText(pesanan.getJumlah() + " pcs");
-        totalValue.setText("Rp" + String.format("%,.0f", pesanan.getTotalHarga()));
+        totalValue.setText("Rp" + String.format("%,.0f", pesanan.getTotalBiaya()));
 
         statusBadge.setText(pesanan.getStatus());
         statusBadge.getStyleClass().removeIf(styleClass -> styleClass.startsWith("status-"));
