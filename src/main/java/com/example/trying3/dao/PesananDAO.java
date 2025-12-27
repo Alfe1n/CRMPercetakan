@@ -360,7 +360,7 @@ public class PesananDAO {
 
         pesanan.setJenisLayanan(rs.getString("nama_layanan")); // Alias dari query
         pesanan.setJumlah(rs.getInt("jumlah"));
-        pesanan.setTotalBiaya(rs.getDouble("total_harga"));
+        pesanan.setTotalBiaya(rs.getDouble("total_biaya"));
         pesanan.setSpesifikasi(rs.getString("spesifikasi"));
         pesanan.setStatus(rs.getString("status"));
 
@@ -535,6 +535,7 @@ public class PesananDAO {
                 String layanan = rs.getString("jenis_layanan");
                 p.setJenisLayanan(layanan != null ? layanan : "-");
 
+                // Perhatikan: nama kolom di DB 'total_biaya', tapi di Model Pesanan 'totalHarga'
                 p.setTotalBiaya(rs.getDouble("total_biaya"));
 
                 Timestamp ts = rs.getTimestamp("tanggal_pesanan");
