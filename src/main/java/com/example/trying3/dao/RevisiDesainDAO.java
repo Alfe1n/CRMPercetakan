@@ -36,7 +36,6 @@ public class RevisiDesainDAO {
                 if (rs.next()) {
                     revisi.setIdRevisi(rs.getInt(1));
                 }
-                System.out.println("✅ Revisi desain berhasil disimpan: ID " + revisi.getIdRevisi());
                 return true;
             }
 

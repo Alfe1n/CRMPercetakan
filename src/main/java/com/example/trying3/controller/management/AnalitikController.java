@@ -45,7 +45,6 @@ public class AnalitikController implements Initializable {
 
         if (data == null || data.isEmpty()) {
             revenuePieChart.getData().add(new PieChart.Data("Data Belum Tersedia", 1));
-            System.out.println("Peringatan: Tidak ada data pendapatan ditemukan di DB.");
         } else {
             data.forEach((layanan, total) -> {
                 revenuePieChart.getData().add(new PieChart.Data(layanan, total));

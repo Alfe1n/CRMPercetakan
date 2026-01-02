@@ -264,7 +264,6 @@ public class ProduksiController implements Initializable {
                 try (PreparedStatement psUpdate = conn.prepareStatement(sqlUpdate)) {
                     psUpdate.setInt(1, idProduksi);
                     psUpdate.executeUpdate();
-                    System.out.println("✅ Updated existing produksi record, id_produksi: " + idProduksi);
                 }
             }
 
@@ -280,7 +279,6 @@ public class ProduksiController implements Initializable {
             }
 
             conn.commit();
-            System.out.println("✅ Produksi dimulai untuk pesanan ID: " + pesananId);
             AlertUtil.showInfo("Berhasil", "Produksi dimulai!");
 
         } catch (Exception e) {

@@ -23,8 +23,6 @@ public class SessionManager {
     public void setCurrentUser(User user) {
         this.currentUser = user;
         this.loginTime = LocalDateTime.now();
-        System.out.println("✅ User logged in: " + user.getUsername() +
-                " (Role: " + user.getIdRole() + ")");
     }
 
     public User getCurrentUser() {
