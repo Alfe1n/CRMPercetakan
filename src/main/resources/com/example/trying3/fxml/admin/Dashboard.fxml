@@ -2,25 +2,15 @@
 
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 
-<!-- Layout Utama Menggunakan HBox -->
 
 <HBox minHeight="1080.0" minWidth="1920.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.trying3.controller.admin.DashboardAdminController">
     <children>
-        <!-- Sidebar Navigasi (Sebelah Kiri) -->
         <VBox alignment="TOP_CENTER" prefWidth="280.0" minWidth="280.0" maxWidth="280.0" styleClass="sidebar">
             <children>
-                <!-- Logo dan Judul di Sidebar -->
-                <HBox alignment="CENTER_LEFT" prefHeight="112.0" spacing="10.0">
+                <HBox alignment="CENTER" prefHeight="112.0" spacing="10.0">
                     <children>
-                        <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
-                            <image>
-<!--                                <Image url="@picture/logo.png" />-->
-                            </image>
-                        </ImageView>
                         <Label styleClass="sidebar-title" text="CRM Percetakan" />
                     </children>
                     <VBox.margin>
@@ -33,48 +23,15 @@
 
                 <!-- Tombol Navigasi -->
                 <Label fx:id="btnDashboard" onMouseClicked="#handleDashboardClick" styleClass="nav-button" text="Dashboard">
-               <graphic>
-                  <ImageView fx:id="dashboardIcon" fitHeight="20.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@../../pictures/dashboardDark.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <VBox.margin>
-                  <Insets />
-               </VBox.margin></Label>
+                </Label>
                 <Label fx:id="btnKelolaPesanan" onMouseClicked="#handleKelolaPesananClick" styleClass="nav-button" text="Kelola Pesanan">
-               <graphic>
-                  <ImageView fx:id="kelolaPesananIcon" fitHeight="20.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@../../pictures/shopping-cartDark.png" />
-                     </image>
-                  </ImageView>
-               </graphic></Label>
+                </Label>
                 <Label fx:id="btnPembayaran" onMouseClicked="#handlePembayaranClick" styleClass="nav-button" text="Pembayaran">
-               <graphic>
-                  <ImageView fx:id="pembayaranIcon" fitHeight="20.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@../../pictures/credit-cardDark.png" />
-                     </image>
-                  </ImageView>
-               </graphic></Label>
+                </Label>
                 <Label fx:id="btnManagementUser" onMouseClicked="#handleManajemenUserClick" styleClass="nav-button" text="Manajemen User">
-               <graphic>
-                  <ImageView fx:id="manajemenUserIcon" fitHeight="20.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@../../pictures/usersDark.png" />
-                     </image>
-                  </ImageView>
-               </graphic></Label>
+                </Label>
                 <Label fx:id="btnNotifikasi" onMouseClicked="#handleNotifikasiClick" styleClass="nav-button" text="Notifikasi">
-               <graphic>
-                  <ImageView fx:id="notifikasiIcon" fitHeight="20.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@../../pictures/bellDark.png" />
-                     </image>
-                  </ImageView>
-               </graphic></Label>
+                </Label>
                 <Label fx:id="btnLogout" onMouseClicked="#handleLogoutClick" styleClass="nav-button-logout" text="Logout" />
             </children>
             <padding>

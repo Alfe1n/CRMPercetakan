@@ -5,15 +5,22 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Controller utama untuk Dashboard Manajemen.
+ * Menangani navigasi antar pane dan sidebar menu untuk Manager.
+ */
 public class DashboardManagementController implements Initializable {
 
     @FXML private Label btnDashboard;
@@ -32,7 +39,6 @@ public class DashboardManagementController implements Initializable {
     private void loadPane(String fxmlFile) {
         try {
             String relativePath = "fxml/manajemen/" + fxmlFile;
-            // Cek apakah file benar-benar ditemukan
             if (MainApplication.class.getResource(relativePath) == null) {
                 throw new IOException("File FXML tidak ditemukan: " + relativePath);
             }
@@ -42,11 +48,9 @@ public class DashboardManagementController implements Initializable {
             contentArea.getChildren().setAll(pane);
 
         } catch (IOException e) {
-            // INI PENTING: Tampilkan error lengkap ke console
             System.err.println("=== ERROR SAAT MEMBUKA " + fxmlFile + " ===");
             e.printStackTrace();
 
-            // Opsional: Tampilkan pesan ke layar pengguna
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error Loading Page");
             alert.setHeaderText("Gagal memuat halaman: " + fxmlFile);
@@ -55,6 +59,9 @@ public class DashboardManagementController implements Initializable {
         }
     }
 
+    /**
+     * Set button sidebar yang aktif dengan menambah style class "active".
+     */
     private void setActiveButton(Label button) {
         btnDashboard.getStyleClass().remove("active");
         btnLaporan.getStyleClass().remove("active");
@@ -94,7 +101,24 @@ public class DashboardManagementController implements Initializable {
         alert.setTitle("Konfirmasi Logout");
         alert.setHeaderText(null);
         alert.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.YES) System.exit(0);
+            if (response == ButtonType.YES) {
+                try {
+                    URL loginResource = MainApplication.class.getResource("fxml/auth/Login.fxml");
+                    FXMLLoader loader = new FXMLLoader(loginResource);
+                    Parent root = loader.load();
+
+                    Stage stage = (Stage) btnLogout.getScene().getWindow();
+
+                    Scene scene = new Scene(root);
+                    stage.setScene(scene);
+
+                    stage.centerOnScreen();
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    System.err.println("Gagal memuat halaman login: " + e.getMessage());
+                }
+            }
         });
     }
 }

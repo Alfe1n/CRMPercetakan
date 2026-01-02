@@ -3,6 +3,7 @@ package com.example.trying3.controller.admin;
 import com.example.trying3.config.DatabaseConnection;
 import com.example.trying3.dao.PesananDAO;
 import com.example.trying3.model.Pesanan;
+import com.example.trying3.service.PembayaranService;
 import com.example.trying3.util.AlertUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -18,12 +19,12 @@ import java.util.Optional;
 
 public class KelolaPesananController {
 
-    // Komponen UI Panel (untuk switch view antara List, Tambah, Edit)
+    // FXML Components - Panel Navigation
     @FXML private VBox daftarPesananPanel;
     @FXML private VBox formTambahPanel;
     @FXML private VBox formEditPanel;
 
-    // Komponen UI Daftar Pesanan
+    // FXML Components - Daftar Pesanan
     @FXML private Label resultCountLabel;
     @FXML private TextField searchField;
     @FXML private ComboBox<String> filterStatusComboBox;
@@ -31,7 +32,7 @@ public class KelolaPesananController {
     @FXML private Button btnTambahPesanan;
     @FXML private ListView<Pesanan> pesananListView;
 
-    // Komponen UI Form Tambah Pesanan
+    // FXML Components - Form Tambah Pesanan
     @FXML private TextField namaPelangganField;
     @FXML private TextField noTeleponField;
     @FXML private TextField emailField;
@@ -42,7 +43,7 @@ public class KelolaPesananController {
     @FXML private Button simpanPesananButton;
     @FXML private Button batalTambahButton;
 
-    // Komponen UI Form Edit Pesanan
+    // FXML Components - Form Edit Pesanan
     @FXML private Label editIdPesananLabel;
     @FXML private Label editSubtitleLabel;
     @FXML private TextField editNamaPelangganField;
@@ -55,27 +56,27 @@ public class KelolaPesananController {
     @FXML private Button updatePesananButton;
     @FXML private Button batalEditButton;
 
-    // Variabel Data
+    // Data sources and services
     private PesananDAO pesananDAO;
+    private PembayaranService pembayaranService;
     private final ObservableList<Pesanan> pesananList = FXCollections.observableArrayList();
     private Pesanan currentEditPesanan;
 
     @FXML
     public void initialize() {
         pesananDAO = new PesananDAO();
-
-        setupDaftarPesanan();   // Siapkan list view
-        setupFormTambah();      // Siapkan tombol di form tambah
-        setupFormEdit();        // Siapkan tombol di form edit
-
-        loadJenisLayanan();     // Ambil data layanan dari DB ke dropdown
-        loadPesananData();      // Ambil data pesanan dari DB
-
-        showDaftarPanel();      // Tampilkan panel daftar pesanan di awal
+        pembayaranService = new PembayaranService();
+        setupDaftarPesanan();
+        setupFormTambah();
+        setupFormEdit();
+        loadJenisLayanan();
+        loadPesananData();
+        showDaftarPanel();
     }
 
-    // --- BAGIAN NAVIGASI PANEL ---
-    // Fungsi-fungsi ini untuk ganti tampilan (hide/show panel)
+    /**
+     * Menampilkan panel daftar pesanan
+     */
     private void showDaftarPanel() {
         daftarPesananPanel.setVisible(true);
         daftarPesananPanel.setManaged(true);
@@ -85,6 +86,9 @@ public class KelolaPesananController {
         formEditPanel.setManaged(false);
     }
 
+    /**
+     * Menampilkan panel form tambah pesanan
+     */
     private void showTambahPanel() {
         daftarPesananPanel.setVisible(false);
         daftarPesananPanel.setManaged(false);
@@ -95,6 +99,9 @@ public class KelolaPesananController {
         clearFormTambah();
     }
 
+    /**
+     * Menampilkan panel form edit pesanan
+     */
     private void showEditPanel() {
         daftarPesananPanel.setVisible(false);
         daftarPesananPanel.setManaged(false);
@@ -104,15 +111,15 @@ public class KelolaPesananController {
         formEditPanel.setManaged(true);
     }
 
-    // --- PENGATURAN LIST VIEW ---
+    /**
+     * Konfigurasi ListView dan filters untuk daftar pesanan
+     */
     private void setupDaftarPesanan() {
-        // Mengatur tampilan sel list menggunakan class PesananCardCell
         pesananListView.setCellFactory(param -> new PesananCardCell(
-                this::handleEditPesanan,       
-                this::handleDeletePesanan,     
-                this::handleKonfirmasiPesanan, 
-                this::handleUbahStatus         
-        ));
+                this::handleEditPesanan,
+                this::handleDeletePesanan,
+                this::handleKonfirmasiPesanan,
+                this::handleUbahStatus));
 
         pesananListView.setItems(pesananList);
 
@@ -120,12 +127,13 @@ public class KelolaPesananController {
         btnTambahPesanan.setOnAction(e -> showTambahPanel());
     }
 
-    // Setup filter status dan pencarian
+    /**
+     * Konfigurasi filter status dan pencarian
+     */
     private void setupFilters() {
         ObservableList<String> statusOptions = FXCollections.observableArrayList();
         statusOptions.add("Semua Status");
 
-        // Ambil daftar status dari database
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT nama_status FROM status_pesanan ORDER BY id_status")) {
@@ -139,7 +147,6 @@ public class KelolaPesananController {
         filterStatusComboBox.setItems(statusOptions);
         filterStatusComboBox.setValue("Semua Status");
 
-        // Auto-refresh saat ngetik search atau ganti filter
         searchField.textProperty().addListener((obs, old, newVal) -> loadPesananData());
         filterStatusComboBox.valueProperty().addListener((obs, old, newVal) -> loadPesananData());
 
@@ -150,34 +157,34 @@ public class KelolaPesananController {
         });
     }
 
-    // Fungsi yang dipanggil saat status di dropdown diubah
-    private void handleUbahStatus(Pesanan pesanan, String statusBaru) { 
+    /**
+     * Handler perubahan status pesanan dari dropdown
+     */
+    private void handleUbahStatus(Pesanan pesanan, String statusBaru) {
         String statusLama = pesanan.getStatus();
 
-        // Jika memilih "Pembayaran Verified", munculkan popup input uang
         if (statusBaru.equalsIgnoreCase("Pembayaran Verified")) {
             showPembayaranVerifiedDialog(pesanan);
             return;
         }
 
-        // Konfirmasi biasa untuk status lain
         boolean confirmed = AlertUtil.showConfirmation(
                 "Ubah Status Pesanan",
                 "Ubah status pesanan dari " + pesanan.getNamaPelanggan() +
-                        "\ndari '" + statusLama + "' ke '" + statusBaru + "'?"
-        );
+                        "\ndari '" + statusLama + "' ke '" + statusBaru + "'?");
 
         if (confirmed) {
             updateStatusPesanan(pesanan.getIdPesanan(), statusBaru);
         }
     }
 
-    // --- BAGIAN QUERY DATABASE ---
+    /**
+     * Memuat data pesanan dari database dengan filter
+     */
     private void loadPesananData() {
         pesananListView.getSelectionModel().clearSelection();
         pesananList.clear();
 
-        // Query JOIN tabel pesanan, pelanggan, status, dan detail_pesanan
         StringBuilder query = new StringBuilder(
                 "SELECT p.*, " +
                         "pel.nama, pel.no_telepon, pel.email, " +
@@ -187,17 +194,14 @@ public class KelolaPesananController {
                         "JOIN pelanggan pel ON p.id_pelanggan = pel.id_pelanggan " +
                         "JOIN status_pesanan sp ON p.id_status = sp.id_status " +
                         "LEFT JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan " +
-                        "WHERE 1=1"
-        );
+                        "WHERE 1=1");
 
-        // Logika Filter Search
         String searchText = searchField.getText().trim();
         if (!searchText.isEmpty()) {
             query.append(" AND (pel.nama LIKE '%").append(searchText).append("%'");
             query.append(" OR pel.no_telepon LIKE '%").append(searchText).append("%')");
         }
 
-        // Logika Filter Status
         String statusFilter = filterStatusComboBox.getValue();
         if (statusFilter != null && !statusFilter.equals("Semua Status")) {
             query.append(" AND sp.nama_status = '").append(statusFilter).append("'");
@@ -221,7 +225,6 @@ public class KelolaPesananController {
                 pesanan.setSpesifikasi(rs.getString("spesifikasi"));
                 pesanan.setTanggalPesanan(rs.getTimestamp("tanggal_pesanan").toLocalDateTime());
 
-                // Konversi ID layanan ke nama layanan
                 int idLayanan = rs.getInt("id_layanan");
                 pesanan.setJenisLayanan(getLayananName(idLayanan));
 
@@ -236,7 +239,9 @@ public class KelolaPesananController {
         }
     }
 
-    // --- BAGIAN FORM TAMBAH PESANAN ---
+    /**
+     * Konfigurasi form tambah pesanan
+     */
     private void setupFormTambah() {
         simpanPesananButton.setOnAction(e -> simpanPesanan());
         batalTambahButton.setOnAction(e -> {
@@ -244,12 +249,13 @@ public class KelolaPesananController {
             showDaftarPanel();
         });
 
-        // Mencegah input huruf di kolom angka
         forceNumericInput(jumlahField);
         forceNumericInput(totalHargaField);
     }
 
-    // Load data layanan untuk dropdown
+    /**
+     * Memuat daftar layanan dari database ke ComboBox
+     */
     private void loadJenisLayanan() {
         ObservableList<String> layananList = FXCollections.observableArrayList();
 
@@ -262,7 +268,7 @@ public class KelolaPesananController {
             }
 
             jenisLayananComboBox.setItems(layananList);
-            editJenisLayananComboBox.setItems(layananList); 
+            editJenisLayananComboBox.setItems(layananList);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -270,7 +276,9 @@ public class KelolaPesananController {
         }
     }
 
-    // Simpan pesanan baru ke database
+    /**
+     * Proses simpan pesanan baru ke database
+     */
     private void simpanPesanan() {
         String namaPelanggan = namaPelangganField.getText().trim();
         String noTelepon = noTeleponField.getText().trim();
@@ -292,8 +300,7 @@ public class KelolaPesananController {
             double totalHarga = Double.parseDouble(totalHargaStr);
 
             boolean isSuccess = pesananDAO.createPesanan(
-                    namaPelanggan, noTelepon, email, jenisLayanan, jumlah, totalHarga, spesifikasi
-            );
+                    namaPelanggan, noTelepon, email, jenisLayanan, jumlah, totalHarga, spesifikasi);
 
             if (isSuccess) {
                 AlertUtil.showSuccess("Berhasil", "Pesanan berhasil dibuat!");
@@ -322,7 +329,9 @@ public class KelolaPesananController {
         spesifikasiArea.clear();
     }
 
-    // --- BAGIAN EDIT PESANAN ---
+    /**
+     * Konfigurasi form edit pesanan
+     */
     private void setupFormEdit() {
         updatePesananButton.setOnAction(e -> updatePesanan());
         batalEditButton.setOnAction(e -> {
@@ -334,7 +343,9 @@ public class KelolaPesananController {
         forceNumericInput(editTotalHargaField);
     }
 
-    // Mengisi form edit dengan data pesanan yang dipilih
+    /**
+     * Memuat data pesanan ke form edit
+     */
     private void loadDataToEditForm(Pesanan pesanan) {
         currentEditPesanan = pesanan;
 
@@ -352,7 +363,9 @@ public class KelolaPesananController {
         showEditPanel();
     }
 
-    // Proses update data ke database
+    /**
+     * Proses update pesanan ke database (3 tabel: pelanggan, pesanan, detail_pesanan)
+     */
     private void updatePesanan() {
         if (currentEditPesanan == null) {
             AlertUtil.showError("Error", "Tidak ada pesanan yang dipilih untuk di-update.");
@@ -379,13 +392,11 @@ public class KelolaPesananController {
             int idPesanan = currentEditPesanan.getIdPesanan();
 
             Connection conn = DatabaseConnection.getConnection();
-            conn.setAutoCommit(false); // Start Transaksi (agar data konsisten di 3 tabel)
+            conn.setAutoCommit(false);
 
             try {
-                // 1. Update data Pelanggan
-                String updatePelangganSql =
-                    "UPDATE pelanggan SET nama = ?, no_telepon = ?, email = ? " +
-                    "WHERE id_pelanggan = (SELECT id_pelanggan FROM pesanan WHERE id_pesanan = ?)";
+                String updatePelangganSql = "UPDATE pelanggan SET nama = ?, no_telepon = ?, email = ? " +
+                        "WHERE id_pelanggan = (SELECT id_pelanggan FROM pesanan WHERE id_pesanan = ?)";
                 PreparedStatement psPelanggan = conn.prepareStatement(updatePelangganSql);
                 psPelanggan.setString(1, namaPelanggan);
                 psPelanggan.setString(2, noTelepon);
@@ -393,7 +404,6 @@ public class KelolaPesananController {
                 psPelanggan.setInt(4, idPesanan);
                 psPelanggan.executeUpdate();
 
-                // 2. Update data Pesanan (Header)
                 String updatePesananSql = "UPDATE pesanan SET total_biaya = ?, catatan = ? WHERE id_pesanan = ?";
                 PreparedStatement psPesanan = conn.prepareStatement(updatePesananSql);
                 psPesanan.setDouble(1, totalHarga);
@@ -401,13 +411,11 @@ public class KelolaPesananController {
                 psPesanan.setInt(3, idPesanan);
                 psPesanan.executeUpdate();
 
-                // 3. Update Detail Pesanan
                 int idLayanan = getLayananIdByName(conn, jenisLayanan);
                 double hargaSatuan = totalHarga / jumlah;
 
-                String updateDetailSql =
-                    "UPDATE detail_pesanan SET id_layanan = ?, jumlah = ?, " +
-                    "harga_satuan = ?, subtotal = ?, spesifikasi = ? WHERE id_pesanan = ?";
+                String updateDetailSql = "UPDATE detail_pesanan SET id_layanan = ?, jumlah = ?, " +
+                        "harga_satuan = ?, subtotal = ?, spesifikasi = ? WHERE id_pesanan = ?";
                 PreparedStatement psDetail = conn.prepareStatement(updateDetailSql);
                 psDetail.setInt(1, idLayanan);
                 psDetail.setInt(2, jumlah);
@@ -417,7 +425,7 @@ public class KelolaPesananController {
                 psDetail.setInt(6, idPesanan);
                 psDetail.executeUpdate();
 
-                conn.commit(); // Simpan perubahan permanen
+                conn.commit();
 
                 AlertUtil.showSuccess("Berhasil", "Pesanan berhasil diupdate!");
                 clearFormEdit();
@@ -425,7 +433,7 @@ public class KelolaPesananController {
                 loadPesananData();
 
             } catch (Exception e) {
-                conn.rollback(); // Batalkan jika ada error
+                conn.rollback();
                 throw e;
             } finally {
                 conn.setAutoCommit(true);
@@ -451,7 +459,9 @@ public class KelolaPesananController {
         editSpesifikasiArea.clear();
     }
 
-    // Helper: Memaksa textfield hanya menerima angka
+    /**
+     * Memaksa TextField hanya menerima input angka
+     */
     private void forceNumericInput(TextField tf) {
         tf.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*")) {
@@ -460,10 +470,13 @@ public class KelolaPesananController {
         });
     }
 
-    // Helper: Ambil nama layanan berdasarkan ID
+    /**
+     * Mengambil nama layanan berdasarkan ID dari database
+     */
     private String getLayananName(int idLayanan) {
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement("SELECT nama_layanan FROM jenis_layanan WHERE id_layanan = ?")) {
+             PreparedStatement pstmt = conn
+                     .prepareStatement("SELECT nama_layanan FROM jenis_layanan WHERE id_layanan = ?")) {
             pstmt.setInt(1, idLayanan);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -475,27 +488,34 @@ public class KelolaPesananController {
         return "";
     }
 
-    // Helper: Ambil ID layanan berdasarkan Nama
+    /**
+     * Mengambil ID layanan berdasarkan nama
+     */
     private int getLayananIdByName(Connection conn, String namaLayanan) throws Exception {
         String sql = "SELECT id_layanan FROM jenis_layanan WHERE nama_layanan = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, namaLayanan);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getInt("id_layanan");
+            if (rs.next())
+                return rs.getInt("id_layanan");
         }
-        return 1; 
+        return 1;
     }
 
-    // --- HANDLER AKSI TOMBOL DI KARTU PESANAN ---
+    /**
+     * Handler untuk tombol edit pesanan dari card
+     */
     private void handleEditPesanan(Pesanan pesanan) {
-        loadDataToEditForm(pesanan); // Buka form edit
+        loadDataToEditForm(pesanan);
     }
 
+    /**
+     * Handler untuk tombol hapus pesanan dari card
+     */
     private void handleDeletePesanan(Pesanan pesanan) {
         boolean confirmed = AlertUtil.showConfirmation(
                 "Hapus Pesanan",
-                "Apakah Anda yakin ingin menghapus pesanan dari " + pesanan.getNamaPelanggan() + "?"
-        );
+                "Apakah Anda yakin ingin menghapus pesanan dari " + pesanan.getNamaPelanggan() + "?");
 
         if (confirmed) {
             try (Connection conn = DatabaseConnection.getConnection();
@@ -518,22 +538,24 @@ public class KelolaPesananController {
         }
     }
 
-    // Aksi tombol "Konfirmasi" (ubah status ke Menunggu Pembayaran)
+    /**
+     * Handler untuk tombol konfirmasi pesanan (ubah status ke Menunggu Pembayaran)
+     */
     private void handleKonfirmasiPesanan(Pesanan pesanan) {
         boolean confirmed = AlertUtil.showConfirmation(
                 "Konfirmasi Pesanan",
                 "Konfirmasi pesanan dari " + pesanan.getNamaPelanggan() +
-                        "?\n\nStatus akan diubah ke 'Menunggu Pembayaran'."
-        );
+                        "?\n\nStatus akan diubah ke 'Menunggu Pembayaran'.");
 
         if (confirmed) {
             updateStatusPesanan(pesanan.getIdPesanan(), "Menunggu Pembayaran");
         }
     }
 
+    @SuppressWarnings("unused")
     private void handleUbahStatus(Pesanan pesanan, String statusBaru, ComboBox<String> statusComboBox) {
         String statusLama = pesanan.getStatus();
-        
+
         if (statusBaru.equalsIgnoreCase("Pembayaran Verified")) {
             showPembayaranVerifiedDialog(pesanan);
             return;
@@ -542,15 +564,16 @@ public class KelolaPesananController {
         boolean confirmed = AlertUtil.showConfirmation(
                 "Ubah Status Pesanan",
                 "Ubah status pesanan dari " + pesanan.getNamaPelanggan() +
-                        "\ndari '" + statusLama + "' ke '" + statusBaru + "'?"
-        );
+                        "\ndari '" + statusLama + "' ke '" + statusBaru + "'?");
 
         if (confirmed) {
             updateStatusPesanan(pesanan.getIdPesanan(), statusBaru);
         }
     }
 
-    // Update status pesanan di database
+    /**
+     * Update status pesanan di database
+     */
     private void updateStatusPesanan(int idPesanan, String namaStatus) {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(
@@ -563,7 +586,7 @@ public class KelolaPesananController {
 
             if (result > 0) {
                 AlertUtil.showSuccess("Berhasil", "Status pesanan berhasil diubah ke: " + namaStatus);
-                loadPesananData(); // Refresh agar tampilan update
+                loadPesananData();
             } else {
                 AlertUtil.showError("Gagal mengubah status pesanan.");
             }
@@ -574,37 +597,34 @@ public class KelolaPesananController {
         }
     }
 
-    // Menampilkan Dialog Khusus untuk "Pembayaran Verified"
+    /**
+     * Menampilkan dialog verifikasi pembayaran dengan input nominal dan metode
+     */
     private void showPembayaranVerifiedDialog(Pesanan pesanan) {
-        
+
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Verifikasi Pembayaran");
         dialog.setHeaderText("Tunggu dulu! Masukkan nominal uang yang diterima dan metode pembayarannya.");
 
-        // Layout Grid untuk form dialog
         GridPane grid = new GridPane();
         grid.setHgap(15);
         grid.setVgap(15);
         grid.setPadding(new javafx.geometry.Insets(20));
 
-        // Input Nominal
         TextField nominalField = new TextField();
         nominalField.setPromptText("Contoh: 2500000");
         Label nominalLabel = new Label("Nominal Diterima (Rp):");
         nominalLabel.getStyleClass().add("form-label");
 
-        // Input Metode Pembayaran
         ComboBox<String> metodeComboBox = new ComboBox<>();
         metodeComboBox.getItems().addAll("Cash", "Transfer Bank", "E-Wallet", "Kartu Kredit/Debit");
         metodeComboBox.setPromptText("Pilih metode pembayaran");
         Label metodeLabel = new Label("Metode Pembayaran:");
         metodeLabel.getStyleClass().add("form-label");
 
-        // Info Pesanan
         Label infoLabel = new Label(
                 "Pesanan: " + pesanan.getNamaPelanggan() +
-                        "\nTotal Tagihan: Rp" + String.format("%,.2f", pesanan.getTotalBiaya())
-        );
+                        "\nTotal Tagihan: Rp" + String.format("%,.2f", pesanan.getTotalBiaya()));
         infoLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666;");
 
         grid.add(infoLabel, 0, 0, 2, 1);
@@ -615,39 +635,52 @@ public class KelolaPesananController {
 
         dialog.getDialogPane().setContent(grid);
 
-        // Tombol Simpan & Batal
         ButtonType simpanButtonType = new ButtonType("Simpan", ButtonBar.ButtonData.OK_DONE);
         ButtonType batalButtonType = new ButtonType("Batal", ButtonBar.ButtonData.CANCEL_CLOSE);
         dialog.getDialogPane().getButtonTypes().addAll(simpanButtonType, batalButtonType);
 
-        // Validasi: Tombol simpan mati kalau input kosong
         javafx.scene.Node simpanButton = dialog.getDialogPane().lookupButton(simpanButtonType);
         simpanButton.setDisable(true);
 
-        nominalField.textProperty().addListener((obs, old, newVal) -> simpanButton.setDisable(newVal.trim().isEmpty() || metodeComboBox.getValue() == null));
+        nominalField.textProperty().addListener((obs, old, newVal) -> simpanButton
+                .setDisable(newVal.trim().isEmpty() || metodeComboBox.getValue() == null));
 
-        metodeComboBox.valueProperty().addListener((obs, old, newVal) -> simpanButton.setDisable(nominalField.getText().trim().isEmpty() || newVal == null));
+        metodeComboBox.valueProperty().addListener((obs, old, newVal) -> simpanButton
+                .setDisable(nominalField.getText().trim().isEmpty() || newVal == null));
 
-        // Paksa nominal hanya angka
         nominalField.textProperty().addListener((obs, old, newVal) -> {
             if (!newVal.matches("\\d*")) {
                 nominalField.setText(newVal.replaceAll("\\D", ""));
             }
         });
 
-        // Tampilkan dialog dan tunggu respon
         Optional<ButtonType> result = dialog.showAndWait();
 
         if (result.isPresent() && result.get() == simpanButtonType) {
             String nominal = nominalField.getText();
             String metode = metodeComboBox.getValue();
-            // TODO: Di sini nanti akan ada logika INSERT ke tabel pembayaran
-            AlertUtil.showInfo("Info",
-                    "FITUR INI AKAN DIIMPLEMENTASIKAN NANTI\n\n" +
-                            "Data yang akan disimpan:\n" +
-                            "Nominal: Rp" + nominal + "\n" +
-                            "Metode: " + metode + "\n\n" +
-                            "Untuk saat ini, status tidak akan berubah.");
+
+            try {
+                double nominalValue = Double.parseDouble(nominal);
+                boolean success = pembayaranService.verifikasiPembayaran(
+                        pesanan.getIdPesanan(),
+                        nominalValue,
+                        metode);
+
+                if (success) {
+                    AlertUtil.showInfo("Berhasil",
+                            "Pembayaran berhasil diverifikasi!\n\n" +
+                                    "Data pembayaran:\n" +
+                                    "Nominal: Rp" + String.format("%,.0f", nominalValue) + "\n" +
+                                    "Metode: " + metode + "\n\n" +
+                                    "Status pesanan telah diubah menjadi 'Sedang Dikerjakan'.");
+                    loadPesananData();
+                } else {
+                    AlertUtil.showError("Gagal", "Gagal memverifikasi pembayaran. Silakan coba lagi.");
+                }
+            } catch (NumberFormatException e) {
+                AlertUtil.showError("Error", "Nominal tidak valid: " + e.getMessage());
+            }
         }
     }
 }

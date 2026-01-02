@@ -9,7 +9,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
 
 import java.sql.*;
 import java.text.NumberFormat;
@@ -18,35 +17,27 @@ import java.util.Optional;
 
 /**
  * Controller untuk halaman Kelola Pembayaran
- * Menggunakan PesananPendingCell.java (file terpisah) dengan callback pattern
+ * Mengelola verifikasi pembayaran menggunakan PesananPendingCell dengan callback pattern
  */
 public class KelolaPembayaranController {
 
-    // ========== STATISTICS ==========
-    @FXML
-    private Label menungguVerifikasiLabel;
-    @FXML
-    private Label terverifikasiLabel;
-    @FXML
-    private Label totalPendapatanLabel;
+    // FXML Components - Statistics
+    @FXML private Label menungguVerifikasiLabel;
+    @FXML private Label terverifikasiLabel;
+    @FXML private Label totalPendapatanLabel;
 
-    // ========== PENDING LIST ==========
-    @FXML
-    private Label pendingCountLabel;
-    @FXML
-    private Label pendingSubtitle;
-    @FXML
-    private ListView<Pesanan> pendingListView;
-    @FXML
-    private Button refreshButton;
+    // FXML Components - Pending List
+    @FXML private Label pendingCountLabel;
+    @FXML private Label pendingSubtitle;
+    @FXML private ListView<Pesanan> pendingListView;
+    @FXML private Button refreshButton;
 
-    // ========== RIWAYAT LIST ==========
-    @FXML
-    private ListView<Pesanan> riwayatListView;
+    // FXML Components - Riwayat List
+    @FXML private ListView<Pesanan> riwayatListView;
 
-    // ========== DATA ==========
-    private ObservableList<Pesanan> pendingList = FXCollections.observableArrayList();
-    private ObservableList<Pesanan> riwayatList = FXCollections.observableArrayList();
+    // Data sources
+    private final ObservableList<Pesanan> pendingList = FXCollections.observableArrayList();
+    private final ObservableList<Pesanan> riwayatList = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
@@ -54,7 +45,7 @@ public class KelolaPembayaranController {
 
         setupLists();
         setupButtons();
-        Platform.runLater(() -> loadData());
+        Platform.runLater(this::loadData);
         setupAutoRefresh();
     }
 
@@ -69,33 +60,29 @@ public class KelolaPembayaranController {
         }
     }
 
-    // =====================================================
-    // SETUP METHODS
-    // =====================================================
-
+    /**
+     * Konfigurasi ListViews dengan custom cell factories
+     */
     private void setupLists() {
-        // Setup Pending ListView - Menggunakan file terpisah dengan CALLBACK
         pendingListView.setCellFactory(param -> new PesananPendingCell(
-            new PesananPendingCell.PembayaranCallback() {
-                @Override
-                public void onVerifikasi(Pesanan pesanan, String nominal, String metode) {
-                    handleVerifikasi(pesanan, nominal, metode);
-                }
+                new PesananPendingCell.PembayaranCallback() {
+                    @Override
+                    public void onVerifikasi(Pesanan pesanan, String nominal, String metode) {
+                        handleVerifikasi(pesanan, nominal, metode);
+                    }
 
-                @Override
-                public void onTolak(Pesanan pesanan) {
-                    handleTolak(pesanan);
-                }
+                    @Override
+                    public void onTolak(Pesanan pesanan) {
+                        handleTolak(pesanan);
+                    }
 
-                @Override
-                public void loadMetodePembayaran(ComboBox<String> comboBox) {
-                    KelolaPembayaranController.this.loadMetodePembayaran(comboBox);
-                }
-            }
-        ));
+                    @Override
+                    public void loadMetodePembayaran(ComboBox<String> comboBox) {
+                        KelolaPembayaranController.this.loadMetodePembayaran(comboBox);
+                    }
+                }));
         pendingListView.setItems(pendingList);
 
-        // Setup Riwayat ListView
         riwayatListView.setCellFactory(param -> new PembayaranRiwayatCell());
         riwayatListView.setItems(riwayatList);
     }
@@ -104,10 +91,9 @@ public class KelolaPembayaranController {
         refreshButton.setOnAction(e -> loadData());
     }
 
-    // =====================================================
-    // DATA LOADING
-    // =====================================================
-
+    /**
+     * Load semua data pembayaran (statistik, pending, riwayat)
+     */
     private void loadData() {
         loadStatistics();
         loadPendingPesanan();
@@ -120,27 +106,24 @@ public class KelolaPembayaranController {
 
             // Menunggu Verifikasi (pesanan dengan status id = 2)
             ResultSet rs = stmt.executeQuery(
-                    "SELECT COUNT(*) as total FROM pesanan WHERE id_status = 2"
-            );
+                    "SELECT COUNT(*) as total FROM pesanan WHERE id_status = 2");
             if (rs.next()) {
                 menungguVerifikasiLabel.setText(String.valueOf(rs.getInt("total")));
             }
 
             // Terverifikasi (pembayaran yang sudah verified)
             rs = stmt.executeQuery(
-                    "SELECT COUNT(*) as total FROM pembayaran WHERE status_pembayaran = 'verified'"
-            );
+                    "SELECT COUNT(*) as total FROM pembayaran WHERE status_pembayaran = 'verified'");
             if (rs.next()) {
                 terverifikasiLabel.setText(String.valueOf(rs.getInt("total")));
             }
 
             // Total Pendapatan
             rs = stmt.executeQuery(
-                    "SELECT COALESCE(SUM(jumlah), 0) as total FROM pembayaran WHERE status_pembayaran = 'verified'"
-            );
+                    "SELECT COALESCE(SUM(jumlah), 0) as total FROM pembayaran WHERE status_pembayaran = 'verified'");
             if (rs.next()) {
                 double total = rs.getDouble("total");
-                NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
+                NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.of("id", "ID"));
                 totalPendapatanLabel.setText(currencyFormat.format(total));
             }
 
@@ -154,15 +137,14 @@ public class KelolaPembayaranController {
         pendingList.clear();
 
         // Load pesanan dengan status Menunggu Pembayaran (id_status = 2)
-        String query =
-                "SELECT p.*, pl.nama as nama_pelanggan, " +
-                        "dp.jumlah, dp.subtotal, jl.nama_layanan " +
-                        "FROM pesanan p " +
-                        "JOIN pelanggan pl ON p.id_pelanggan = pl.id_pelanggan " +
-                        "LEFT JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan " +
-                        "LEFT JOIN jenis_layanan jl ON dp.id_layanan = jl.id_layanan " +
-                        "WHERE p.id_status = 2 " +
-                        "ORDER BY p.tanggal_pesanan DESC";
+        String query = "SELECT p.*, pl.nama as nama_pelanggan, " +
+                "dp.jumlah, dp.subtotal, jl.nama_layanan " +
+                "FROM pesanan p " +
+                "JOIN pelanggan pl ON p.id_pelanggan = pl.id_pelanggan " +
+                "LEFT JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan " +
+                "LEFT JOIN jenis_layanan jl ON dp.id_layanan = jl.id_layanan " +
+                "WHERE p.id_status = 2 " +
+                "ORDER BY p.tanggal_pesanan DESC";
 
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
@@ -193,17 +175,16 @@ public class KelolaPembayaranController {
         riwayatList.clear();
 
         // Load pembayaran yang sudah verified
-        String query =
-                "SELECT pb.*, p.nomor_pesanan, pl.nama as nama_pelanggan, " +
-                        "mp.nama_metode, dp.jumlah, jl.nama_layanan " +
-                        "FROM pembayaran pb " +
-                        "JOIN pesanan p ON pb.id_pesanan = p.id_pesanan " +
-                        "JOIN pelanggan pl ON p.id_pelanggan = pl.id_pelanggan " +
-                        "JOIN metode_pembayaran mp ON pb.id_metode = mp.id_metode " +
-                        "LEFT JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan " +
-                        "LEFT JOIN jenis_layanan jl ON dp.id_layanan = jl.id_layanan " +
-                        "WHERE pb.status_pembayaran = 'verified' " +
-                        "ORDER BY pb.tanggal_verifikasi DESC";
+        String query = "SELECT pb.*, p.nomor_pesanan, pl.nama as nama_pelanggan, " +
+                "mp.nama_metode, dp.jumlah, jl.nama_layanan " +
+                "FROM pembayaran pb " +
+                "JOIN pesanan p ON pb.id_pesanan = p.id_pesanan " +
+                "JOIN pelanggan pl ON p.id_pelanggan = pl.id_pelanggan " +
+                "JOIN metode_pembayaran mp ON pb.id_metode = mp.id_metode " +
+                "LEFT JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan " +
+                "LEFT JOIN jenis_layanan jl ON dp.id_layanan = jl.id_layanan " +
+                "WHERE pb.status_pembayaran = 'verified' " +
+                "ORDER BY pb.tanggal_verifikasi DESC";
 
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
@@ -232,10 +213,13 @@ public class KelolaPembayaranController {
         }
     }
 
-    // =====================================================
-    // PAYMENT ACTIONS - Dipanggil dari Cell via Callback
-    // =====================================================
-
+    /**
+     * Handler verifikasi pembayaran (dipanggil dari PesananPendingCell)
+     *
+     * @param pesanan Pesanan yang akan diverifikasi
+     * @param nominalStr Nominal pembayaran dalam bentuk string
+     * @param metode Metode pembayaran yang digunakan
+     */
     private void handleVerifikasi(Pesanan pesanan, String nominalStr, String metode) {
         if (nominalStr == null || nominalStr.trim().isEmpty() || metode == null) {
             AlertUtil.showWarning("Peringatan", "Mohon isi nominal dan pilih metode pembayaran.");
@@ -253,8 +237,7 @@ public class KelolaPembayaranController {
                     "Pelanggan: " + pesanan.getNamaPelanggan() + "\n" +
                             "Nominal: Rp " + String.format("%,.0f", nominal) + "\n" +
                             "Metode: " + metode + "\n\n" +
-                            "Yakin ingin memverifikasi pembayaran ini?"
-            );
+                            "Yakin ingin memverifikasi pembayaran ini?");
 
             Optional<ButtonType> result = alert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -274,8 +257,7 @@ public class KelolaPembayaranController {
         alert.setContentText(
                 "Pelanggan: " + pesanan.getNamaPelanggan() + "\n\n" +
                         "Yakin ingin menolak pembayaran ini?\n" +
-                        "Status pesanan akan dikembalikan ke 'Pending'."
-        );
+                        "Status pesanan akan dikembalikan ke 'Pending'.");
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -283,27 +265,22 @@ public class KelolaPembayaranController {
         }
     }
 
-    // =====================================================
-    // DATABASE OPERATIONS
-    // =====================================================
-
+    /**
+     * Proses verifikasi pembayaran ke database
+     * Update tabel pembayaran dan status pesanan
+     */
     private void verifikasiPembayaran(int idPesanan, double nominal, String namaMetode) {
         Connection conn = null;
         try {
             conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
 
-            // Get metode ID
             int idMetode = getMetodeIdByName(conn, namaMetode);
-
-            // Get admin ID
             int idAdmin = SessionManager.getInstance().getCurrentUser().getIdUser();
 
-            // 1. Insert into pembayaran
-            String insertPembayaran =
-                    "INSERT INTO pembayaran (id_pesanan, id_metode, jumlah, tanggal_pembayaran, " +
-                            "status_pembayaran, verified_by, tanggal_verifikasi) " +
-                            "VALUES (?, ?, ?, NOW(), 'verified', ?, NOW())";
+            String insertPembayaran = "INSERT INTO pembayaran (id_pesanan, id_metode, jumlah, tanggal_pembayaran, " +
+                    "status_pembayaran, verified_by, tanggal_verifikasi) " +
+                    "VALUES (?, ?, ?, NOW(), 'verified', ?, NOW())";
 
             try (PreparedStatement ps = conn.prepareStatement(insertPembayaran)) {
                 ps.setInt(1, idPesanan);
@@ -313,7 +290,6 @@ public class KelolaPembayaranController {
                 ps.executeUpdate();
             }
 
-            // 2. Update status pesanan menjadi Sedang Dikerjakan (id_status = 3)
             String updatePesanan = "UPDATE pesanan SET id_status = 3, updated_at = NOW() WHERE id_pesanan = ?";
             try (PreparedStatement ps = conn.prepareStatement(updatePesanan)) {
                 ps.setInt(1, idPesanan);
@@ -321,9 +297,8 @@ public class KelolaPembayaranController {
             }
 
             conn.commit();
-
-            AlertUtil.showSuccess("Sukses","Pembayaran berhasil diverifikasi!\nPesanan akan diproses.");
-            loadData(); // Refresh
+            AlertUtil.showSuccess("Sukses", "Pembayaran berhasil diverifikasi!\nPesanan akan diproses.");
+            loadData();
 
         } catch (Exception e) {
             if (conn != null) {
@@ -347,13 +322,15 @@ public class KelolaPembayaranController {
         }
     }
 
+    /**
+     * Proses penolakan pembayaran, mengembalikan status pesanan ke Pending
+     */
     private void tolakPembayaran(int idPesanan) {
         Connection conn = null;
         try {
             conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
 
-            // Update status pesanan kembali ke Pending (id_status = 1)
             String updatePesanan = "UPDATE pesanan SET id_status = 1, updated_at = NOW() WHERE id_pesanan = ?";
             try (PreparedStatement ps = conn.prepareStatement(updatePesanan)) {
                 ps.setInt(1, idPesanan);
@@ -361,9 +338,8 @@ public class KelolaPembayaranController {
             }
 
             conn.commit();
-
             AlertUtil.showInfo("Info", "Pembayaran ditolak.\nStatus pesanan dikembalikan ke Pending.");
-            loadData(); // Refresh
+            loadData();
 
         } catch (Exception e) {
             if (conn != null) {
@@ -387,10 +363,9 @@ public class KelolaPembayaranController {
         }
     }
 
-    // =====================================================
-    // HELPER METHODS
-    // =====================================================
-
+    /**
+     * Load daftar metode pembayaran dari database ke ComboBox
+     */
     private void loadMetodePembayaran(ComboBox<String> comboBox) {
         ObservableList<String> metodeList = FXCollections.observableArrayList();
 
@@ -409,12 +384,16 @@ public class KelolaPembayaranController {
         }
     }
 
+    /**
+     * Konversi nama metode pembayaran menjadi ID
+     */
     private int getMetodeIdByName(Connection conn, String namaMetode) throws SQLException {
         String sql = "SELECT id_metode FROM metode_pembayaran WHERE nama_metode = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, namaMetode);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getInt("id_metode");
+            if (rs.next())
+                return rs.getInt("id_metode");
         }
         return 1; // Default
     }

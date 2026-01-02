@@ -3,6 +3,7 @@ package com.example.trying3.controller.production;
 import com.example.trying3.config.DatabaseConnection;
 import com.example.trying3.dao.PesananDAO;
 import com.example.trying3.model.Pesanan;
+import com.example.trying3.model.ProductionOrder;
 import com.example.trying3.util.AlertUtil;
 import com.example.trying3.util.SessionManager;
 import javafx.fxml.FXML;
@@ -25,20 +26,20 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+/**
+ * Controller untuk halaman Produksi.
+ * Menampilkan daftar pesanan yang perlu diproduksi dan menangani aksi produksi.
+ */
 public class ProduksiController implements Initializable {
 
-    // --- FXML ELEMENTS ---
     @FXML private Label waitingLabel;
     @FXML private Label inProgressLabel;
     @FXML private Label completedLabel;
     @FXML private VBox orderListContainer;
-
-    // ✅ CHANGED: Dari VBox kendalaFormContainer ke StackPane kendalaPopupContainer
     @FXML private StackPane kendalaPopupContainer;
     @FXML private Label lblKendalaTitle;
     @FXML private TextArea txtKendala;
 
-    // --- DATA ---
     private List<ProductionOrder> orderList = new ArrayList<>();
     private ProductionOrder selectedOrderForIssue;
     private PesananDAO pesananDAO;
@@ -47,8 +48,7 @@ public class ProduksiController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         pesananDAO = new PesananDAO();
 
-        // ✅ CHANGED: Sembunyikan popup saat awal
-        if(kendalaPopupContainer != null) {
+        if (kendalaPopupContainer != null) {
             kendalaPopupContainer.setVisible(false);
             kendalaPopupContainer.setManaged(false);
         }
@@ -70,22 +70,22 @@ public class ProduksiController implements Initializable {
             orderList.add(new ProductionOrder(
                     String.valueOf(p.getIdPesanan()), namaPelanggan, tgl,
                     p.getJenisLayanan(), p.getJumlah(), p.getSpesifikasi(),
-                    fileDesain, p.getStatus(), catatan
-            ));
+                    fileDesain, p.getStatus(), catatan));
         }
     }
 
     private void refreshDashboard() {
         long waiting = orderList.stream().filter(o -> o.getStatus().equalsIgnoreCase("Antrian Produksi")).count();
         long inProgress = orderList.stream().filter(o -> o.getStatus().equalsIgnoreCase("Sedang Diproduksi")).count();
-        long completed = orderList.stream().filter(o ->
-                o.getStatus().equalsIgnoreCase("Siap Dikirim") ||
-                        o.getStatus().equalsIgnoreCase("Selesai")
-        ).count();
+        long completed = orderList.stream().filter(o -> o.getStatus().equalsIgnoreCase("Siap Dikirim") ||
+                o.getStatus().equalsIgnoreCase("Selesai")).count();
 
-        if (waitingLabel != null) waitingLabel.setText(String.valueOf(waiting));
-        if (inProgressLabel != null) inProgressLabel.setText(String.valueOf(inProgress));
-        if (completedLabel != null) completedLabel.setText(String.valueOf(completed));
+        if (waitingLabel != null)
+            waitingLabel.setText(String.valueOf(waiting));
+        if (inProgressLabel != null)
+            inProgressLabel.setText(String.valueOf(inProgress));
+        if (completedLabel != null)
+            completedLabel.setText(String.valueOf(completed));
 
         renderOrderList();
     }
@@ -113,12 +113,10 @@ public class ProduksiController implements Initializable {
         }
     }
 
-    // --- UI CARD ---
     private VBox createOrderCard(ProductionOrder order) {
         VBox card = new VBox(15);
         card.getStyleClass().add("order-detail-card");
 
-        // Header
         HBox header = new HBox();
         header.setAlignment(Pos.CENTER_LEFT);
 
@@ -132,7 +130,6 @@ public class ProduksiController implements Initializable {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        // Status Pill
         Label lblStatus = new Label(order.getStatus());
         lblStatus.getStyleClass().add("status-badge");
         if (order.getStatus().equalsIgnoreCase("Antrian Produksi")) {
@@ -144,7 +141,6 @@ public class ProduksiController implements Initializable {
         }
         header.getChildren().addAll(titleBox, spacer, lblStatus);
 
-        // Details
         GridPane grid = new GridPane();
         grid.setHgap(20);
         grid.setVgap(8);
@@ -162,14 +158,15 @@ public class ProduksiController implements Initializable {
             v.getStyleClass().add("field-value");
             v.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
             v.setWrapText(true);
-            grid.add(l, 0, 3); grid.add(v, 1, 3);
+            grid.add(l, 0, 3);
+            grid.add(v, 1, 3);
         }
 
-        // File Link
         HBox fileBox = new HBox(5);
         if (!order.getFileDesainPath().isEmpty()) {
             Label lblFile = new Label("📂 File Desain: " + new File(order.getFileDesainPath()).getName());
-            lblFile.setStyle("-fx-text-fill: #27ae60; -fx-font-style: italic; -fx-font-size: 12px; -fx-cursor: hand; -fx-underline: true;");
+            lblFile.setStyle(
+                    "-fx-text-fill: #27ae60; -fx-font-style: italic; -fx-font-size: 12px; -fx-cursor: hand; -fx-underline: true;");
             lblFile.setOnMouseClicked(e -> openFile(order.getFileDesainPath()));
             fileBox.getChildren().add(lblFile);
         } else {
@@ -179,7 +176,6 @@ public class ProduksiController implements Initializable {
             fileBox.getChildren().add(lblFile);
         }
 
-        // Action Buttons
         HBox actions = new HBox(10);
         actions.setPadding(new Insets(10, 0, 0, 0));
 
@@ -197,7 +193,7 @@ public class ProduksiController implements Initializable {
         Button btnIssue = new Button("Laporkan Kendala");
         btnIssue.getStyleClass().add("button-secondary");
         btnIssue.setStyle("-fx-border-color: #e74c3c; -fx-text-fill: #e74c3c;");
-        btnIssue.setOnAction(e -> showKendalaPopup(order));  // ✅ CHANGED: method name
+        btnIssue.setOnAction(e -> showKendalaPopup(order));
 
         actions.getChildren().addAll(btnMain, btnIssue);
         card.getChildren().addAll(header, grid, fileBox, actions);
@@ -215,17 +211,16 @@ public class ProduksiController implements Initializable {
         grid.add(v, 1, row);
     }
 
-    // --- UTILS ---
     private void openFile(String path) {
         try {
             File file = new File(path);
-            if (file.exists()) Desktop.getDesktop().open(file);
-        } catch (IOException e) { e.printStackTrace(); }
+            if (file.exists())
+                Desktop.getDesktop().open(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    // =======================================================
-    // PRODUCTION HANDLERS
-    // =======================================================
 
     private void handleStartProduction(ProductionOrder order) {
         int pesananId = Integer.parseInt(order.getId());
@@ -235,7 +230,6 @@ public class ProduksiController implements Initializable {
             conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
 
-            // 1. Cek apakah sudah ada di tabel produksi
             int idProduksi = 0;
             String sqlCek = "SELECT id_produksi FROM produksi WHERE id_pesanan = ?";
             try (PreparedStatement psCek = conn.prepareStatement(sqlCek)) {
@@ -247,12 +241,11 @@ public class ProduksiController implements Initializable {
                 }
             }
 
-            // 2. Jika belum ada, INSERT ke tabel produksi
             if (idProduksi == 0) {
                 String sqlInsert = """
-                    INSERT INTO produksi (id_pesanan, id_operator, tanggal_mulai, status_produksi, progres_persen) 
-                    VALUES (?, ?, NOW(), 'proses', 0)
-                """;
+                            INSERT INTO produksi (id_pesanan, id_operator, tanggal_mulai, status_produksi, progres_persen)
+                            VALUES (?, ?, NOW(), 'proses', 0)
+                        """;
                 try (PreparedStatement psInsert = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS)) {
                     psInsert.setInt(1, pesananId);
                     int currentUserId = SessionManager.getInstance().getCurrentUserId();
@@ -275,13 +268,12 @@ public class ProduksiController implements Initializable {
                 }
             }
 
-            // 3. Update status pesanan ke "Sedang Diproduksi"
             String sqlUpdatePesanan = """
-                UPDATE pesanan 
-                SET id_status = (SELECT id_status FROM status_pesanan WHERE nama_status = 'Sedang Diproduksi'),
-                    updated_at = NOW()
-                WHERE id_pesanan = ?
-            """;
+                        UPDATE pesanan
+                        SET id_status = (SELECT id_status FROM status_pesanan WHERE nama_status = 'Sedang Diproduksi'),
+                            updated_at = NOW()
+                        WHERE id_pesanan = ?
+                    """;
             try (PreparedStatement psUpdatePesanan = conn.prepareStatement(sqlUpdatePesanan)) {
                 psUpdatePesanan.setInt(1, pesananId);
                 psUpdatePesanan.executeUpdate();
@@ -292,12 +284,20 @@ public class ProduksiController implements Initializable {
             AlertUtil.showInfo("Berhasil", "Produksi dimulai!");
 
         } catch (Exception e) {
-            if (conn != null) try { conn.rollback(); } catch (Exception ex) {}
+            if (conn != null)
+                try {
+                    conn.rollback();
+                } catch (Exception ex) {
+                }
             e.printStackTrace();
             AlertUtil.showError("Error", "Gagal memulai produksi: " + e.getMessage());
             return;
         } finally {
-            if (conn != null) try { conn.close(); } catch (Exception ex) {}
+            if (conn != null)
+                try {
+                    conn.close();
+                } catch (Exception ex) {
+                }
         }
 
         loadDataFromDatabase();
@@ -323,12 +323,8 @@ public class ProduksiController implements Initializable {
         });
     }
 
-    // =======================================================
-    // ✅ POPUP KENDALA (FIXED)
-    // =======================================================
-
     /**
-     * Menampilkan popup kendala (overlay di tengah layar)
+     * Menampilkan popup kendala untuk melaporkan masalah produksi.
      */
     private void showKendalaPopup(ProductionOrder order) {
         this.selectedOrderForIssue = order;
@@ -340,7 +336,6 @@ public class ProduksiController implements Initializable {
             txtKendala.clear();
         }
 
-        // ✅ Tampilkan popup
         if (kendalaPopupContainer != null) {
             kendalaPopupContainer.setVisible(true);
             kendalaPopupContainer.setManaged(true);
@@ -349,7 +344,8 @@ public class ProduksiController implements Initializable {
 
     @FXML
     private void submitKendala() {
-        if (selectedOrderForIssue == null || txtKendala == null) return;
+        if (selectedOrderForIssue == null || txtKendala == null)
+            return;
 
         String deskripsi = txtKendala.getText();
         if (deskripsi == null || deskripsi.trim().isEmpty()) {
@@ -359,7 +355,8 @@ public class ProduksiController implements Initializable {
 
         int idPesanan = Integer.parseInt(selectedOrderForIssue.getId());
         int idUser = SessionManager.getInstance().getCurrentUserId();
-        if (idUser == -1) idUser = 1;
+        if (idUser == -1)
+            idUser = 1;
 
         boolean success = pesananDAO.simpanKendalaProduksi(idPesanan, deskripsi, idUser);
 
@@ -375,7 +372,6 @@ public class ProduksiController implements Initializable {
 
     @FXML
     private void cancelKendala() {
-        // ✅ Sembunyikan popup
         if (kendalaPopupContainer != null) {
             kendalaPopupContainer.setVisible(false);
             kendalaPopupContainer.setManaged(false);
@@ -384,38 +380,5 @@ public class ProduksiController implements Initializable {
         if (txtKendala != null) {
             txtKendala.clear();
         }
-    }
-
-    // =======================================================
-    // INNER CLASS
-    // =======================================================
-
-    public static class ProductionOrder {
-        private String id, customerName, date, service;
-        private int quantity;
-        private String specs, fileDesainPath, status, catatan;
-
-        public ProductionOrder(String id, String customerName, String date, String service,
-                               int quantity, String specs, String fileDesainPath, String status, String catatan) {
-            this.id = id;
-            this.customerName = customerName;
-            this.date = date;
-            this.service = service;
-            this.quantity = quantity;
-            this.specs = specs;
-            this.fileDesainPath = fileDesainPath;
-            this.status = status;
-            this.catatan = catatan;
-        }
-
-        public String getId() { return id; }
-        public String getCustomerName() { return customerName; }
-        public String getDate() { return date; }
-        public String getService() { return service; }
-        public int getQuantity() { return quantity; }
-        public String getSpecs() { return specs; }
-        public String getFileDesainPath() { return fileDesainPath; }
-        public String getStatus() { return status; }
-        public String getCatatan() { return catatan; }
     }
 }

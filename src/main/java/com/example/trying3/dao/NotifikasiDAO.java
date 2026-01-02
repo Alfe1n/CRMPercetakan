@@ -7,41 +7,37 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Data Access Object untuk Notifikasi.
+ * Mengelola notifikasi dari berbagai sumber: revisi desain, kendala produksi, dan siap dikirim.
+ */
 public class NotifikasiDAO {
 
     public List<Notifikasi> getAllNotifikasi() {
-        List<Notifikasi> notifikasiList = new ArrayList<>();
 
         List<Notifikasi> revisi = getRevisiDesainNotifikasi();
-        notifikasiList.addAll(revisi);
+        List<Notifikasi> notifikasiList = new ArrayList<>(revisi);
 
         List<Notifikasi> kendala = getKendalaProduksiNotifikasi();
         notifikasiList.addAll(kendala);
 
         List<Notifikasi> siap = getSiapDikirimNotifikasi();
-        System.out.println("🔍 DAO: Siap dikirim count: " + siap.size());
         notifikasiList.addAll(siap);
 
-        // Sort berdasarkan tanggal terbaru
         notifikasiList.sort((n1, n2) -> {
             if (n1.getTanggalDibuat() == null) return 1;
             if (n2.getTanggalDibuat() == null) return -1;
             return n2.getTanggalDibuat().compareTo(n1.getTanggalDibuat());
         });
 
-        System.out.println("🔍 DAO: Total notifikasi: " + notifikasiList.size());
         return notifikasiList;
     }
 
-    /**
-     * Notifikasi Revisi Desain
-     */
     public List<Notifikasi> getRevisiDesainNotifikasi() {
         List<Notifikasi> list = new ArrayList<>();
 
-        // Query dari tabel PESANAN, bukan dari tabel desain!
         String query = """
-            SELECT 
+            SELECT
                 p.id_pesanan,
                 p.nomor_pesanan,
                 p.catatan,
@@ -60,8 +56,6 @@ public class NotifikasiDAO {
             WHERE p.id_status = 5
             ORDER BY p.updated_at DESC
             """;
-
-        System.out.println("🔍 DAO: Executing revisi desain query...");
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query);
@@ -99,7 +93,6 @@ public class NotifikasiDAO {
                 }
 
                 list.add(notif);
-                System.out.println("🔍 DAO: Found revisi - " + notif.getNomorPesanan());
             }
 
         } catch (SQLException e) {
@@ -110,15 +103,11 @@ public class NotifikasiDAO {
         return list;
     }
 
-    /**
-     * B. Notifikasi Kendala Produksi dari Tim Produksi
-     * Status kendala = 'open' atau 'in_progress'
-     */
     public List<Notifikasi> getKendalaProduksiNotifikasi() {
         List<Notifikasi> list = new ArrayList<>();
 
         String query = """
-            SELECT 
+            SELECT
                 kp.id_kendala,
                 kp.id_produksi,
                 kp.deskripsi,
@@ -194,14 +183,11 @@ public class NotifikasiDAO {
         return list;
     }
 
-    /**
-     * Notifikasi Pesanan Siap Dikirim dari Tim Produksi
-     */
     public List<Notifikasi> getSiapDikirimNotifikasi() {
         List<Notifikasi> list = new ArrayList<>();
 
         String query = """
-            SELECT 
+            SELECT
                 p.id_pesanan,
                 p.nomor_pesanan,
                 p.updated_at,
@@ -270,7 +256,6 @@ public class NotifikasiDAO {
         return list;
     }
 
-    // COUNT METHODS
     public int getCountByTipe(String tipe) {
         return switch (tipe) {
             case Notifikasi.TIPE_REVISI_DESAIN -> getRevisiDesainCount();

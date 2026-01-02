@@ -16,22 +16,22 @@ import java.time.format.DateTimeFormatter;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+/**
+ * Custom ListCell untuk menampilkan pesanan dalam bentuk kartu
+ * Mendukung edit, delete, konfirmasi, dan ubah status pesanan
+ */
 public class PesananCardCell extends ListCell<Pesanan> {
 
-    // Interface untuk mengirim aksi (klik tombol) kembali ke Controller utama
     private final Consumer<Pesanan> onEdit;
     private final Consumer<Pesanan> onDelete;
     private final Consumer<Pesanan> onConfirm;
     private final BiConsumer<Pesanan, String> onStatusChange;
 
-    // Komponen UI untuk tampilan kartu
     private final VBox cardContainer = new VBox();
     private final Label orderIdLabel = new Label();
     private final Label orderDateLabel = new Label();
     private final Label statusBadge = new Label();
-    private final HBox headerBox = new HBox();
 
-    private final GridPane infoGrid = new GridPane();
     private final Label pelangganValue = new Label();
     private final Label phoneValue = new Label();
     private final Label layananValue = new Label();
@@ -41,13 +41,11 @@ public class PesananCardCell extends ListCell<Pesanan> {
     private final VBox specBox = new VBox(5);
     private final Label specText = new Label();
 
-    // Komponen interaktif
     private final ComboBox<String> ubahStatusComboBox = new ComboBox<>();
     private final Button editButton = new Button("✎ Edit");
     private final Button deleteButton = new Button("🗑 Hapus");
     private final Button konfirmasiButton = new Button("✅ Konfirmasi");
 
-    // Constructor: Menerima fungsi aksi dari Controller
     public PesananCardCell(Consumer<Pesanan> onEdit,
                            Consumer<Pesanan> onDelete,
                            Consumer<Pesanan> onConfirm,
@@ -57,15 +55,16 @@ public class PesananCardCell extends ListCell<Pesanan> {
         this.onConfirm = onConfirm;
         this.onStatusChange = onStatusChange;
 
-        setupCard(); // Panggil fungsi untuk menyusun layout visual
+        setupCard();
     }
 
-    // Mengatur CSS, posisi, dan susunan elemen dalam kartu
+    /**
+     * Konfigurasi layout dan styling card
+     */
     private void setupCard() {
         cardContainer.getStyleClass().add("pesanan-card");
         cardContainer.setSpacing(12);
 
-        // Styling header (ID Pesanan, Tanggal, Status)
         orderIdLabel.getStyleClass().add("pesanan-order-id");
         orderDateLabel.getStyleClass().add("pesanan-order-date");
         statusBadge.getStyleClass().add("status-badge");
@@ -78,7 +77,6 @@ public class PesananCardCell extends ListCell<Pesanan> {
         HBox.setHgrow(leftHeader, Priority.ALWAYS);
         headerBox.getChildren().addAll(leftHeader, statusBadge);
 
-        // Styling isi informasi (Pelanggan, Layanan, Total)
         pelangganValue.getStyleClass().add("pesanan-value");
         layananValue.getStyleClass().add("pesanan-value");
         jumlahValue.getStyleClass().add("pesanan-value");
@@ -86,7 +84,6 @@ public class PesananCardCell extends ListCell<Pesanan> {
         phoneValue.getStyleClass().add("pesanan-phone");
         totalValue.getStyleClass().add("pesanan-total");
 
-        // Menyusun grid informasi
         GridPane infoGrid = new GridPane();
         infoGrid.getStyleClass().add("pesanan-info-grid");
         infoGrid.setHgap(30);
@@ -96,7 +93,6 @@ public class PesananCardCell extends ListCell<Pesanan> {
         infoGrid.add(createInfoBox("Layanan:", layananValue, jumlahValue), 1, 0);
         infoGrid.add(createInfoBox("Total:", totalValue), 2, 0);
 
-        // Area spesifikasi (catatan pesanan)
         Label specLabel = new Label("Spesifikasi:");
         specLabel.getStyleClass().add("pesanan-spec-label");
         specText.getStyleClass().add("pesanan-spec-text");
@@ -105,16 +101,17 @@ public class PesananCardCell extends ListCell<Pesanan> {
         VBox specBox = new VBox(5);
         specBox.getChildren().addAll(specLabel, specText);
 
-        // Mengatur tampilan teks pada ComboBox status
         ubahStatusComboBox.setButtonCell(new ListCell<>() {
-            @Override protected void updateItem(String item, boolean empty) {
+            @Override
+            protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) setText(ubahStatusComboBox.getPromptText());
-                else setText(item);
+                if (empty || item == null)
+                    setText(ubahStatusComboBox.getPromptText());
+                else
+                    setText(item);
             }
         });
 
-        // Styling tombol aksi
         konfirmasiButton.getStyleClass().addAll("button-success", "pesanan-action-button");
         editButton.getStyleClass().addAll("button-secondary", "pesanan-action-button");
         deleteButton.getStyleClass().addAll("button-danger", "pesanan-action-button");
@@ -128,7 +125,6 @@ public class PesananCardCell extends ListCell<Pesanan> {
         HBox.setHgrow(actionBox, Priority.ALWAYS);
         bottomBox.getChildren().addAll(ubahStatusComboBox, actionBox);
 
-        // Garis pemisah
         Region separator = new Region();
         separator.getStyleClass().add("pesanan-separator");
         separator.setPrefHeight(1);
@@ -136,19 +132,20 @@ public class PesananCardCell extends ListCell<Pesanan> {
         cardContainer.getChildren().addAll(headerBox, infoGrid, specBox, separator, bottomBox);
     }
 
-    // Helper untuk membuat kotak info label-value
+    /**
+     * Helper untuk membuat kotak info dengan label dan value
+     */
     private VBox createInfoBox(String label, Label... values) {
         VBox box = new VBox(3);
         Label lbl = new Label(label);
         lbl.getStyleClass().add("pesanan-label");
         box.getChildren().add(lbl);
-        for(Label v : values) {
+        for (Label v : values) {
             box.getChildren().add(v);
         }
         return box;
     }
 
-    // Dipanggil otomatis setiap kali data pesanan perlu ditampilkan
     @Override
     protected void updateItem(Pesanan pesanan, boolean empty) {
         super.updateItem(pesanan, empty);
@@ -158,7 +155,6 @@ public class PesananCardCell extends ListCell<Pesanan> {
             return;
         }
 
-        // Mengisi data ke label UI
         orderIdLabel.setText("ORD-" + String.format("%03d", pesanan.getIdPesanan()));
         orderDateLabel.setText(pesanan.getTanggalPesanan().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         pelangganValue.setText(pesanan.getNamaPelanggan());
@@ -173,7 +169,6 @@ public class PesananCardCell extends ListCell<Pesanan> {
         String statusStyleClass = getStatusStyleClass(pesanan.getStatus());
         statusBadge.getStyleClass().add(statusStyleClass);
 
-        // Hanya tampilkan box spesifikasi jika ada isinya
         if (pesanan.getSpesifikasi() != null && !pesanan.getSpesifikasi().isEmpty()) {
             specText.setText(pesanan.getSpesifikasi());
             specBox.setVisible(true);
@@ -183,7 +178,6 @@ public class PesananCardCell extends ListCell<Pesanan> {
             specBox.setManaged(false);
         }
 
-        // Hanya muncul jika status masih "Baru Dibuat"
         String status = pesanan.getStatus();
         boolean isBaru = status.equalsIgnoreCase("Baru Dibuat");
         konfirmasiButton.setVisible(isBaru);
@@ -193,21 +187,20 @@ public class PesananCardCell extends ListCell<Pesanan> {
         deleteButton.setVisible(isBaru);
         deleteButton.setManaged(isBaru);
 
-        // Menghubungkan tombol dengan fungsi di Controller
         editButton.setOnAction(e -> onEdit.accept(pesanan));
         deleteButton.setOnAction(e -> onDelete.accept(pesanan));
         konfirmasiButton.setOnAction(e -> onConfirm.accept(pesanan));
 
         setupComboBox(pesanan);
-        setGraphic(cardContainer); // Tampilkan kartu
+        setGraphic(cardContainer);
     }
 
     /**
-     * Menentukan style class berdasarkan status pesanan
-     * Mapping status dari database ke CSS class
+     * Mapping status pesanan ke CSS class
      */
     private String getStatusStyleClass(String status) {
-        if (status == null) return "status-default";
+        if (status == null)
+            return "status-default";
 
         return switch (status) {
             case "Baru Dibuat" -> "status-baru-dibuat";
@@ -226,36 +219,35 @@ public class PesananCardCell extends ListCell<Pesanan> {
         };
     }
 
-    // Mengatur isi dropdown "Ubah Status"
+    /**
+     * Konfigurasi dropdown status pesanan
+     */
     private void setupComboBox(Pesanan pesanan) {
         ubahStatusComboBox.setOnAction(null);
         ubahStatusComboBox.setValue(null);
         ubahStatusComboBox.setPromptText("Ubah Status");
 
         ObservableList<String> statusOptions = FXCollections.observableArrayList();
-        // Ambil daftar status dari database agar dinamis
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(
                      "SELECT nama_status FROM status_pesanan " +
                              "WHERE nama_status IN ('Baru Dibuat', 'Menunggu Pembayaran', 'Pembayaran Verified', 'Dibatalkan') " +
-                             "ORDER BY urutan ASC"
-             ))  {
-            while (rs.next()) statusOptions.add(rs.getString("nama_status"));
+                             "ORDER BY urutan ASC")) {
+            while (rs.next())
+                statusOptions.add(rs.getString("nama_status"));
         } catch (Exception e) {
-            // Fallback jika database error
             statusOptions.addAll("Baru Dibuat", "Menunggu Pembayaran", "Pembayaran Verified", "Dibatalkan");
         }
         ubahStatusComboBox.setItems(statusOptions);
 
-        // Aksi saat status dipilih di dropdown
         ubahStatusComboBox.setOnAction(e -> {
             String statusBaru = ubahStatusComboBox.getValue();
-            if (statusBaru == null) return;
+            if (statusBaru == null)
+                return;
 
-            onStatusChange.accept(pesanan, statusBaru); // Kirim ke Controller
+            onStatusChange.accept(pesanan, statusBaru);
 
-            // Reset dropdown setelah dipilih
             Platform.runLater(() -> {
                 ubahStatusComboBox.getSelectionModel().clearSelection();
                 ubahStatusComboBox.setValue(null);

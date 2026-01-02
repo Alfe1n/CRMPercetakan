@@ -9,7 +9,6 @@
            fx:controller="com.example.trying3.controller.admin.ManajemenUserController"
            styleClass="content-pane">
 
-    <!-- ==================== PANE 1: DAFTAR USER ==================== -->
     <VBox fx:id="listUserPane" spacing="20" styleClass="content-pane">
         <padding>
             <Insets bottom="40.0" left="40.0" right="40.0" top="40.0"/>
@@ -136,7 +135,6 @@
         </ScrollPane>
     </VBox>
 
-    <!-- ==================== PANE 2: FORM TAMBAH USER ==================== -->
     <VBox fx:id="formTambahUserPane" spacing="20" styleClass="content-pane" visible="false">
         <padding>
             <Insets bottom="30" left="30" right="30" top="30"/>
@@ -217,7 +215,6 @@
         </VBox>
     </VBox>
 
-    <!-- ==================== PANE 3: FORM RESET PASSWORD ==================== -->
     <VBox fx:id="formResetPasswordPane" spacing="20" styleClass="content-pane" visible="false">
         <padding>
             <Insets bottom="30" left="30" right="30" top="30"/>

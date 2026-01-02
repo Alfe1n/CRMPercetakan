@@ -14,15 +14,11 @@
       fx:controller="com.example.trying3.controller.design.DashboardDesignController">
 
     <children>
-        <VBox alignment="TOP_CENTER" prefWidth="280.0" styleClass="sidebar">
+        <VBox alignment="TOP_CENTER" prefWidth="280.0" minWidth="280.0" maxWidth="280.0" styleClass="sidebar">
             <children>
 
-                <HBox alignment="CENTER_LEFT" prefHeight="112.0" spacing="10.0">
+                <HBox alignment="CENTER" prefHeight="112.0" spacing="10.0">
                     <children>
-                        <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
-                            <image>
-                            </image>
-                        </ImageView>
                         <Label styleClass="sidebar-title" text="CRM Percetakan" />
                     </children>
                     <VBox.margin>

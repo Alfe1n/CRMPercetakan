@@ -9,6 +9,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
+/**
+ * Custom ListCell untuk menampilkan aktivitas user di dashboard
+ */
 public class UserAktivitasCell extends ListCell<User> {
 
     private final HBox container;
@@ -18,14 +21,12 @@ public class UserAktivitasCell extends ListCell<User> {
     private final Label roleBadgeLabel;
 
     public UserAktivitasCell() {
-        // Container utama
         container = new HBox();
         container.setAlignment(Pos.CENTER_LEFT);
         container.setSpacing(15);
         container.setPadding(new Insets(15, 20, 15, 20));
         container.getStyleClass().add("dashboard-user-item");
 
-        // Info box (role name + email)
         infoBox = new VBox(4);
         infoBox.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(infoBox, Priority.ALWAYS);
@@ -38,7 +39,6 @@ public class UserAktivitasCell extends ListCell<User> {
 
         infoBox.getChildren().addAll(roleNameLabel, emailLabel);
 
-        // Role badge
         roleBadgeLabel = new Label();
         roleBadgeLabel.getStyleClass().add("dashboard-role-badge");
 
@@ -53,22 +53,17 @@ public class UserAktivitasCell extends ListCell<User> {
             setGraphic(null);
             setText(null);
         } else {
-            // Set role display name berdasarkan id_role
             String roleDisplayName = getRoleDisplayName(user.getIdRole());
             roleNameLabel.setText(roleDisplayName);
 
-            // Set email
             emailLabel.setText(user.getEmail());
 
-            // Set role badge
             String roleBadgeText = getRoleBadgeText(user.getIdRole());
             roleBadgeLabel.setText(roleBadgeText);
 
-            // Reset style classes
             roleBadgeLabel.getStyleClass().removeIf(style -> style.startsWith("role-badge-"));
             roleBadgeLabel.getStyleClass().add("dashboard-role-badge");
 
-            // Apply role-specific style
             String roleStyleClass = getRoleStyleClass(user.getIdRole());
             roleBadgeLabel.getStyleClass().add(roleStyleClass);
 
@@ -77,7 +72,7 @@ public class UserAktivitasCell extends ListCell<User> {
     }
 
     /**
-     * Mendapatkan nama tampilan role berdasarkan id_role
+     * Konversi ID role ke nama lengkap
      */
     private String getRoleDisplayName(int idRole) {
         return switch (idRole) {
@@ -90,7 +85,7 @@ public class UserAktivitasCell extends ListCell<User> {
     }
 
     /**
-     * Mendapatkan teks badge role
+     * Konversi ID role ke teks badge singkat
      */
     private String getRoleBadgeText(int idRole) {
         return switch (idRole) {
@@ -103,7 +98,7 @@ public class UserAktivitasCell extends ListCell<User> {
     }
 
     /**
-     * Menentukan style class berdasarkan role
+     * Mapping ID role ke CSS class
      */
     private String getRoleStyleClass(int idRole) {
         return switch (idRole) {

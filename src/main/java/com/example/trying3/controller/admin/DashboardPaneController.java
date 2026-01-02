@@ -18,54 +18,46 @@ import java.util.ResourceBundle;
 
 public class DashboardPaneController implements Initializable {
 
-    // FXML BINDINGS - STATISTIK
+    // FXML Components - Statistics Labels
     @FXML private Label totalPesananLabel;
     @FXML private Label totalPesananSubtitle;
-
     @FXML private Label pesananSelesaiLabel;
     @FXML private Label pesananSelesaiSubtitle;
-
     @FXML private Label pembayaranPendingLabel;
     @FXML private Label pembayaranPendingSubtitle;
-
     @FXML private Label totalPendapatanLabel;
     @FXML private Label totalPendapatanSubtitle;
 
-    // FXML BINDINGS - LIST VIEWS
+    // FXML Components - List Views
     @FXML private ListView<Pesanan> pesananTerbaruListView;
     @FXML private ListView<User> aktivitasUserListView;
 
-    // DATA
+    // Data sources
     private DashboardStatsDAO dashboardDAO;
     private final ObservableList<Pesanan> pesananList = FXCollections.observableArrayList();
     private final ObservableList<User> userList = FXCollections.observableArrayList();
 
-    // INITIALIZATION
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         dashboardDAO = new DashboardStatsDAO();
-
-        // Setup ListViews
         setupPesananListView();
         setupUserListView();
-
-        // Load semua data
         loadAllData();
     }
 
     /**
-     * Setup ListView untuk pesanan terbaru dengan custom cell
+     * Konfigurasi ListView untuk pesanan terbaru dengan custom cell
      */
     private void setupPesananListView() {
         if (pesananTerbaruListView != null) {
             pesananTerbaruListView.setItems(pesananList);
             pesananTerbaruListView.setCellFactory(lv -> new PesananTerbaruCell());
-            pesananTerbaruListView.setFixedCellSize(70); // Fixed height untuk konsistensi
+            pesananTerbaruListView.setFixedCellSize(70);
         }
     }
 
     /**
-     * Setup ListView untuk aktivitas user dengan custom cell
+     * Konfigurasi ListView untuk aktivitas user dengan custom cell
      */
     private void setupUserListView() {
         if (aktivitasUserListView != null) {
@@ -75,7 +67,6 @@ public class DashboardPaneController implements Initializable {
         }
     }
 
-    // DATA LOADING
     /**
      * Load semua data dashboard secara asynchronous
      */
@@ -86,7 +77,8 @@ public class DashboardPaneController implements Initializable {
     }
 
     /**
-     * Load statistik dashboard (Total Pesanan, Selesai, Pending, Pendapatan)
+     * Memuat statistik dashboard dari database
+     * Data: Total Pesanan, Pesanan Selesai, Pembayaran Pending, Total Pendapatan
      */
     private void loadStatistics() {
         Task<Void> statsTask = new Task<>() {
@@ -97,8 +89,7 @@ public class DashboardPaneController implements Initializable {
             private String totalPendapatan;
 
             @Override
-            protected Void call() throws Exception {
-                // Ambil semua statistik dari database
+            protected Void call() {
                 totalPesanan = dashboardDAO.getTotalPesanan();
                 pesananSelesai = dashboardDAO.getPesananSelesai();
                 persenSelesai = dashboardDAO.getPersentasePesananSelesai();
@@ -110,7 +101,6 @@ public class DashboardPaneController implements Initializable {
             @Override
             protected void succeeded() {
                 Platform.runLater(() -> {
-                    // Update Total Pesanan
                     if (totalPesananLabel != null) {
                         totalPesananLabel.setText(String.valueOf(totalPesanan));
                     }
@@ -118,7 +108,6 @@ public class DashboardPaneController implements Initializable {
                         totalPesananSubtitle.setText("Semua pesanan");
                     }
 
-                    // Update Pesanan Selesai
                     if (pesananSelesaiLabel != null) {
                         pesananSelesaiLabel.setText(String.valueOf(pesananSelesai));
                     }
@@ -126,7 +115,6 @@ public class DashboardPaneController implements Initializable {
                         pesananSelesaiSubtitle.setText(persenSelesai);
                     }
 
-                    // Update Pembayaran Pending
                     if (pembayaranPendingLabel != null) {
                         pembayaranPendingLabel.setText(String.valueOf(pembayaranPending));
                     }
@@ -134,7 +122,6 @@ public class DashboardPaneController implements Initializable {
                         pembayaranPendingSubtitle.setText("Perlu verifikasi");
                     }
 
-                    // Update Total Pendapatan
                     if (totalPendapatanLabel != null) {
                         totalPendapatanLabel.setText(totalPendapatan);
                     }
@@ -148,7 +135,6 @@ public class DashboardPaneController implements Initializable {
             protected void failed() {
                 getException().printStackTrace();
                 Platform.runLater(() -> {
-                    // Set default values jika gagal
                     if (totalPesananLabel != null) totalPesananLabel.setText("0");
                     if (pesananSelesaiLabel != null) pesananSelesaiLabel.setText("0");
                     if (pembayaranPendingLabel != null) pembayaranPendingLabel.setText("0");
@@ -161,59 +147,50 @@ public class DashboardPaneController implements Initializable {
     }
 
     /**
-     * Load pesanan terbaru (limit 5)
+     * Memuat 5 pesanan terbaru dari database
      */
     private void loadPesananTerbaru() {
         Task<List<Pesanan>> task = new Task<>() {
             @Override
-            protected List<Pesanan> call() throws Exception {
+            protected List<Pesanan> call() {
                 return dashboardDAO.getPesananTerbaru(5);
             }
         };
 
-        task.setOnSucceeded(e -> {
-            Platform.runLater(() -> {
-                pesananList.clear();
-                pesananList.addAll(task.getValue());
-            });
-        });
+        task.setOnSucceeded(e -> Platform.runLater(() -> {
+            pesananList.clear();
+            pesananList.addAll(task.getValue());
+        }));
 
-        task.setOnFailed(e -> {
-            task.getException().printStackTrace();
-        });
+        task.setOnFailed(e -> task.getException().printStackTrace());
 
         new Thread(task).start();
     }
 
     /**
-     * Load aktivitas user (semua user aktif)
+     * Memuat daftar user aktif dari database
      */
     private void loadAktivitasUser() {
         Task<List<User>> task = new Task<>() {
             @Override
-            protected List<User> call() throws Exception {
+            protected List<User> call() {
                 return dashboardDAO.getActiveUsers();
             }
         };
 
-        task.setOnSucceeded(e -> {
-            Platform.runLater(() -> {
-                userList.clear();
-                userList.addAll(task.getValue());
-            });
-        });
+        task.setOnSucceeded(e -> Platform.runLater(() -> {
+            userList.clear();
+            userList.addAll(task.getValue());
+        }));
 
-        task.setOnFailed(e -> {
-            task.getException().printStackTrace();
-        });
+        task.setOnFailed(e -> task.getException().printStackTrace());
 
         new Thread(task).start();
     }
 
-    // PUBLIC METHODS (untuk dipanggil dari DashboardAdminController)
     /**
      * Refresh semua data dashboard
-     * Bisa dipanggil ketika ada perubahan data
+     * Dipanggil dari DashboardAdminController saat navigasi ke halaman ini
      */
     public void refresh() {
         loadAllData();

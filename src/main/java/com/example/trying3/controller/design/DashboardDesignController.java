@@ -17,6 +17,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Controller utama untuk Dashboard Tim Design.
+ * Menangani navigasi antar pane dan sidebar menu.
+ */
 public class DashboardDesignController implements Initializable {
 
     @FXML private Label btnDashboard;
@@ -29,7 +33,6 @@ public class DashboardDesignController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Load default pane saat pertama kali buka
         loadPane("DashboardDesignPane.fxml");
         setActiveButton(btnDashboard);
 
@@ -60,16 +63,15 @@ public class DashboardDesignController implements Initializable {
     }
 
     /**
-     * DIPERBAIKI: Menghapus class "active" dari SEMUA button sidebar
+     * Set button sidebar yang aktif dengan menambah style class "active".
+     * Menghapus style "active" dari semua button lain.
      */
     private void setActiveButton(Label activeButton) {
-        // Hapus "active" dari SEMUA button
         if (btnDashboard != null) btnDashboard.getStyleClass().remove("active");
         if (btnAntrianDesign != null) btnAntrianDesign.getStyleClass().remove("active");
         if (btnTemplate != null) btnTemplate.getStyleClass().remove("active");
         if (btnRiwayat != null) btnRiwayat.getStyleClass().remove("active");
 
-        // Tambahkan "active" ke button yang dipilih
         if (activeButton != null && !activeButton.getStyleClass().contains("active")) {
             activeButton.getStyleClass().add("active");
         }

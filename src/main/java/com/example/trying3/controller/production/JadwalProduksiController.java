@@ -3,7 +3,6 @@ package com.example.trying3.controller.production;
 import com.example.trying3.config.DatabaseConnection;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -16,19 +15,18 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Controller untuk halaman Jadwal Produksi.
+ * Menampilkan daftar jadwal produksi yang sedang aktif.
+ */
 public class JadwalProduksiController implements Initializable {
 
-    @FXML
-    private VBox scheduleContainer;
-
-    @FXML
-    private Label lblDateRange; // Pastikan fx:id ini ada di FXML untuk range tanggal
+    @FXML private VBox scheduleContainer;
+    @FXML private Label lblDateRange;
 
     private List<ScheduleItem> scheduleList = new ArrayList<>();
 
@@ -41,29 +39,27 @@ public class JadwalProduksiController implements Initializable {
     private void loadDataFromDatabase() {
         scheduleList.clear();
 
-        // Query untuk mengambil data produksi aktif
         String query = """
-            SELECT 
-                p.nomor_pesanan, 
-                jl.nama_layanan, 
-                pl.nama AS nama_pelanggan, 
-                dp.jumlah, 
-                pr.status_produksi
-            FROM produksi pr
-            JOIN pesanan p ON pr.id_pesanan = p.id_pesanan
-            JOIN pelanggan pl ON p.id_pelanggan = pl.id_pelanggan
-            JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan
-            JOIN jenis_layanan jl ON dp.id_layanan = jl.id_layanan
-            WHERE pr.status_produksi IN ('antrian', 'proses', 'terkendala')
-            ORDER BY pr.tanggal_mulai ASC
-        """;
+                    SELECT
+                        p.nomor_pesanan,
+                        jl.nama_layanan,
+                        pl.nama AS nama_pelanggan,
+                        dp.jumlah,
+                        pr.status_produksi
+                    FROM produksi pr
+                    JOIN pesanan p ON pr.id_pesanan = p.id_pesanan
+                    JOIN pelanggan pl ON p.id_pelanggan = pl.id_pelanggan
+                    JOIN detail_pesanan dp ON p.id_pesanan = dp.id_pesanan
+                    JOIN jenis_layanan jl ON dp.id_layanan = jl.id_layanan
+                    WHERE pr.status_produksi IN ('antrian', 'proses', 'terkendala')
+                    ORDER BY pr.tanggal_mulai ASC
+                """;
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(query);
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                // Mapping hasil database ke Model ScheduleItem
                 String statusDisplay = formatStatus(rs.getString("status_produksi"));
 
                 scheduleList.add(new ScheduleItem(
@@ -71,8 +67,7 @@ public class JadwalProduksiController implements Initializable {
                         rs.getString("nama_layanan"),
                         rs.getString("nama_pelanggan"),
                         rs.getInt("jumlah"),
-                        statusDisplay
-                ));
+                        statusDisplay));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -80,7 +75,6 @@ public class JadwalProduksiController implements Initializable {
     }
 
     private String formatStatus(String statusDb) {
-        // Konversi enum database ke teks UI
         return switch (statusDb.toLowerCase()) {
             case "antrian" -> "Antrian Produksi";
             case "proses" -> "Sedang Diproduksi";
@@ -103,8 +97,6 @@ public class JadwalProduksiController implements Initializable {
         for (int i = 0; i < scheduleList.size(); i++) {
             ScheduleItem item = scheduleList.get(i);
             HBox row = createScheduleRow(item);
-
-            // Tambahkan border bawah untuk pemisah antar baris
             row.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0; -fx-padding: 15 0;");
             scheduleContainer.getChildren().add(row);
         }
@@ -114,7 +106,6 @@ public class JadwalProduksiController implements Initializable {
         HBox row = new HBox();
         row.setAlignment(Pos.CENTER_LEFT);
 
-        // Kiri: Info Utama
         VBox leftContent = new VBox(5);
         Label titleLabel = new Label(item.getOrderId() + " - " + item.getServiceType());
         titleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #222;");
@@ -127,7 +118,6 @@ public class JadwalProduksiController implements Initializable {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        // Kanan: Status Pill
         Label statusLabel = new Label(item.getStatus());
         String statusStyle = "-fx-padding: 5 15; -fx-background-radius: 20; -fx-font-weight: bold; -fx-font-size: 11px; ";
 
@@ -143,7 +133,9 @@ public class JadwalProduksiController implements Initializable {
         return row;
     }
 
-    // Model Inner Class
+    /**
+     * Model untuk item jadwal produksi.
+     */
     public static class ScheduleItem {
         private String orderId, serviceType, customerName, status;
         private int quantity;
@@ -156,10 +148,24 @@ public class JadwalProduksiController implements Initializable {
             this.status = status;
         }
 
-        public String getOrderId() { return orderId; }
-        public String getServiceType() { return serviceType; }
-        public String getCustomerName() { return customerName; }
-        public int getQuantity() { return quantity; }
-        public String getStatus() { return status; }
+        public String getOrderId() {
+            return orderId;
+        }
+
+        public String getServiceType() {
+            return serviceType;
+        }
+
+        public String getCustomerName() {
+            return customerName;
+        }
+
+        public int getQuantity() {
+            return quantity;
+        }
+
+        public String getStatus() {
+            return status;
+        }
     }
 }

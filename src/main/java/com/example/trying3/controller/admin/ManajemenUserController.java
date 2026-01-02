@@ -16,7 +16,7 @@ import java.util.ResourceBundle;
 
 public class ManajemenUserController implements Initializable {
 
-    // === Pane Navigation ===
+    // FXML Components - Panel Navigation
     @FXML private VBox listUserPane;
     @FXML private VBox formTambahUserPane;
     @FXML private VBox formResetPasswordPane;
@@ -27,11 +27,11 @@ public class ManajemenUserController implements Initializable {
     @FXML private Button btnBackFromReset;
     @FXML private Button btnResetPassword;
 
-    // === List User Components ===
+    // FXML Components - List User
     @FXML private ListView<User> userListView;
     @FXML private Button btnTambahUser;
 
-    // === Form Tambah User Components ===
+    // FXML Components - Form Tambah User
     @FXML private TextField txtNamaLengkap;
     @FXML private TextField txtUsername;
     @FXML private TextField txtEmail;
@@ -39,7 +39,7 @@ public class ManajemenUserController implements Initializable {
     @FXML private PasswordField txtKonfirmasiPassword;
     @FXML private ComboBox<String> cmbRole;
 
-    // === Error Labels Form Tambah ===
+    // FXML Components - Error Labels Form Tambah
     @FXML private Label lblNamaError;
     @FXML private Label lblUsernameError;
     @FXML private Label lblEmailError;
@@ -47,7 +47,7 @@ public class ManajemenUserController implements Initializable {
     @FXML private Label lblKonfirmasiPasswordError;
     @FXML private Label lblRoleError;
 
-    // === Form Reset Password Components ===
+    // FXML Components - Form Reset Password
     @FXML private Label lblResetNama;
     @FXML private Label lblResetUsername;
     @FXML private Label lblResetEmail;
@@ -57,12 +57,12 @@ public class ManajemenUserController implements Initializable {
     @FXML private Label lblNewPasswordError;
     @FXML private Label lblConfirmNewPasswordError;
 
-    // === Data ===
+    // Data sources
     private UserDAO userDAO;
     private final ObservableList<User> userList = FXCollections.observableArrayList();
     private User selectedUser;
 
-    // === Role Options ===
+    // Role options
     private final ObservableList<String> roleOptions = FXCollections.observableArrayList(
             "Administrator", "Tim Desain", "Tim Produksi", "Manajemen"
     );
@@ -70,17 +70,9 @@ public class ManajemenUserController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         userDAO = new UserDAO();
-
-        // Setup ComboBoxes
         setupComboBoxes();
-
-        // Setup ListView
         setupUserListView();
-
-        // Load initial data
         loadUserData();
-
-        // Show list pane by default
         showListPane();
     }
 
@@ -88,20 +80,24 @@ public class ManajemenUserController implements Initializable {
         if (cmbRole != null) cmbRole.setItems(roleOptions);
     }
 
+    /**
+     * Konfigurasi ListView dengan custom cell factory
+     */
     private void setupUserListView() {
         userListView.setItems(userList);
 
-        // Menggunakan UserListCell dengan 4 Consumer (tambah onEdit untuk reset password)
         userListView.setCellFactory(listView -> new UserListCell(
-                this::openResetPasswordForm,  // onEdit - untuk reset password
-                this::handleDeleteUser,       // onDelete
-                this::handleToggleStatus      // onToggleStatus
+                this::openResetPasswordForm,
+                this::handleDeleteUser,
+                this::handleToggleStatus
         ));
 
-        // Placeholder jika list kosong
         userListView.setPlaceholder(new Label("Belum ada data pengguna"));
     }
 
+    /**
+     * Memuat data user dari database
+     */
     private void loadUserData() {
         userList.clear();
 
@@ -114,14 +110,18 @@ public class ManajemenUserController implements Initializable {
         }
     }
 
-    // ==================== NAVIGATION METHODS ====================
-
+    /**
+     * Menampilkan panel list user
+     */
     private void showListPane() {
         listUserPane.setVisible(true);
         formTambahUserPane.setVisible(false);
         formResetPasswordPane.setVisible(false);
     }
 
+    /**
+     * Menampilkan panel form tambah user
+     */
     private void showTambahPane() {
         listUserPane.setVisible(false);
         formTambahUserPane.setVisible(true);
@@ -129,14 +129,15 @@ public class ManajemenUserController implements Initializable {
         clearTambahForm();
     }
 
+    /**
+     * Menampilkan panel form reset password
+     */
     private void showResetPasswordPane() {
         listUserPane.setVisible(false);
         formTambahUserPane.setVisible(false);
         formResetPasswordPane.setVisible(true);
         clearResetPasswordForm();
     }
-
-    // ==================== EVENT HANDLERS ====================
 
     @FXML
     private void handleTambahUserClick() {
@@ -149,6 +150,9 @@ public class ManajemenUserController implements Initializable {
         selectedUser = null;
     }
 
+    /**
+     * Handler untuk simpan user baru
+     */
     @FXML
     private void handleSimpanUserClick() {
         if (validateTambahForm()) {
@@ -158,14 +162,12 @@ public class ManajemenUserController implements Initializable {
                 newUser.setUsername(txtUsername.getText().trim());
                 newUser.setEmail(txtEmail.getText().trim());
 
-                // Hash password menggunakan PasswordUtil
                 String hashedPassword = PasswordUtil.hashPassword(txtPassword.getText());
                 newUser.setPasswordHash(hashedPassword);
 
                 newUser.setIdRole(getRoleIdFromName(cmbRole.getValue()));
-                newUser.setActive(true); // Default aktif
+                newUser.setActive(true);
 
-                // Save to database
                 boolean success = userDAO.insertUser(newUser);
 
                 if (success) {
@@ -187,14 +189,15 @@ public class ManajemenUserController implements Initializable {
         showListPane();
     }
 
+    /**
+     * Handler untuk reset password user
+     */
     @FXML
     private void handleResetPasswordClick() {
         if (validateResetPasswordForm() && selectedUser != null) {
             try {
-                // Hash password baru
                 String hashedPassword = PasswordUtil.hashPassword(txtNewPassword.getText());
 
-                // Update password di database
                 boolean success = userDAO.updatePassword(selectedUser.getIdUser(), hashedPassword);
 
                 if (success) {
@@ -211,10 +214,8 @@ public class ManajemenUserController implements Initializable {
         }
     }
 
-    // ==================== HELPER METHODS ====================
-
     /**
-     * Membuka form reset password untuk user yang dipilih (dipanggil dari UserListCell)
+     * Membuka form reset password untuk user yang dipilih
      */
     private void openResetPasswordForm(User user) {
         selectedUser = user;
@@ -222,6 +223,9 @@ public class ManajemenUserController implements Initializable {
         showResetPasswordPane();
     }
 
+    /**
+     * Mengisi form reset password dengan data user
+     */
     private void populateResetPasswordForm(User user) {
         if (lblResetNama != null) lblResetNama.setText(user.getNamaLengkap());
         if (lblResetUsername != null) lblResetUsername.setText(user.getUsername());
@@ -230,7 +234,7 @@ public class ManajemenUserController implements Initializable {
     }
 
     /**
-     * Menghapus user (dipanggil dari UserListCell)
+     * Handler untuk menghapus user (soft delete)
      */
     private void handleDeleteUser(User user) {
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -241,7 +245,6 @@ public class ManajemenUserController implements Initializable {
         Optional<ButtonType> result = confirmAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
-                // Soft delete: set is_active = false
                 user.setActive(false);
                 boolean success = userDAO.updateUser(user);
 
@@ -259,7 +262,7 @@ public class ManajemenUserController implements Initializable {
     }
 
     /**
-     * Toggle status aktif/nonaktif user (dipanggil dari UserListCell)
+     * Handler untuk toggle status aktif/nonaktif user
      */
     private void handleToggleStatus(User user) {
         String action = user.isActive() ? "menonaktifkan" : "mengaktifkan";

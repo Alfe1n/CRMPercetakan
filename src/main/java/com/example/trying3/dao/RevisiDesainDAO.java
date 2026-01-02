@@ -8,15 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DAO untuk tabel revisi_desain
- * Mengelola operasi CRUD untuk history revisi desain
+ * Data Access Object untuk revisi desain.
+ * Mengelola operasi CRUD untuk history revisi desain.
  */
 public class RevisiDesainDAO {
 
-    /**
-     * Menyimpan revisi desain baru ke database
-     * Dipanggil saat designer upload file revisi
-     */
     public boolean simpanRevisi(RevisiDesain revisi) {
         String sql = """
             INSERT INTO revisi_desain 
@@ -52,10 +48,6 @@ public class RevisiDesainDAO {
         return false;
     }
 
-    /**
-     * Mengambil semua history revisi untuk desain tertentu
-     * Untuk menampilkan history di UI
-     */
     public List<RevisiDesain> getRevisiByDesainId(int idDesain) {
         List<RevisiDesain> list = new ArrayList<>();
 
@@ -94,11 +86,6 @@ public class RevisiDesainDAO {
 
         return list;
     }
-
-    /**
-     * Mengambil history revisi berdasarkan id_pesanan
-     * Lebih praktis untuk dipanggil dari controller
-     */
     public List<RevisiDesain> getRevisiByPesananId(int idPesanan) {
         List<RevisiDesain> list = new ArrayList<>();
 
@@ -139,9 +126,6 @@ public class RevisiDesainDAO {
         return list;
     }
 
-    /**
-     * Menghitung total revisi untuk desain tertentu
-     */
     public int countRevisiByDesainId(int idDesain) {
         String sql = "SELECT COUNT(*) FROM revisi_desain WHERE id_desain = ?";
 
@@ -164,9 +148,6 @@ public class RevisiDesainDAO {
         return 0;
     }
 
-    /**
-     * Mengambil revisi terakhir untuk desain tertentu
-     */
     public RevisiDesain getLatestRevisi(int idDesain) {
         String sql = """
             SELECT 
@@ -204,9 +185,6 @@ public class RevisiDesainDAO {
         return null;
     }
 
-    /**
-     * Helper method untuk mapping ResultSet ke object RevisiDesain
-     */
     private RevisiDesain mapResultSet(ResultSet rs) throws SQLException {
         RevisiDesain revisi = new RevisiDesain();
         revisi.setIdRevisi(rs.getInt("id_revisi"));
@@ -219,7 +197,6 @@ public class RevisiDesainDAO {
         try {
             revisi.setNamaDesigner(rs.getString("nama_designer"));
         } catch (SQLException e) {
-            // Kolom tidak ada di query, abaikan
         }
 
         Timestamp ts = rs.getTimestamp("tanggal_revisi");

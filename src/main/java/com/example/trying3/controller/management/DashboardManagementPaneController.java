@@ -9,9 +9,13 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
 
 import java.net.URL;
-import java.util.Map; // INI YANG WAJIB ADA AGAR TIDAK ERROR
+import java.util.Map;
 import java.util.ResourceBundle;
 
+/**
+ * Controller untuk pane utama Dashboard Manajemen.
+ * Menampilkan statistik bisnis dan grafik distribusi layanan/status.
+ */
 public class DashboardManagementPaneController implements Initializable {
 
     @FXML private Label totalOrderLabel;
@@ -29,31 +33,24 @@ public class DashboardManagementPaneController implements Initializable {
     }
 
     private void refreshDashboardData() {
-        // Ambil data angka dari DAO
         int total = pesananDAO.getTotalPesananCount();
         double revenue = pesananDAO.getTotalRevenue();
         int selesai = pesananDAO.getSelesaiCount();
 
-        // Hitung Logic Bisnis
         double completionRate = total > 0 ? ((double) selesai / total) * 100 : 0;
         double avgValue = total > 0 ? revenue / total : 0;
 
-        // Tampilkan ke Label
         totalOrderLabel.setText(String.valueOf(total));
         completionLabel.setText(String.format("%.1f%%", completionRate));
         revenueLabel.setText(String.format("Rp %,.0f", revenue));
         avgOrderValueLabel.setText(String.format("Rp %,.0f", avgValue));
 
-        // Setup Grafik
         setupServiceChart();
         setupStatusChart();
     }
 
     private void setupServiceChart() {
-        // 1. Ambil data dari DAO yang sudah diperbaiki query-nya
         Map<String, Integer> data = pesananDAO.getServiceDistribution();
-
-        // 2. Bersihkan data lama di chart
         serviceChart.getData().clear();
 
         ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
@@ -62,7 +59,6 @@ public class DashboardManagementPaneController implements Initializable {
             pieData.add(new PieChart.Data("Data Belum Tersedia", 1));
         } else {
             data.forEach((layanan, jumlah) -> {
-                // Membuat label yang informatif (Nama Layanan + Jumlah)
                 String label = layanan + " (" + jumlah + ")";
                 pieData.add(new PieChart.Data(label, jumlah));
             });

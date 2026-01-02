@@ -15,10 +15,9 @@ public class RevisiDesain {
     private String filePath;
     private String catatanRevisi;
     private int direvisiOleh;
-    private String namaDesigner; // Untuk display (dari JOIN)
+    private String namaDesigner;
     private LocalDateTime tanggalRevisi;
 
-    // Constructors
     public RevisiDesain() {}
 
     public RevisiDesain(int idDesain, int revisiKe, String filePath, String catatanRevisi, int direvisiOleh) {
@@ -30,7 +29,6 @@ public class RevisiDesain {
         this.tanggalRevisi = LocalDateTime.now();
     }
 
-    // Getters and Setters
     public int getIdRevisi() {
         return idRevisi;
     }
@@ -95,7 +93,6 @@ public class RevisiDesain {
         this.tanggalRevisi = tanggalRevisi;
     }
 
-    // Helper Methods
     public String getFormattedTanggal() {
         if (tanggalRevisi == null) return "-";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm");
@@ -104,7 +101,6 @@ public class RevisiDesain {
 
     public String getFileName() {
         if (filePath == null || filePath.isEmpty()) return "-";
-        // Ambil nama file dari path
         int lastSeparator = Math.max(filePath.lastIndexOf('/'), filePath.lastIndexOf('\\'));
         return lastSeparator >= 0 ? filePath.substring(lastSeparator + 1) : filePath;
     }

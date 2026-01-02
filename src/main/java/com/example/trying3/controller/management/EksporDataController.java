@@ -1,7 +1,7 @@
 package com.example.trying3.controller.management;
 
 import com.example.trying3.dao.PesananDAO;
-import com.example.trying3.dao.PelangganDAO; // Pastikan DAO ini ada
+import com.example.trying3.dao.PelangganDAO;
 import com.example.trying3.model.Pesanan;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -15,6 +15,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controller untuk halaman Ekspor Data.
+ * Menyediakan fitur ekspor berbagai jenis data ke format Excel (XLSX).
+ */
 public class EksporDataController {
 
     private final PesananDAO pesananDAO = new PesananDAO();
@@ -34,14 +38,12 @@ public class EksporDataController {
 
     @FXML
     private void handleLaporanKeuangan() {
-        // Memanggil method yang telah diperbaiki
         List<Pesanan> data = pesananDAO.getAllPesananForExport();
         generateExcel("Laporan_Keuangan", new String[]{"ID", "Tanggal", "Pelanggan", "Total Pendapatan"}, data, "KEUANGAN");
     }
 
     @FXML
     private void handleLaporanProduksi() {
-        // Memanggil data yang sama tetapi diproses dengan header Produksi
         List<Pesanan> data = pesananDAO.getAllPesananForExport();
         generateExcel("Laporan_Produksi", new String[]{"ID", "Pelanggan", "Status Produksi"}, data, "PRODUKSI");
     }
@@ -56,13 +58,11 @@ public class EksporDataController {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Laporan");
 
-            // Header Style
             CellStyle headerStyle = workbook.createCellStyle();
             Font font = workbook.createFont();
             font.setBold(true);
             headerStyle.setFont(font);
 
-            // Create Header
             Row headerRow = sheet.createRow(0);
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
@@ -70,7 +70,6 @@ public class EksporDataController {
                 cell.setCellStyle(headerStyle);
             }
 
-            // Fill Data
             int rowIdx = 1;
             if (type.equals("PELANGGAN")) {
                 List<Map<String, String>> list = (List<Map<String, String>>) dataList;

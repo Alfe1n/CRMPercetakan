@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 /**
  * Controller untuk halaman Notifikasi Admin
- * Menampilkan notifikasi dari Tim Desain (Revisi) dan Tim Produksi (Kendala, Siap Dikirim)
+ * Menampilkan notifikasi dari Tim Desain dan Tim Produksi
  */
 public class NotifikasiController implements Initializable {
 
@@ -41,18 +41,17 @@ public class NotifikasiController implements Initializable {
         notifikasiDAO = new NotifikasiDAO();
         notifikasiList = FXCollections.observableArrayList();
         allNotifikasiList = new ArrayList<>();
-
         setupListView();
         setupFilter();
         loadData();
     }
 
+    /**
+     * Konfigurasi ListView dengan custom cell factory
+     */
     private void setupListView() {
-        // Setup cell factory dengan callback untuk refresh
         notifikasiListView.setCellFactory(listView -> {
             NotifikasiCell cell = new NotifikasiCell(notifikasi -> {
-                // Callback ketika tombol "Selesai" diklik
-                // Refresh data setelah status berubah
                 loadData();
             });
             return cell;
@@ -60,7 +59,6 @@ public class NotifikasiController implements Initializable {
 
         notifikasiListView.setItems(notifikasiList);
 
-        // Click handler untuk detail
         notifikasiListView.setOnMouseClicked(event -> {
             Notifikasi selected = notifikasiListView.getSelectionModel().getSelectedItem();
             if (selected != null && event.getClickCount() == 2) {
@@ -69,6 +67,9 @@ public class NotifikasiController implements Initializable {
         });
     }
 
+    /**
+     * Konfigurasi filter dropdown
+     */
     private void setupFilter() {
         filterComboBox.setItems(FXCollections.observableArrayList(
                 "Semua Notifikasi",
@@ -80,10 +81,12 @@ public class NotifikasiController implements Initializable {
         filterComboBox.setOnAction(e -> applyFilter());
     }
 
+    /**
+     * Memuat data notifikasi dan statistik dari database
+     */
     private void loadData() {
         System.out.println("🔄 Loading notifikasi data...");
 
-        // Load statistics
         int revisiCount = notifikasiDAO.getRevisiDesainCount();
         int kendalaCount = notifikasiDAO.getKendalaProduksiCount();
         int siapDikirimCount = notifikasiDAO.getSiapDikirimCount();
@@ -91,17 +94,14 @@ public class NotifikasiController implements Initializable {
 
         System.out.println("📊 Stats - Revisi: " + revisiCount + ", Kendala: " + kendalaCount + ", Siap Dikirim: " + siapDikirimCount);
 
-        // Update labels
         if (totalNotifikasiLabel != null) totalNotifikasiLabel.setText(String.valueOf(totalCount));
         if (revisiDesainLabel != null) revisiDesainLabel.setText(String.valueOf(revisiCount));
         if (kendalaProduksiLabel != null) kendalaProduksiLabel.setText(String.valueOf(kendalaCount));
         if (siapDikirimLabel != null) siapDikirimLabel.setText(String.valueOf(siapDikirimCount));
 
-        // Load all notifikasi
         allNotifikasiList = notifikasiDAO.getAllNotifikasi();
         System.out.println("📋 Loaded " + allNotifikasiList.size() + " notifikasi from DAO");
 
-        // Apply current filter
         applyFilter();
     }
 
@@ -111,6 +111,9 @@ public class NotifikasiController implements Initializable {
         loadData();
     }
 
+    /**
+     * Menerapkan filter pada daftar notifikasi
+     */
     private void applyFilter() {
         String filter = filterComboBox.getValue();
         System.out.println("🔍 Applying filter: " + filter);
@@ -151,6 +154,9 @@ public class NotifikasiController implements Initializable {
         updateListInfo();
     }
 
+    /**
+     * Update informasi jumlah notifikasi
+     */
     private void updateListInfo() {
         int count = notifikasiList.size();
         notifikasiCountLabel.setText("(" + count + " notifikasi)");
@@ -165,6 +171,9 @@ public class NotifikasiController implements Initializable {
         }
     }
 
+    /**
+     * Menampilkan atau menyembunyikan empty state
+     */
     private void showEmptyState(boolean show) {
         System.out.println("👁 showEmptyState: " + show);
         if (emptyStateBox != null) {
@@ -175,7 +184,9 @@ public class NotifikasiController implements Initializable {
         notifikasiListView.setManaged(!show);
     }
 
-    // Event handler untuk double-click notifikasi
+    /**
+     * Handler untuk double-click notifikasi (menampilkan detail)
+     */
     private void handleNotifikasiClick(Notifikasi notifikasi) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Detail Notifikasi");

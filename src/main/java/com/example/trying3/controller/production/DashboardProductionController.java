@@ -17,6 +17,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Controller utama untuk Dashboard Produksi.
+ * Menangani navigasi antar pane dan sidebar menu untuk Tim Produksi.
+ */
 public class DashboardProductionController implements Initializable {
 
     @FXML private Label btnDashboard;
@@ -24,7 +28,6 @@ public class DashboardProductionController implements Initializable {
     @FXML private Label btnJadwalProduksi;
     @FXML private Label btnInventori;
     @FXML private Label btnLogout;
-
     @FXML private Label lblHeaderTitle;
     @FXML private StackPane contentArea;
 
@@ -33,8 +36,6 @@ public class DashboardProductionController implements Initializable {
         loadPane("DashboardProductionPane.fxml");
         setActiveButton(btnDashboard);
 
-        // KUNCI PERBAIKAN: Set judul header SATU KALI saja di awal.
-        // Jangan diubah-ubah di method handle click.
         if (lblHeaderTitle != null) {
             lblHeaderTitle.setText("Dashboard Tim Produksi");
         }
@@ -99,20 +100,13 @@ public class DashboardProductionController implements Initializable {
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.YES) {
                 try {
-                    // 1. Load file Login.fxml (sesuaikan path foldernya)
-                    // Berdasarkan struktur folder di screenshot kamu: fxml/auth/Login.fxml
                     URL loginResource = MainApplication.class.getResource("fxml/auth/Login.fxml");
                     FXMLLoader loader = new FXMLLoader(loginResource);
                     Parent root = loader.load();
 
-                    // 2. Ambil stage (window) yang sekarang sedang terbuka
                     Stage stage = (Stage) btnLogout.getScene().getWindow();
-
-                    // 3. Set scene baru dengan root login
                     Scene scene = new Scene(root);
                     stage.setScene(scene);
-
-                    // 4. (Opsional) Ketengahkan window agar rapi
                     stage.centerOnScreen();
                     stage.show();
 

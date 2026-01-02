@@ -17,6 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Controller untuk pane utama Dashboard Design.
+ * Menampilkan statistik dan antrian desain yang perlu dikerjakan.
+ */
 public class DashboardDesignPaneController implements Initializable {
 
     @FXML private Label waitingLabel;
@@ -39,7 +43,6 @@ public class DashboardDesignPaneController implements Initializable {
         renderQueue();
     }
 
-    // Perbarui statistik di dashboard
     private void updateStatistics() {
         long waiting = orders.stream()
                 .filter(o -> "Menunggu Desain".equals(o.getStatus()))
@@ -56,17 +59,18 @@ public class DashboardDesignPaneController implements Initializable {
         if (completedLabel != null) completedLabel.setText(String.valueOf(completed));
     }
 
-    // Render antrian desain
+    /**
+     * Render daftar antrian desain yang masih aktif.
+     * Mengurutkan berdasarkan prioritas (Desain Direvisi > Menunggu Desain).
+     */
     private void renderQueue() {
         if (queueContainer == null) return;
 
         queueContainer.getChildren().clear();
 
-        // Filter yang belum selesai dan urutkan berdasarkan prioritas
         List<Pesanan> activeOrders = orders.stream()
                 .filter(o -> !"Desain Disetujui".equals(o.getStatus()))
                 .sorted((a, b) -> {
-                    // Prioritas: Desain Direvisi > Menunggu Desain
                     int priorityA = getPriority(a.getStatus());
                     int priorityB = getPriority(b.getStatus());
                     return Integer.compare(priorityA, priorityB);
@@ -84,7 +88,6 @@ public class DashboardDesignPaneController implements Initializable {
         }
     }
 
-    // Tentukan prioritas berdasarkan status
     private int getPriority(String status) {
         return switch (status) {
             case "Desain Direvisi" -> 1;
@@ -92,15 +95,12 @@ public class DashboardDesignPaneController implements Initializable {
             default -> 3;
         };
     }
-
-    // Buat kartu untuk setiap pesanan
     private VBox createOrderCard(Pesanan order) {
         VBox card = new VBox();
         card.setStyle("-fx-background-color: white; -fx-border-color: #eeeeee; " +
                 "-fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 20;");
         card.setSpacing(10);
 
-        // Header
         HBox header = new HBox();
         header.setAlignment(Pos.CENTER_LEFT);
 
@@ -121,7 +121,6 @@ public class DashboardDesignPaneController implements Initializable {
 
         header.getChildren().addAll(titleBox, spacer, lblStatus);
 
-        // Details
         VBox detailsBox = new VBox(5);
         detailsBox.getChildren().add(createDetailLabel("Project: ", order.getJenisLayanan()));
         detailsBox.getChildren().add(createDetailLabel("Brief: ", order.getSpesifikasi()));
@@ -130,7 +129,6 @@ public class DashboardDesignPaneController implements Initializable {
         return card;
     }
 
-    // Tentukan gaya status berdasarkan nilai status
     private String getStatusStyle(String status) {
         String baseStyle = "-fx-background-radius: 15; -fx-padding: 5 12; -fx-font-weight: bold; -fx-font-size: 11px;";
 
@@ -142,7 +140,7 @@ public class DashboardDesignPaneController implements Initializable {
         };
     }
 
-    // Buat label detail untuk pesanan
+
     private HBox createDetailLabel(String label, String value) {
         HBox row = new HBox(5);
         Label lblTitle = new Label(label);

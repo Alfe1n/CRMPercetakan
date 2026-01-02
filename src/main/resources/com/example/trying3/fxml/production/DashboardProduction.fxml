@@ -13,38 +13,47 @@
       fx:controller="com.example.trying3.controller.production.DashboardProductionController">
 
     <children>
-        <VBox alignment="TOP_CENTER" prefWidth="280.0" styleClass="sidebar">
+        <VBox alignment="TOP_CENTER" prefWidth="280.0" minWidth="280.0" maxWidth="280.0" styleClass="sidebar">
             <children>
-                <HBox alignment="CENTER_LEFT" prefHeight="100.0" spacing="10.0">
+                <HBox alignment="CENTER" prefHeight="112.0" spacing="10.0">
                     <children>
-                        <ImageView fitHeight="40.0" fitWidth="40.0" preserveRatio="true">
-                            <image>
-                            </image>
-                        </ImageView>
                         <Label styleClass="sidebar-title" text="CRM Percetakan" />
                     </children>
-                    <padding><Insets left="20.0" /></padding>
+                    <VBox.margin>
+                        <Insets bottom="30.0" />
+                    </VBox.margin>
+                    <padding>
+                        <Insets left="20.0" />
+                    </padding>
                 </HBox>
 
-                <Label fx:id="btnDashboard" onMouseClicked="#handleDashboardClick" styleClass="nav-button" text="Dashboard"/>
-                <Label fx:id="btnProduksi" onMouseClicked="#handleProduksiClick" styleClass="nav-button" text="Produksi"/>
-                <Label fx:id="btnJadwalProduksi" onMouseClicked="#handleJadwalProduksiClick" styleClass="nav-button" text="Jadwal Produksi"/>
-                <Label fx:id="btnInventori" onMouseClicked="#handleInventoriClick" styleClass="nav-button" text="Inventori"/>
-                <Label fx:id="btnLogout" onMouseClicked="#handleLogoutClick" styleClass="nav-button-logout" text="Logout"/>
+                <Label fx:id="btnDashboard" onMouseClicked="#handleDashboardClick" styleClass="nav-button" text="Dashboard">
+                </Label>
+                <Label fx:id="btnProduksi" onMouseClicked="#handleProduksiClick" styleClass="nav-button" text="Produksi">
+                </Label>
+                <Label fx:id="btnJadwalProduksi" onMouseClicked="#handleJadwalProduksiClick" styleClass="nav-button" text="Jadwal Produksi">
+                </Label>
+                <Label fx:id="btnInventori" onMouseClicked="#handleInventoriClick" styleClass="nav-button" text="Inventori">
+                </Label>
+                <Label fx:id="btnLogout" onMouseClicked="#handleLogoutClick" styleClass="nav-button-logout" text="Logout" />
             </children>
-            <padding><Insets top="20.0"/></padding>
+            <padding>
+                <Insets top="20.0" />
+            </padding>
         </VBox>
 
         <VBox HBox.hgrow="ALWAYS">
             <children>
                 <HBox alignment="CENTER_LEFT" prefHeight="80.0" styleClass="header">
-                    <padding><Insets left="30.0" right="30.0"/></padding>
+                    <padding>
+                        <Insets left="30.0" right="30.0" />
+                    </padding>
                     <children>
                         <Label fx:id="lblHeaderTitle" styleClass="header-title" text="Dashboard Tim Produksi" />
                     </children>
                 </HBox>
 
-                <StackPane fx:id="contentArea" styleClass="content-area" VBox.vgrow="ALWAYS"/>
+                <StackPane fx:id="contentArea" styleClass="content-area" VBox.vgrow="ALWAYS" />
             </children>
         </VBox>
     </children>

@@ -15,7 +15,7 @@
         <!-- SIDEBAR -->
         <VBox alignment="TOP_CENTER" prefWidth="280.0" styleClass="sidebar">
             <children>
-                <HBox alignment="CENTER_LEFT" prefHeight="100.0" spacing="10.0">
+                <HBox alignment="CENTER" prefHeight="100.0" spacing="10.0">
                     <children>
                         <ImageView fitHeight="40.0" fitWidth="40.0" preserveRatio="true"/>
                         <Label styleClass="sidebar-title" text="Percetakan CRM" />

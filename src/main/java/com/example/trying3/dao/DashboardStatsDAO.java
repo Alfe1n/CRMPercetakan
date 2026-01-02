@@ -10,21 +10,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Data Access Object untuk statistik Dashboard.
+ * Menyediakan berbagai metrik dan data untuk dashboard admin.
+ */
 public class DashboardStatsDAO {
 
-    // Statistik Pesanan
-
-    /**
-     * Mengambil total semua pesanan
-     */
     public int getTotalPesanan() {
         String sql = "SELECT COUNT(*) FROM pesanan";
         return executeCountQuery(sql);
     }
 
-    /**
-     * Mengambil jumlah pesanan dengan status 'Selesai'
-     */
     public int getPesananSelesai() {
         String sql = """
             SELECT COUNT(*) FROM pesanan p
@@ -34,9 +30,6 @@ public class DashboardStatsDAO {
         return executeCountQuery(sql);
     }
 
-    /**
-     * Menghitung persentase pesanan selesai dari total
-     */
     public String getPersentasePesananSelesai() {
         int total = getTotalPesanan();
         int selesai = getPesananSelesai();
@@ -45,9 +38,6 @@ public class DashboardStatsDAO {
         return persen + "% dari total";
     }
 
-    /**
-     * Mengambil jumlah pembayaran dengan status 'pending'
-     */
     public int getPembayaranPending() {
         String sql = """
             SELECT COUNT(*) FROM pesanan p
@@ -57,9 +47,6 @@ public class DashboardStatsDAO {
         return executeCountQuery(sql);
     }
 
-    /**
-     * Mengambil total pendapatan dari pembayaran yang sudah verified
-     */
     public double getTotalPendapatan() {
         String sql = "SELECT COALESCE(SUM(jumlah), 0) FROM pembayaran WHERE status_pembayaran = 'verified'";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -74,22 +61,13 @@ public class DashboardStatsDAO {
         return 0;
     }
 
-    /**
-     * Format total pendapatan ke format Rupiah
-     */
     public String getFormattedTotalPendapatan() {
         double total = getTotalPendapatan();
         NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
         String formatted = formatter.format(total);
-        // Hilangkan ,00 di belakang jika ada
         return formatted.replace(",00", "").replace("Rp", "Rp ");
     }
 
-    // Dashboard Stats View
-
-    /**
-     * Model untuk menampung data dari view v_dashboard_stats
-     */
     public static class DashboardStats {
         public int pesananHariIni;
         public int pesananMingguIni;
@@ -106,11 +84,11 @@ public class DashboardStatsDAO {
     public DashboardStats getAllStats() {
         String sql = "SELECT * FROM v_dashboard_stats";
         DashboardStats stats = new DashboardStats();
-        
+
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-            
+
             if (rs.next()) {
                 stats.pesananHariIni = rs.getInt("pesanan_hari_ini");
                 stats.pesananMingguIni = rs.getInt("pesanan_minggu_ini");
@@ -125,8 +103,6 @@ public class DashboardStatsDAO {
         }
         return stats;
     }
-
-    // Pesanan Terbaru
 
     /**
      * Mengambil pesanan terbaru dengan limit tertentu
@@ -160,9 +136,9 @@ public class DashboardStatsDAO {
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            
+
             ps.setInt(1, limit);
-            
+
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Pesanan pesanan = mapResultSetToPesanan(rs);
@@ -174,9 +150,6 @@ public class DashboardStatsDAO {
         }
         return list;
     }
-
-
-    // Aktivitas User Terbaru
 
     /**
      * Mengambil daftar user aktif dengan role-nya
@@ -214,17 +187,17 @@ public class DashboardStatsDAO {
                 user.setEmail(rs.getString("email"));
                 user.setIdRole(rs.getInt("id_role"));
                 user.setActive(rs.getBoolean("is_active"));
-                
+
                 Timestamp lastLogin = rs.getTimestamp("last_login");
                 if (lastLogin != null) {
                     user.setLastLogin(lastLogin.toLocalDateTime());
                 }
-                
+
                 Timestamp createdAt = rs.getTimestamp("created_at");
                 if (createdAt != null) {
                     user.setCreatedAt(createdAt.toLocalDateTime());
                 }
-                
+
                 list.add(user);
             }
         } catch (SQLException e) {
@@ -252,8 +225,6 @@ public class DashboardStatsDAO {
         return "Unknown";
     }
 
-    // Helper Methods
-
     /**
      * Helper untuk menjalankan query COUNT
      */
@@ -278,18 +249,18 @@ public class DashboardStatsDAO {
         pesanan.setIdPesanan(rs.getInt("id_pesanan"));
         pesanan.setNomorPesanan(rs.getString("nomor_pesanan"));
         pesanan.setNamaPelanggan(rs.getString("nama_pelanggan"));
-        
+
         try { pesanan.setNoTelepon(rs.getString("no_telepon")); } catch (SQLException ignored) {}
         try { pesanan.setEmail(rs.getString("email")); } catch (SQLException ignored) {}
-        
+
         pesanan.setJenisLayanan(rs.getString("nama_layanan"));
         pesanan.setJumlah(rs.getInt("jumlah"));
         pesanan.setTotalBiaya(rs.getDouble("total_harga"));
-        
+
         try { pesanan.setSpesifikasi(rs.getString("spesifikasi")); } catch (SQLException ignored) {}
-        
+
         pesanan.setStatus(rs.getString("status"));
-        
+
         try { pesanan.setCatatan(rs.getString("catatan")); } catch (SQLException ignored) {}
 
         Timestamp tanggalTs = rs.getTimestamp("tanggal_pesanan");

@@ -1,7 +1,20 @@
-/* --- Global & Font --- */
+/* ========================================
+   GLOBAL & FONT SETTINGS
+   ======================================== */
 .root {
-    -fx-font-family: "Segoe UI", "Microsoft YaHei UI", sans-serif;
-    -fx-base: #f8f9fa; /* Warna dasar abu-abu muda */
+    -fx-font-family: "Segoe UI", "Microsoft YaHei UI", "Inter", sans-serif;
+    -fx-base: #f8f9fa;
+    -fx-background: #f4f7fa;
+}
+
+* {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.page-root {
+    -fx-font-family: "Segoe UI", "Inter", sans-serif;
+    -fx-background-color: #f6f7f9;
 }
 
 .header {
@@ -10,235 +23,584 @@
     -fx-pref-height: 80px;
 }
 
-/* --- Sidebar --- */
+
+/* ========================================
+   SIDEBAR NAVIGATION
+   ======================================== */
 .sidebar {
     -fx-background-color: #ffffff;
     -fx-border-color: transparent #e0e0e0 transparent transparent;
     -fx-border-width: 0 1 0 0;
 }
+
 .sidebar-title {
     -fx-font-size: 22px;
     -fx-font-weight: bold;
-    -fx-text-fill: #333333;
+    -fx-text-fill: #1f1f1f;
 }
-.nav-button, .nav-button-logout {
-    -fx-font-size: 16px;
+
+.nav-button {
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
-    -fx-text-fill: #555555;
+    -fx-text-fill: #5a5a5a;
     -fx-pref-width: 220;
-    -fx-pref-height: 55;
-    -fx-padding: 0 0 0 30;
+    -fx-pref-height: 50;
+    -fx-padding: 0 0 0 25;
     -fx-alignment: center-left;
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
+    -fx-background-radius: 10;
     -fx-cursor: hand;
     -fx-background-color: transparent;
     -fx-border-color: transparent;
-    -fx-border-width: 0 0 0 4;
-    -fx-margin-bottom: 10px;
 }
-.nav-button.hover, .nav-button:hover {
+
+.nav-button:hover {
     -fx-background-color: #f5f5f5;
+    -fx-text-fill: #1f1f1f;
 }
+
 .nav-button.active {
     -fx-background-color: #1f1f1f;
-    -fx-text-fill: #ededed;
+    -fx-text-fill: #ffffff;
 }
 
-/* --- Logout Button --- */
 .nav-button-logout {
-    -fx-margin-top: 30px;
-    -fx-background-color: #e74c3c;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
     -fx-text-fill: white;
+    -fx-pref-width: 220;
+    -fx-pref-height: 50;
+    -fx-padding: 0 0 0 25;
+    -fx-alignment: center-left;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+    -fx-background-color: #e74c3c;
     -fx-border-color: transparent;
 }
-.nav-button-logout.logout-hover, .nav-button-logout:hover {
-    -fx-background-color: #d94738;
-    -fx-text-fill: white;
+
+.nav-button-logout:hover {
+    -fx-background-color: #c0392b;
 }
 
 
-/* --- Header Area --- */
+/* ========================================
+   HEADER
+   ======================================== */
 .header {
     -fx-background-color: #ffffff;
     -fx-border-color: transparent transparent #e0e0e0 transparent;
     -fx-border-width: 0 0 1 0;
 }
+
 .header-title {
     -fx-font-size: 20px;
     -fx-font-weight: bold;
-    -fx-text-fill: #333;
+    -fx-text-fill: #2c3e50;
 }
 
-/* --- Content Area --- */
+
+/* ========================================
+   CONTENT AREA
+   ======================================== */
 .content-area {
     -fx-background-color: #f4f7fa;
 }
+
 .content-pane {
     -fx-background-color: transparent;
 }
+
 .content-pane-scroll {
     -fx-background-color: transparent;
 }
 
-/* --- Judul di dalam Konten --- */
-.page-title {
-    -fx-font-size: 28px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #2c3e50;
+.content-pane-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.content-pane-scroll .scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.content-pane-scroll .scroll-bar .thumb {
+    -fx-background-color: #cccccc;
+    -fx-background-radius: 5;
+}
+
+.content-pane-scroll .scroll-bar .thumb:hover {
+    -fx-background-color: #999999;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-control-inner-background: transparent;
+}
+
+
+/* ========================================
+   PAGE ELEMENTS
+   ======================================== */
+.page-header {
+    -fx-spacing: 8;
     -fx-padding: 0 0 10 0;
 }
 
-/* --- Kotak Statistik (Stat Box) --- */
-.stat-box {
-    -fx-background-color: #ffffff;
-    -fx-padding: 25px;
-    -fx-background-radius: 12;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);
-}
-.stat-title {
-    -fx-font-size: 18px;
+.page-title {
+    -fx-font-size: 28px;
     -fx-font-weight: bold;
-    -fx-text-fill: #6c757d;
+    -fx-text-fill: #1f1f1f;
 }
-.stat-icon {
-    -fx-opacity: 0.5;
-}
-.stat-value {
-    -fx-font-size: 36px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #2c3e50;
-    -fx-padding: 5 0 5 0;
-}
-.stat-subtitle {
+
+.page-subtitle {
     -fx-font-size: 14px;
-    -fx-text-fill: #b9b9b9;
+    -fx-text-fill: #7f8c8d;
 }
 
-
-/* --- Card --- */
-.card {
-    -fx-background-color: white;
-    -fx-padding: 25px;
-    -fx-background-radius: 12;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);
-}
-.card-title {
-    -fx-font-size: 20px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #2c3e50;
-    -fx-padding: 0 0 15 0;
-}
-
-
-/* --- ListView untuk Pesanan --- */
-.order-list-view {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-}
-.order-list-view .list-cell {
-    -fx-background-color: transparent;
-    -fx-padding: 5px 0px;
-}
-.order-list-item {
-    -fx-background-color: #f8f9fa;
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
-}
-.order-list-view .list-cell:hover .order-list-item {
-     -fx-background-color: #f1f1f1;
-}
-.order-customer-name {
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #2c3e50;
-}
-.order-type {
+.muted, .text-muted {
     -fx-font-size: 13px;
-    -fx-text-fill: #6c757d;
-}
-.order-status {
-    -fx-font-size: 13px;
-    -fx-font-weight: bold;
+    -fx-text-fill: #888888;
 }
 
-/* --- Order Card (Produksi) --- */
-.order-card {
-    -fx-background-color: #ffffff;
-    -fx-background-radius: 8;
-    -fx-border-color: #e0e0e0;
-    -fx-border-width: 1;
-    -fx-border-radius: 8;
-}
-.order-card-inner {
-    -fx-background-color: transparent;
-}
-.order-id {
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #2c3e50;
-}
-
-/* --- Status Badge/Pill --- */
-.status-pill {
-    -fx-background-color: #1f1f1f;
-    -fx-text-fill: white;
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
-    -fx-padding: 6 14 6 14;
-    -fx-background-radius: 20;
-    -fx-border-radius: 20;
-}
-
-/* --- Field Titles --- */
 .field-title {
     -fx-font-size: 13px;
     -fx-font-weight: bold;
-    -fx-text-fill: #555555;
+    -fx-text-fill: #666666;
+    -fx-padding: 5 0 0 0;
 }
 
-/* --- Muted Text --- */
-.muted {
+
+/* ========================================
+   STATISTICS BOX
+   ======================================== */
+.stat-box, .stat-card {
+    -fx-background-color: #ffffff;
+    -fx-padding: 25px;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);
+}
+
+.stat-title, .stat-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #7f8c8d;
+}
+
+.stat-value {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f1f1f;
+    -fx-padding: 8 0 5 0;
+}
+
+.stat-subtitle {
     -fx-font-size: 13px;
-    -fx-text-fill: #999999;
+    -fx-text-fill: #95a5a6;
 }
 
-/* --- Buttons --- */
-.btn-primary {
+.stat-icon {
+    -fx-opacity: 0.7;
+}
+.stat-icon {
+    -fx-opacity: 0.7;
+}
+
+
+/* ========================================
+   CARD COMPONENT
+   ======================================== */
+.card {
+    -fx-background-color: #ffffff;
+    -fx-padding: 30px;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 2);
+}
+
+.card-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f1f1f;
+}
+
+.card-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #7f8c8d;
+}
+
+
+/* ========================================
+   FORM ELEMENTS
+   ======================================== */
+.form-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #2c3e50;
+}
+
+.text-field {
+    -fx-font-size: 14px;
+    -fx-text-fill: #2c3e50;
+    -fx-prompt-text-fill: #95a5a6;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #dfe6e9;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 12;
+}
+
+.text-field:focused {
+    -fx-border-color: #1f1f1f;
+    -fx-background-color: #ffffff;
+}
+
+.text-field:hover {
+    -fx-border-color: #b2bec3;
+}
+
+.text-area {
+    -fx-font-size: 14px;
+    -fx-text-fill: #2c3e50;
+    -fx-prompt-text-fill: #95a5a6;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #dfe6e9;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 12;
+}
+
+.text-area:focused {
+    -fx-border-color: #1f1f1f;
+    -fx-background-color: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 5, 0, 0, 2);
+}
+
+.text-area:hover {
+    -fx-border-color: #b2bec3;
+}
+
+.text-area .content {
+    -fx-background-color: transparent;
+}
+
+
+/* ========================================
+   COMBO BOX
+   ======================================== */
+.combo-box, .combo-field {
+    -fx-font-size: 14px;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #dfe6e9;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 8 12;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: #2c3e50;
+}
+
+.combo-box:hover {
+    -fx-border-color: #b2bec3;
+}
+
+.combo-box:focused {
+    -fx-border-color: #1f1f1f;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #dfe6e9;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 8, 0, 0, 4);
+}
+
+.combo-box-popup .list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #2c3e50;
+    -fx-padding: 10 16;
+}
+
+.combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: #f8f9fa;
+}
+
+.combo-box-popup .list-view .list-cell:selected {
     -fx-background-color: #1f1f1f;
-    -fx-text-fill: white;
+    -fx-text-fill: #ffffff;
+}
+
+
+/* ========================================
+   BUTTONS
+   ======================================== */
+.button {
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 12 24;
+}
+
+.btn-primary, .button-primary {
+    -fx-background-color: #1f1f1f;
+    -fx-text-fill: #ffffff;
     -fx-font-size: 13px;
     -fx-font-weight: bold;
-    -fx-padding: 10 20 10 20;
+    -fx-padding: 10 20;
     -fx-background-radius: 6;
     -fx-border-radius: 6;
     -fx-cursor: hand;
+    -fx-border-color: transparent;
 }
-.btn-primary:hover {
-    -fx-background-color: #3a3a3a;
+
+.btn-primary:hover, .button-primary:hover {
+    -fx-background-color: #333333;
+}
+
+.button-primary:pressed {
+    -fx-background-color: #0a0a0a;
+}
+
+.btn-secondary, .button-secondary {
+    -fx-background-color: #eee;
+    -fx-text-fill: #333;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 8 16;
+    -fx-border-color: #dfe6e9;
+    -fx-border-width: 1.5;
+}
+
+.button-secondary:hover {
+    -fx-background-color: #f8f9fa;
+    -fx-border-color: #b2bec3;
+}
+
+.button-secondary:pressed {
+    -fx-background-color: #ecf0f1;
 }
 
 .btn-outline {
     -fx-background-color: transparent;
-    -fx-text-fill: #555555;
+    -fx-text-fill: #333333;
     -fx-font-size: 13px;
     -fx-font-weight: bold;
-    -fx-padding: 10 20 10 20;
+    -fx-padding: 9 20;
     -fx-background-radius: 6;
-    -fx-border-color: #d0d0d0;
+    -fx-border-color: #dddddd;
     -fx-border-width: 1;
     -fx-border-radius: 6;
     -fx-cursor: hand;
 }
+
 .btn-outline:hover {
     -fx-background-color: #f5f5f5;
+    -fx-border-color: #cccccc;
 }
 
-/* --- Separator --- */
-.separator {
-    -fx-background-color: #e0e0e0;
+.button-success {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: #ffffff;
+    -fx-border-color: transparent;
 }
-.separator .line {
+
+.button-success:hover {
+    -fx-background-color: #229954;
+}
+
+.button-danger {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: #ffffff;
+    -fx-border-color: transparent;
+}
+
+.button-danger:hover {
+    -fx-background-color: #c0392b;
+}
+
+.button-small {
+    -fx-font-size: 13px;
+    -fx-padding: 8 16;
+}
+
+.button-large {
+    -fx-font-size: 16px;
+    -fx-padding: 14 28;
+}
+
+
+/* ========================================
+   TABLE VIEW
+   ======================================== */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.table-view .column-header {
+    -fx-background-color: #f8f9fa;
     -fx-border-color: #e0e0e0;
-    -fx-border-width: 1 0 0 0;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-padding: 12;
 }
+
+.table-view .table-cell {
+    -fx-text-fill: #2c3e50;
+    -fx-padding: 12;
+    -fx-border-color: transparent transparent #f0f0f0 transparent;
+}
+
+.table-view .table-row-cell {
+    -fx-background-color: #ffffff;
+}
+
+.table-view .table-row-cell:hover {
+    -fx-background-color: #f8f9fa;
+}
+
+.table-view .table-row-cell:selected {
+    -fx-background-color: #ecf0f1;
+}
+
+
+/* ========================================
+   LIST VIEW
+   ======================================== */
+.order-list-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.order-list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 8 0;
+}
+
+.order-list-item {
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 10;
+    -fx-padding: 15;
+}
+
+.order-list-view .list-cell:hover .order-list-item {
+    -fx-background-color: #ecf0f1;
+    -fx-cursor: hand;
+}
+
+.order-customer-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f1f1f;
+}
+
+.order-type {
+    -fx-font-size: 13px;
+    -fx-text-fill: #7f8c8d;
+}
+
+.order-status {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 4 10;
+    -fx-background-radius: 15;
+}
+
+.order-status-pending {
+    -fx-background-color: #fff3cd;
+    -fx-text-fill: #856404;
+}
+
+.order-status-process {
+    -fx-background-color: #cce5ff;
+    -fx-text-fill: #004085;
+}
+
+.order-status-completed {
+    -fx-background-color: #d4edda;
+    -fx-text-fill: #155724;
+}
+
+
+/* ========================================
+   ORDER CARD
+   ======================================== */
+.order-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8;
+    -fx-border-color: #eeeeee;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+}
+
+.order-card-inner {
+    -fx-background-color: transparent;
+}
+
+.order-id {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #222222;
+}
+
+.status-pill {
+    -fx-background-color: #222222;
+    -fx-text-fill: white;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 4 12;
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+}
+
+
+/* ========================================
+   SCROLL BAR STYLING
+   ======================================== */
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8;
+}
+
+.scroll-bar:horizontal {
+    -fx-background-color: transparent;
+    -fx-pref-height: 8;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #cbd5e0;
+    -fx-background-radius: 5;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #a0aec0;
+}
+
+.scroll-bar .track {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+
+/* ========================================
+   SEPARATOR
+   ======================================== */
+.separator {
+    -fx-background-color: #eeeeee;
+}
+
+.separator .line,
+.separator *.line {
+    -fx-border-style: solid;
+    -fx-border-width: 1px;
+    -fx-border-color: #eeeeee;
+    -fx-background-color: #eeeeee;
+}
+

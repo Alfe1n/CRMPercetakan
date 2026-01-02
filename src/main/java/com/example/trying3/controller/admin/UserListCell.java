@@ -14,17 +14,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
 /**
- * Custom ListCell untuk menampilkan data User dalam bentuk kartu
- * Dengan tombol Edit (Reset Password), Toggle Status, dan Hapus
+ * Custom ListCell untuk menampilkan user dalam bentuk kartu
+ * Mendukung edit (reset password), toggle status, dan hapus
  */
 public class UserListCell extends ListCell<User> {
 
-    // Interface untuk mengirim aksi kembali ke Controller
     private final Consumer<User> onEdit;
     private final Consumer<User> onDelete;
     private final Consumer<User> onToggleStatus;
 
-    // Komponen UI
     private final HBox container;
     private final VBox infoBox;
     private final Label nameLabel;
@@ -36,9 +34,6 @@ public class UserListCell extends ListCell<User> {
     private final Button btnToggleStatus;
     private final Button btnHapus;
 
-    /**
-     * Constructor: Menerima fungsi aksi dari Controller
-     */
     public UserListCell(Consumer<User> onEdit,
                         Consumer<User> onDelete,
                         Consumer<User> onToggleStatus) {
@@ -46,14 +41,12 @@ public class UserListCell extends ListCell<User> {
         this.onDelete = onDelete;
         this.onToggleStatus = onToggleStatus;
 
-        // Container utama
         container = new HBox();
         container.setAlignment(Pos.CENTER_LEFT);
         container.setSpacing(15);
         container.setPadding(new Insets(15, 20, 15, 20));
         container.getStyleClass().add("user-list-item");
 
-        // Info Box (Kiri)
         infoBox = new VBox(3);
         HBox.setHgrow(infoBox, Priority.ALWAYS);
 
@@ -68,15 +61,12 @@ public class UserListCell extends ListCell<User> {
 
         infoBox.getChildren().addAll(nameLabel, emailLabel, dateLabel);
 
-        // Status Badge
         statusBadge = new Label();
         statusBadge.getStyleClass().add("status-badge");
 
-        // Role Badge
         roleBadge = new Label();
         roleBadge.getStyleClass().add("role-badge");
 
-        // Action Buttons
         btnEdit = new Button("✏ Edit");
         btnEdit.getStyleClass().addAll("button", "button-primary", "button-small");
 
@@ -86,7 +76,6 @@ public class UserListCell extends ListCell<User> {
         btnHapus = new Button("🗑");
         btnHapus.getStyleClass().addAll("button", "button-icon-danger");
 
-        // Action Box (Kanan)
         HBox actionBox = new HBox(10);
         actionBox.setAlignment(Pos.CENTER_RIGHT);
         actionBox.getChildren().addAll(statusBadge, roleBadge, btnEdit, btnToggleStatus, btnHapus);
@@ -94,9 +83,6 @@ public class UserListCell extends ListCell<User> {
         container.getChildren().addAll(infoBox, actionBox);
     }
 
-    /**
-     * METHOD PENTING: Dipanggil otomatis setiap kali data user perlu ditampilkan
-     */
     @Override
     protected void updateItem(User user, boolean empty) {
         super.updateItem(user, empty);
@@ -106,27 +92,22 @@ public class UserListCell extends ListCell<User> {
             return;
         }
 
-        // Mengisi data ke label UI
         nameLabel.setText(user.getNamaLengkap());
         emailLabel.setText(user.getEmail());
 
-        // Format tanggal dibuat
         if (user.getCreatedAt() != null) {
             dateLabel.setText("Dibuat: " + user.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         } else {
             dateLabel.setText("Dibuat: -");
         }
 
-        // Set status badge
         boolean isActive = user.isActive();
         statusBadge.setText(isActive ? "Aktif" : "Nonaktif");
         statusBadge.getStyleClass().removeAll("status-aktif", "status-nonaktif");
         statusBadge.getStyleClass().add(isActive ? "status-aktif" : "status-nonaktif");
 
-        // Set toggle button text berdasarkan status
         btnToggleStatus.setText(isActive ? "Nonaktifkan" : "Aktifkan");
 
-        // Set role badge
         String roleName = getRoleNameFromId(user.getIdRole());
         roleBadge.setText(roleName);
         roleBadge.getStyleClass().removeAll("role-admin", "role-desain", "role-produksi", "role-manajemen");
@@ -138,7 +119,6 @@ public class UserListCell extends ListCell<User> {
             case 4 -> roleBadge.getStyleClass().add("role-manajemen");
         }
 
-        // Event handlers - menghubungkan tombol dengan fungsi di Controller
         btnEdit.setOnAction(e -> {
             if (onEdit != null) {
                 onEdit.accept(user);
@@ -161,7 +141,7 @@ public class UserListCell extends ListCell<User> {
     }
 
     /**
-     * Helper method untuk mendapatkan nama role dari ID
+     * Konversi ID role ke nama role
      */
     private String getRoleNameFromId(int roleId) {
         return switch (roleId) {

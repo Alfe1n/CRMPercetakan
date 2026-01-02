@@ -12,10 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Controller untuk halaman Inventori.
+ * Menampilkan status stok bahan produksi.
+ */
 public class InventoriController implements Initializable {
 
-    @FXML
-    private FlowPane inventoryContainer;
+    @FXML private FlowPane inventoryContainer;
 
     private List<InventoryItem> items = new ArrayList<>();
 
@@ -26,7 +29,6 @@ public class InventoriController implements Initializable {
     }
 
     private void loadDummyData() {
-        // Data Dummy sesuai gambar image_cc120a.png
         items.add(new InventoryItem("Kertas A4 80gsm", "50", "rim", "Normal"));
         items.add(new InventoryItem("Tinta Cyan", "5", "botol", "Rendah"));
         items.add(new InventoryItem("Kertas Art Paper 150gsm", "25", "rim", "Normal"));
@@ -46,19 +48,15 @@ public class InventoriController implements Initializable {
                 "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);");
         card.setPrefWidth(280);
 
-        // 1. Nama Bahan
         Label lblName = new Label(item.getName());
         lblName.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #333;");
 
-        // 2. Jumlah (Angka Besar)
         Label lblQty = new Label(item.getQuantity());
         lblQty.setStyle("-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #1a1a1a;");
 
-        // 3. Satuan
         Label lblUnit = new Label(item.getUnit());
         lblUnit.setStyle("-fx-text-fill: #888; -fx-font-size: 12px;");
 
-        // 4. Status Pill
         Label lblStatus = new Label(item.getStatus());
         applyStatusStyle(lblStatus, item.getStatus());
 

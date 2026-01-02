@@ -9,6 +9,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
+/**
+ * Custom ListCell untuk menampilkan pesanan terbaru di dashboard
+ */
 public class PesananTerbaruCell extends ListCell<Pesanan> {
 
     private final HBox container;
@@ -18,14 +21,12 @@ public class PesananTerbaruCell extends ListCell<Pesanan> {
     private final Label statusLabel;
 
     public PesananTerbaruCell() {
-        // Container utama
         container = new HBox();
         container.setAlignment(Pos.CENTER_LEFT);
         container.setSpacing(15);
         container.setPadding(new Insets(15, 20, 15, 20));
         container.getStyleClass().add("dashboard-pesanan-item");
 
-        // Info box (nama + jenis layanan)
         infoBox = new VBox(4);
         infoBox.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(infoBox, Priority.ALWAYS);
@@ -38,7 +39,6 @@ public class PesananTerbaruCell extends ListCell<Pesanan> {
 
         infoBox.getChildren().addAll(namaPelangganLabel, jenisLayananLabel);
 
-        // Status badge
         statusLabel = new Label();
         statusLabel.getStyleClass().add("dashboard-status-badge");
 
@@ -53,20 +53,16 @@ public class PesananTerbaruCell extends ListCell<Pesanan> {
             setGraphic(null);
             setText(null);
         } else {
-            // Set data
             namaPelangganLabel.setText(pesanan.getNamaPelanggan());
             jenisLayananLabel.setText(pesanan.getJenisLayanan() != null ?
                     pesanan.getJenisLayanan() : "Tidak ada layanan");
 
-            // Set status dengan styling
             String status = pesanan.getStatus();
             statusLabel.setText(status);
 
-            // Reset style classes
             statusLabel.getStyleClass().removeIf(style -> style.startsWith("status-"));
             statusLabel.getStyleClass().add("dashboard-status-badge");
 
-            // Apply status-specific style
             String statusStyleClass = getStatusStyleClass(status);
             statusLabel.getStyleClass().add(statusStyleClass);
 
@@ -75,7 +71,7 @@ public class PesananTerbaruCell extends ListCell<Pesanan> {
     }
 
     /**
-     * Menentukan style class berdasarkan status pesanan
+     * Mapping status pesanan ke CSS class
      */
     private String getStatusStyleClass(String status) {
         if (status == null) return "status-default";

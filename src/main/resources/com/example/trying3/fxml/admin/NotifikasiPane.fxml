@@ -19,9 +19,6 @@
 
             <children>
 
-                <!-- ============================================
-                     HEADER SECTION
-                     ============================================ -->
                 <VBox spacing="8.0" styleClass="page-header">
                     <children>
                         <Label styleClass="page-title" text="Notifikasi" />
@@ -29,9 +26,6 @@
                     </children>
                 </VBox>
 
-                <!-- ============================================
-                     STATISTICS CARDS
-                     ============================================ -->
                 <HBox spacing="20.0">
                     <children>
 
@@ -89,9 +83,6 @@
                     </children>
                 </HBox>
 
-                <!-- ============================================
-                     NOTIFIKASI LIST
-                     ============================================ -->
                 <VBox styleClass="card" spacing="20.0">
                     <children>
 
@@ -144,9 +135,7 @@
                     </children>
                 </VBox>
 
-                <!-- ============================================
-                     INFO SECTION
-                     ============================================ -->
+
                 <VBox styleClass="card, info-card" spacing="15.0">
                     <children>
                         <Label styleClass="card-title" text="📋 Tentang Notifikasi" />

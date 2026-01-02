@@ -6,18 +6,11 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<!-- Menggunakan VBox sebagai root untuk memusatkan konten login -->
-
 <VBox alignment="CENTER" minHeight="1080.0" minWidth="1920.0" style="-fx-background-color: #f4f7fa;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.trying3.controller.auth.LoginController">
     <children>
         <!-- Konten atas: Logo dan Sambutan -->
         <VBox alignment="CENTER" prefHeight="250.0">
             <children>
-                <ImageView fitHeight="80.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true">
-                    <image>
-<!--                        <Image url="@picture/logo.png" />-->
-                    </image>
-                </ImageView>
                 <Label text="Welcome Back">
                     <font>
                         <Font name="Microsoft YaHei UI Bold" size="28.0" />

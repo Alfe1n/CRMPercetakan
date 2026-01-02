@@ -21,7 +21,6 @@ public class Notifikasi {
     private LocalDateTime tanggalDibuat;
     private boolean sudahDibaca;
 
-    // Constructors
     public Notifikasi() {
     }
 
@@ -38,7 +37,6 @@ public class Notifikasi {
         setSumberDivisiByTipe();
     }
 
-    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -128,7 +126,6 @@ public class Notifikasi {
         this.sudahDibaca = sudahDibaca;
     }
 
-    // Helper Methods
     private void setSumberDivisiByTipe() {
         if (tipe == null) return;
 
@@ -145,9 +142,6 @@ public class Notifikasi {
         }
     }
 
-    /**
-     * Mendapatkan icon berdasarkan tipe notifikasi
-     */
     public String getIcon() {
         if (tipe == null) return "🔔";
 
@@ -159,9 +153,6 @@ public class Notifikasi {
         };
     }
 
-    /**
-     * Mendapatkan warna badge berdasarkan tipe
-     */
     public String getBadgeColor() {
         if (tipe == null) return "#7f8c8d";
 
@@ -173,9 +164,6 @@ public class Notifikasi {
         };
     }
 
-    /**
-     * Mendapatkan label tipe yang user-friendly
-     */
     public String getTipeLabel() {
         if (tipe == null) return "Notifikasi";
 
@@ -187,9 +175,6 @@ public class Notifikasi {
         };
     }
 
-    /**
-     * Format waktu relatif
-     */
     public String getWaktuRelatif() {
         if (tanggalDibuat == null) return "-";
 
@@ -211,9 +196,6 @@ public class Notifikasi {
         }
     }
 
-    /**
-     * Format tanggal lengkap
-     */
     public String getFormattedDateTime() {
         if (tanggalDibuat == null) return "-";
         return tanggalDibuat.format(DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm"));

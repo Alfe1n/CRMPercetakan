@@ -3,6 +3,10 @@ package com.example.trying3.model;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Model untuk Pesanan/Order.
+ * Menyimpan informasi pesanan dari pelanggan termasuk detail layanan dan status.
+ */
 public class Pesanan {
     private int idPesanan;
     private String namaPelanggan;
@@ -11,7 +15,7 @@ public class Pesanan {
     private String email;
     private String jenisLayanan;
     private int jumlah;
-    private double totalBiaya; // DIUBAH: dari totalHarga menjadi totalBiaya (sesuai DB)
+    private double totalBiaya;
     private String spesifikasi;
     private String catatan;
     private String status;
@@ -19,7 +23,6 @@ public class Pesanan {
     private LocalDateTime updatedAt;
     private String fileDesainPath;
 
-    // Constructors
     public Pesanan() {
     }
 
@@ -32,13 +35,12 @@ public class Pesanan {
         this.email = email;
         this.jenisLayanan = jenisLayanan;
         this.jumlah = jumlah;
-        this.totalBiaya = totalBiaya; // Sesuaikan
+        this.totalBiaya = totalBiaya;
         this.spesifikasi = spesifikasi;
         this.status = status;
         this.tanggalPesanan = tanggalPesanan;
     }
 
-    // Getters and Setters
     public int getIdPesanan() { return idPesanan; }
     public void setIdPesanan(int idPesanan) { this.idPesanan = idPesanan; }
 
@@ -67,7 +69,6 @@ public class Pesanan {
     public int getJumlah() { return jumlah; }
     public void setJumlah(int jumlah) { this.jumlah = jumlah; }
 
-    // GETTER & SETTER DISESUAIKAN KE totalBiaya
     public double getTotalBiaya() { return totalBiaya; }
     public void setTotalBiaya(double totalBiaya) { this.totalBiaya = totalBiaya; }
 
@@ -89,7 +90,6 @@ public class Pesanan {
     public String getFileDesainPath() { return fileDesainPath; }
     public void setFileDesainPath(String fileDesainPath) { this.fileDesainPath = fileDesainPath; }
 
-    // Helpers untuk tampilan
     public String getFormattedDate() {
         if (tanggalPesanan == null) return "-";
         return tanggalPesanan.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));

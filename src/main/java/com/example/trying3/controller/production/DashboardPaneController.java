@@ -4,7 +4,6 @@ import com.example.trying3.dao.PesananDAO;
 import com.example.trying3.model.Pesanan;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -16,6 +15,10 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Controller untuk pane utama Dashboard Produksi.
+ * Menampilkan statistik produksi dan antrian pesanan yang perlu dikerjakan.
+ */
 public class DashboardPaneController implements Initializable {
 
     @FXML private Label waitingLabel;
@@ -32,30 +35,32 @@ public class DashboardPaneController implements Initializable {
     }
 
     private void loadDashboardData() {
-        // Mengambil data menggunakan method yang sama dengan ProduksiController
         List<Pesanan> allOrders = pesananDAO.getPesananForProduction();
 
-        // 1. Update Statistik (Stat Boxes) [cite: 21, 26, 31]
         long waiting = allOrders.stream().filter(o -> o.getStatus().equalsIgnoreCase("Antrian Produksi")).count();
         long inProgress = allOrders.stream().filter(o -> o.getStatus().equalsIgnoreCase("Sedang Diproduksi")).count();
-        // Sesuai logic ProduksiController: Siap Dikirim dianggap selesai produksi
-        long completed = allOrders.stream().filter(o -> o.getStatus().equalsIgnoreCase("Siap Dikirim") || o.getStatus().equalsIgnoreCase("Selesai")).count();
+        long completed = allOrders.stream().filter(
+                        o -> o.getStatus().equalsIgnoreCase("Siap Dikirim") || o.getStatus().equalsIgnoreCase("Selesai"))
+                .count();
 
-        if (waitingLabel != null) waitingLabel.setText(String.valueOf(waiting));
-        if (inProgressLabel != null) inProgressLabel.setText(String.valueOf(inProgress));
-        if (completedLabel != null) completedLabel.setText(String.valueOf(completed));
+        if (waitingLabel != null)
+            waitingLabel.setText(String.valueOf(waiting));
+        if (inProgressLabel != null)
+            inProgressLabel.setText(String.valueOf(inProgress));
+        if (completedLabel != null)
+            completedLabel.setText(String.valueOf(completed));
 
-        // 2. Render Daftar Antrian [cite: 33]
         renderQueue(allOrders);
     }
 
     private void renderQueue(List<Pesanan> orders) {
-        if (queueContainer == null) return;
+        if (queueContainer == null)
+            return;
         queueContainer.getChildren().clear();
 
-        // Filter hanya yang belum selesai (Antrian & Sedang Diproduksi)
         List<Pesanan> activeOrders = orders.stream()
-                .filter(o -> !o.getStatus().equalsIgnoreCase("Siap Dikirim") && !o.getStatus().equalsIgnoreCase("Selesai"))
+                .filter(o -> !o.getStatus().equalsIgnoreCase("Siap Dikirim")
+                        && !o.getStatus().equalsIgnoreCase("Selesai"))
                 .toList();
 
         if (activeOrders.isEmpty()) {
@@ -70,12 +75,11 @@ public class DashboardPaneController implements Initializable {
         }
     }
 
-    // Membuat kartu pesanan sesuai tampilan image_cc6f69.png
     private VBox createSimpleOrderCard(Pesanan p) {
         VBox card = new VBox(10);
-        card.setStyle("-fx-background-color: white; -fx-border-color: #eee; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 20;");
+        card.setStyle(
+                "-fx-background-color: white; -fx-border-color: #eee; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 20;");
 
-        // Header: ID & Pelanggan | Status Pill
         HBox header = new HBox();
         header.setAlignment(Pos.CENTER_LEFT);
 
@@ -99,7 +103,6 @@ public class DashboardPaneController implements Initializable {
 
         header.getChildren().addAll(titleBox, spacer, lblStatus);
 
-        // Details: Layanan, Jumlah, Spesifikasi
         VBox details = new VBox(5);
         details.getChildren().add(createDetailRow("Layanan: ", p.getJenisLayanan()));
         details.getChildren().add(createDetailRow("Jumlah: ", p.getJumlah() + " pcs"));

@@ -16,6 +16,10 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.time.Duration;
 
+/**
+ * Controller untuk halaman login aplikasi CRM Percetakan.
+ * Menangani autentikasi pengguna dan redirect ke dashboard sesuai role.
+ */
 public class LoginController {
 
     @FXML private TextField txtUsername;
@@ -29,11 +33,9 @@ public class LoginController {
 
     @FXML
     private void handleLoginButton(ActionEvent e) {
-        // Get input
         String username = txtUsername.getText();
         String password = txtPassword.getText();
 
-        // Validasi input kosong
         if (username == null || username.trim().isEmpty()) {
             AlertUtil.showWarning("Peringatan", "Username tidak boleh kosong!");
             txtUsername.requestFocus();
@@ -46,76 +48,67 @@ public class LoginController {
             return;
         }
 
-        // Proses login
         User user = authService.login(username, password);
 
         if (user == null) {
-            // Login gagal - cek alasan
-            User failedUser = authService.getCurrentUser();
-
-            // Tampilkan pesan error yang sesuai
-            if (failedUser != null) {
-                if (!failedUser.isActive()) {
-                    AlertUtil.showAccountInactive();
-                } else if (failedUser.isLocked()) {
-                    Duration duration = Duration.between(
-                            java.time.LocalDateTime.now(),
-                            failedUser.getLockedUntil()
-                    );
-                    int minutes = (int) duration.toMinutes();
-                    AlertUtil.showAccountLocked(minutes);
-                }
-            } else {
-                AlertUtil.showLoginError();
-            }
-
-            // Clear password field
-            txtPassword.clear();
-            txtUsername.requestFocus();
+            handleFailedLogin();
             return;
         }
 
-        // Login berhasil
         System.out.println("✅ Login berhasil! User: " + user.getNamaLengkap());
         System.out.println("   Role ID: " + user.getIdRole());
         System.out.println("   Is Active: " + user.isActive());
 
-        // Redirect ke dashboard sesuai role
         redirectToDashboard(e, user);
     }
 
+    /**
+     * Menangani kasus login gagal dengan menampilkan pesan error yang sesuai.
+     */
+    private void handleFailedLogin() {
+        User failedUser = authService.getCurrentUser();
+
+        if (failedUser != null) {
+            if (!failedUser.isActive()) {
+                AlertUtil.showAccountInactive();
+            } else if (failedUser.isLocked()) {
+                Duration duration = Duration.between(
+                        java.time.LocalDateTime.now(),
+                        failedUser.getLockedUntil()
+                );
+                int minutes = (int) duration.toMinutes();
+                AlertUtil.showAccountLocked(minutes);
+            }
+        } else {
+            AlertUtil.showLoginError();
+        }
+
+        txtPassword.clear();
+        txtUsername.requestFocus();
+    }
+
+    /**
+     * Redirect user ke dashboard yang sesuai dengan role-nya.
+     *
+     * @param e Event dari button login
+     * @param user User yang berhasil login
+     */
     private void redirectToDashboard(ActionEvent e, User user){
         try {
-            String fxmlPath;
+            String fxmlPath = switch (user.getIdRole()) {
+                case 1 -> "fxml/admin/Dashboard.fxml";
+                case 2 -> "fxml/designer/DashboardDesign.fxml";
+                case 3 -> "fxml/production/DashboardProduction.fxml";
+                case 4 -> "fxml/manajemen/DashboardManagement.fxml";
+                default -> "fxml/admin/Dashboard.fxml";
+            };
 
-            // Tentukan dashboard berdasarkan role
-            switch (user.getIdRole()) {
-                case 1: // Admin
-                    fxmlPath = "fxml/admin/Dashboard.fxml";
-                    break;
-                case 2: // Designer
-                    fxmlPath = "fxml/designer/DashboardDesign.fxml"; // Belum ada, pakai admin dulu
-                    break;
-                case 3: // Production
-                    fxmlPath = "fxml/production/DashboardProduction.fxml"; // Belum ada, pakai admin dulu
-                    break;
-                case 4: // Manager
-                    fxmlPath = "fxml/manajemen/DashboardManagement.fxml"; // Belum ada, pakai admin dulu
-                    break;
-                default:
-                    fxmlPath = "fxml/admin/Dashboard.fxml";
-            }
-
-            // Load dashboard scene
             FXMLLoader fxmlLoader = new FXMLLoader(
                     MainApplication.class.getResource(fxmlPath)
             );
             Scene dashboardScene = new Scene(fxmlLoader.load(), 1920, 1080);
 
-            // Dapatkan stage saat ini
             Stage stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
-
-            // Ganti scene ke dashboard
             stage.setScene(dashboardScene);
             stage.setTitle("CRM Percetakan - Dashboard");
             stage.setResizable(false);
@@ -161,12 +154,10 @@ public class LoginController {
     private void initialize() {
         System.out.println("LoginController initialized");
 
-        // Set focus ke username field
         if (txtUsername != null) {
             txtUsername.requestFocus();
         }
 
-        // Enter key pada password field = login
         if (txtPassword != null) {
             txtPassword.setOnAction(this::handleLoginButton);
         }

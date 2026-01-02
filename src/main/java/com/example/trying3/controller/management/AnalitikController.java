@@ -10,6 +10,10 @@ import java.net.URL;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+/**
+ * Controller untuk halaman Analitik.
+ * Menampilkan tren pesanan dan distribusi pendapatan dalam bentuk grafik.
+ */
 public class AnalitikController implements Initializable {
 
     @FXML private LineChart<String, Number> lineChart;
@@ -25,7 +29,7 @@ public class AnalitikController implements Initializable {
 
     private void loadTrendData() {
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        Map<String, Integer> data = pesananDAO.getOrderTrend(); // Pastikan method ini ada di DAO
+        Map<String, Integer> data = pesananDAO.getOrderTrend();
 
         if (data.isEmpty()) {
             series.getData().add(new XYChart.Data<>("No Data", 0));
@@ -37,10 +41,9 @@ public class AnalitikController implements Initializable {
 
     private void loadRevenueData() {
         Map<String, Double> data = pesananDAO.getRevenueDistribution();
-        revenuePieChart.getData().clear(); // Bersihkan data lama
+        revenuePieChart.getData().clear();
 
         if (data == null || data.isEmpty()) {
-            // Jika database benar-benar kosong, beri info di grafik
             revenuePieChart.getData().add(new PieChart.Data("Data Belum Tersedia", 1));
             System.out.println("Peringatan: Tidak ada data pendapatan ditemukan di DB.");
         } else {

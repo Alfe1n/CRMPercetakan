@@ -17,6 +17,10 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+/**
+ * Controller untuk halaman registrasi user baru (untuk testing).
+ * Menangani pembuatan akun user dengan berbagai role.
+ */
 public class SignupController {
 
     @FXML private TextField txtUsername;
@@ -35,64 +39,29 @@ public class SignupController {
     public void initialize() {
         System.out.println("SignupController initialized");
 
-        // Setup ComboBox role
         cmbRole.setItems(FXCollections.observableArrayList(
                 "Administrator",
                 "Designer",
                 "Operator Produksi",
                 "Manager"
         ));
-        cmbRole.getSelectionModel().select(0); // Default: Administrator
+        cmbRole.getSelectionModel().select(0);
     }
 
     @FXML
     private void handleSignup(ActionEvent event) {
         System.out.println("🔄 Memproses signup...");
 
-        // Validasi input
         String username = txtUsername.getText();
         String password = txtPassword.getText();
         String namaLengkap = txtNamaLengkap.getText();
         String email = txtEmail.getText();
         String roleStr = cmbRole.getValue();
 
-        // Validasi kosong
-        if (username == null || username.trim().isEmpty()) {
-            AlertUtil.showWarning("Peringatan", "Username tidak boleh kosong!");
-            txtUsername.requestFocus();
+        if (!validateInput(username, password, namaLengkap, email, roleStr)) {
             return;
         }
 
-        if (password == null || password.trim().isEmpty()) {
-            AlertUtil.showWarning("Peringatan", "Password tidak boleh kosong!");
-            txtPassword.requestFocus();
-            return;
-        }
-
-        if (password.length() < 6) {
-            AlertUtil.showWarning("Peringatan", "Password minimal 6 karakter!");
-            txtPassword.requestFocus();
-            return;
-        }
-
-        if (namaLengkap == null || namaLengkap.trim().isEmpty()) {
-            AlertUtil.showWarning("Peringatan", "Nama lengkap tidak boleh kosong!");
-            txtNamaLengkap.requestFocus();
-            return;
-        }
-
-        if (email == null || email.trim().isEmpty()) {
-            AlertUtil.showWarning("Peringatan", "Email tidak boleh kosong!");
-            txtEmail.requestFocus();
-            return;
-        }
-
-        if (roleStr == null) {
-            AlertUtil.showWarning("Peringatan", "Pilih role terlebih dahulu!");
-            return;
-        }
-
-        // Convert role string ke ID
         int roleId = getRoleId(roleStr);
 
         System.out.println("📝 Data user:");
@@ -102,16 +71,14 @@ public class SignupController {
         System.out.println("   Email: " + email);
         System.out.println("   Role: " + roleStr + " (ID: " + roleId + ")");
 
-        // Buat user object
         User newUser = new User();
         newUser.setUsername(username.trim());
-        newUser.setPasswordHash(password); // Sementara simpan plain password, akan di-hash di service
+        newUser.setPasswordHash(password);
         newUser.setNamaLengkap(namaLengkap.trim());
         newUser.setEmail(email.trim());
         newUser.setIdRole(roleId);
         newUser.setActive(true);
 
-        // Simpan ke database
         try {
             System.out.println("💾 Menyimpan user ke database...");
             User createdUser = userService.createUser(newUser);
@@ -128,7 +95,6 @@ public class SignupController {
                                 "Silakan login dengan kredensial tersebut."
                 );
 
-                // Kembali ke login
                 handleBackToLogin(event);
             } else {
                 System.err.println("❌ Gagal membuat user (return null)");
@@ -145,6 +111,51 @@ public class SignupController {
                 AlertUtil.showError("Error", "Gagal membuat akun: " + errorMsg);
             }
         }
+    }
+
+    /**
+     * Validasi input form registrasi.
+     *
+     * @return true jika semua input valid, false jika ada yang tidak valid
+     */
+    private boolean validateInput(String username, String password, String namaLengkap,
+                                   String email, String roleStr) {
+        if (username == null || username.trim().isEmpty()) {
+            AlertUtil.showWarning("Peringatan", "Username tidak boleh kosong!");
+            txtUsername.requestFocus();
+            return false;
+        }
+
+        if (password == null || password.trim().isEmpty()) {
+            AlertUtil.showWarning("Peringatan", "Password tidak boleh kosong!");
+            txtPassword.requestFocus();
+            return false;
+        }
+
+        if (password.length() < 6) {
+            AlertUtil.showWarning("Peringatan", "Password minimal 6 karakter!");
+            txtPassword.requestFocus();
+            return false;
+        }
+
+        if (namaLengkap == null || namaLengkap.trim().isEmpty()) {
+            AlertUtil.showWarning("Peringatan", "Nama lengkap tidak boleh kosong!");
+            txtNamaLengkap.requestFocus();
+            return false;
+        }
+
+        if (email == null || email.trim().isEmpty()) {
+            AlertUtil.showWarning("Peringatan", "Email tidak boleh kosong!");
+            txtEmail.requestFocus();
+            return false;
+        }
+
+        if (roleStr == null) {
+            AlertUtil.showWarning("Peringatan", "Pilih role terlebih dahulu!");
+            return false;
+        }
+
+        return true;
     }
 
     @FXML

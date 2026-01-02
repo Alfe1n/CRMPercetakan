@@ -2,32 +2,24 @@ package com.example.trying3.model;
 
 import java.time.LocalDateTime;
 
+/**
+ * Model untuk User/Pengguna sistem.
+ * Menyimpan informasi user, credentials, dan security features.
+ */
 public class User {
-    // Primary Key
     private int idUser;
-
-    // Credentials
     private String username;
     private String passwordHash;
-
-    // Personal Info
     private String namaLengkap;
     private String email;
-
-    // Role & Status
     private int idRole;
     private boolean isActive;
-
-    // Security & Tracking
     private LocalDateTime lastLogin;
     private int failedLoginAttempts;
     private LocalDateTime lockedUntil;
-
-    // Audit Trail
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // Constructor
     public User() {}
 
     public User(int idUser, String username, String namaLengkap, String email,
@@ -40,7 +32,7 @@ public class User {
         this.isActive = isActive;
     }
 
-    // Getters and Setters
+    // ...existing code...
     public int getIdUser() { return idUser; }
     public void setIdUser(int idUser) { this.idUser = idUser; }
 
@@ -79,15 +71,19 @@ public class User {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
-    // Business Methods
+    /**
+     * Cek apakah akun terkunci berdasarkan waktu locked_until.
+     */
     public boolean isLocked() {
         if (lockedUntil == null) return false;
         return LocalDateTime.now().isBefore(lockedUntil);
     }
 
+    /**
+     * Increment failed attempts dan lock akun jika mencapai 5 kali gagal.
+     */
     public void incrementFailedAttempts() {
         this.failedLoginAttempts++;
-        // Lock account setelah 5 failed attempts (30 menit)
         if (this.failedLoginAttempts >= 5) {
             this.lockedUntil = LocalDateTime.now().plusMinutes(30);
         }

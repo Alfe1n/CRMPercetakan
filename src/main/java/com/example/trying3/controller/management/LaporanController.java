@@ -12,7 +12,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -24,20 +23,21 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Controller untuk halaman Laporan.
+ * Menampilkan ringkasan bisnis dan menyediakan fitur ekspor ke Excel (CSV) dan PDF.
+ */
 public class LaporanController {
 
     @FXML private ComboBox<String> comboPeriode;
     @FXML private ComboBox<String> comboJenis;
-
     @FXML private Button btnExcel;
     @FXML private Button btnPDF;
-
     @FXML private Label txtTotalPesanan;
     @FXML private Label txtPesananSelesai;
     @FXML private Label txtSelesaiPersen;
     @FXML private Label txtPendapatan;
     @FXML private Label txtTertunda;
-
     @FXML private VBox layananContainer;
     @FXML private VBox activityContainer;
 
@@ -49,21 +49,17 @@ public class LaporanController {
         pesananDAO = new PesananDAO();
         currencyFormat = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
 
-        // Setup Dropdown
         comboPeriode.setItems(FXCollections.observableArrayList("Harian", "Mingguan", "Bulanan", "Tahunan"));
         comboPeriode.getSelectionModel().select("Bulanan");
 
         comboJenis.setItems(FXCollections.observableArrayList("Semua Laporan"));
         comboJenis.getSelectionModel().selectFirst();
 
-        // Listener: Jika periode berubah, refresh data
         comboPeriode.valueProperty().addListener((obs, oldVal, newVal) -> refreshData());
 
-        // Setup Tombol Export
         btnExcel.setOnAction(e -> exportToExcel());
         btnPDF.setOnAction(e -> exportToPDF());
 
-        // Load Data Awal
         refreshData();
     }
 
@@ -73,8 +69,6 @@ public class LaporanController {
         loadLayananData(periode);
         loadActivityData();
     }
-
-    // --- BAGIAN LOAD DATA (Sama seperti sebelumnya) ---
 
     private void loadSummaryData(String periode) {
         double[] stats = pesananDAO.getLaporanSummary(periode);
@@ -108,7 +102,6 @@ public class LaporanController {
         }
 
         for (String[] row : dataLayanan) {
-            // Handle potensi null
             String nama = (row[0] == null) ? "Lainnya" : row[0];
             String jumlah = row[1];
             double uang = Double.parseDouble(row[2]);
@@ -131,7 +124,6 @@ public class LaporanController {
         }
     }
 
-    // --- BAGIAN EXPORT EXCEL (CSV) ---
     private void exportToExcel() {
         String periode = comboPeriode.getValue();
         List<Pesanan> exportList = pesananDAO.getPesananForExport(periode);
@@ -150,13 +142,10 @@ public class LaporanController {
 
         if (file != null) {
             try (FileWriter writer = new FileWriter(file)) {
-                // Header CSV
                 writer.write("ID Pesanan,Tanggal,Pelanggan,No Telepon,Layanan,Status,Total Harga\n");
 
-                // Isi Data
                 for (Pesanan p : exportList) {
                     String tgl = p.getTanggalPesanan() != null ? p.getTanggalPesanan().format(DateTimeFormatter.ISO_LOCAL_DATE) : "-";
-                    // Bersihkan koma dalam teks agar format CSV tidak rusak
                     String nama = p.getNamaPelanggan().replace(",", " ");
                     String layanan = p.getJenisLayanan().replace(",", " ");
 
@@ -172,7 +161,6 @@ public class LaporanController {
         }
     }
 
-    // --- BAGIAN EXPORT PDF (PrinterJob) ---
     private void exportToPDF() {
         String periode = comboPeriode.getValue();
         List<Pesanan> exportList = pesananDAO.getPesananForExport(periode);
@@ -186,10 +174,8 @@ public class LaporanController {
         if (job != null) {
             boolean proceed = job.showPrintDialog(btnPDF.getScene().getWindow());
             if (proceed) {
-                // Buat Layout Halaman Laporan
                 VBox reportPage = createPDFLayout(periode, exportList);
 
-                // Cetak
                 boolean success = job.printPage(reportPage);
                 if (success) {
                     job.endJob();
@@ -203,24 +189,24 @@ public class LaporanController {
         }
     }
 
+    /**
+     * Membuat layout halaman laporan untuk dicetak.
+     */
     private VBox createPDFLayout(String periode, List<Pesanan> data) {
         VBox layout = new VBox(15);
         layout.setPadding(new Insets(40));
-        layout.setPrefWidth(595); // Lebar A4
+        layout.setPrefWidth(595);
         layout.setStyle("-fx-background-color: white;");
 
-        // Header Laporan
         Label title = new Label("LAPORAN KINERJA PERCETAKAN");
         title.setFont(Font.font("Arial", FontWeight.BOLD, 18));
         Label subtitle = new Label("Periode: " + periode + " | Dicetak: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")));
 
-        // Tabel Sederhana (GridPane)
         GridPane table = new GridPane();
         table.setHgap(10);
         table.setVgap(5);
         table.setStyle("-fx-border-color: black; -fx-border-width: 1; -fx-padding: 10;");
 
-        // Header Tabel
         addCell(table, 0, 0, "ID", true);
         addCell(table, 1, 0, "TANGGAL", true);
         addCell(table, 2, 0, "PELANGGAN", true);
@@ -228,11 +214,8 @@ public class LaporanController {
         addCell(table, 4, 0, "STATUS", true);
         addCell(table, 5, 0, "TOTAL", true);
 
-        // Isi Tabel (Looping Data)
         int row = 1;
         double totalOmset = 0;
-
-        // Batasi 20 baris agar muat 1 halaman (untuk simpelnya)
         int limit = Math.min(data.size(), 20);
 
         for (int i = 0; i < limit; i++) {
@@ -275,7 +258,6 @@ public class LaporanController {
         grid.add(label, col, row);
     }
 
-    // --- UI HELPER ---
     private Node makeLayananRow(String name, String count, String revenue) {
         HBox row = new HBox();
         row.setAlignment(Pos.CENTER_LEFT);

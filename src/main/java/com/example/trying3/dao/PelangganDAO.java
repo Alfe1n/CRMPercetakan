@@ -4,10 +4,13 @@ import com.example.trying3.config.DatabaseConnection;
 import java.sql.*;
 import java.util.*;
 
+/**
+ * Data Access Object untuk Pelanggan.
+ * Mengelola operasi CRUD dan ekspor data pelanggan.
+ */
 public class PelangganDAO {
     public List<Map<String, String>> getAllPelangganForExport() {
         List<Map<String, String>> list = new ArrayList<>();
-        // FIX: Gunakan kolom 'nama' sesuai database
         String sql = "SELECT nama, email, no_telepon, alamat FROM pelanggan";
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -16,7 +19,7 @@ public class PelangganDAO {
 
             while (rs.next()) {
                 Map<String, String> map = new HashMap<>();
-                map.put("Nama", rs.getString("nama")); // Mapping ke 'nama'
+                map.put("Nama", rs.getString("nama"));
                 map.put("Email", rs.getString("email"));
                 map.put("Telepon", rs.getString("no_telepon"));
                 map.put("Alamat", rs.getString("alamat"));

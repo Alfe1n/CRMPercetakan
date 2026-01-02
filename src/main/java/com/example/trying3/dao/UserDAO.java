@@ -8,11 +8,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Data Access Object untuk operasi CRUD User.
+ * Menangani autentikasi, manajemen user, dan security features.
+ */
 public class UserDAO {
 
-    /**
-     * Get user by username (untuk login)
-     */
     public User getUserByUsername(String username) {
         String sql = "SELECT * FROM user WHERE username = ?";
 
@@ -34,9 +35,6 @@ public class UserDAO {
         return null;
     }
 
-    /**
-     * Update last login timestamp
-     */
     public boolean updateLastLogin(int userId) {
         String sql = "UPDATE user SET last_login = NOW(), " +
                 "failed_login_attempts = 0, locked_until = NULL " +
@@ -56,9 +54,6 @@ public class UserDAO {
         return false;
     }
 
-    /**
-     * Increment failed login attempts
-     */
     public boolean incrementFailedAttempts(int userId) {
         String sql = "UPDATE user SET failed_login_attempts = failed_login_attempts + 1 " +
                 "WHERE id_user = ?";
@@ -77,9 +72,6 @@ public class UserDAO {
         return false;
     }
 
-    /**
-     * Lock user account
-     */
     public boolean lockAccount(int userId, LocalDateTime until) {
         String sql = "UPDATE user SET locked_until = ? WHERE id_user = ?";
 
@@ -98,9 +90,6 @@ public class UserDAO {
         return false;
     }
 
-    /**
-     * Get all users
-     */
     public List<User> getAllUsers() {
         List<User> userList = new ArrayList<>();
         String sql = "SELECT id_user, username, nama_lengkap, email, id_role, " +
@@ -114,9 +103,6 @@ public class UserDAO {
             while (rs.next()) {
                 userList.add(mapResultSetToUser(rs));
             }
-
-            System.out.println("✅ Berhasil mengambil " + userList.size() + " user dari database");
-
         } catch (SQLException e) {
             System.err.println("Error saat mengambil data user!");
             e.printStackTrace();
@@ -125,14 +111,11 @@ public class UserDAO {
         return userList;
     }
 
-    /**
-     * Insert new user
-     */
     public boolean insertUser(User user) {
         String sql = "INSERT INTO user (username, password_hash, email, nama_lengkap, " +
                 "id_role, is_active) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             pstmt.setString(1, user.getUsername());
             pstmt.setString(2, user.getPasswordHash());
@@ -147,7 +130,6 @@ public class UserDAO {
                 if (generatedKeys.next()) {
                     user.setIdUser(generatedKeys.getInt(1));
                 }
-                System.out.println("✅ User berhasil ditambahkan: " + user.getUsername());
                 return true;
             }
         } catch (SQLException e) {
@@ -158,9 +140,6 @@ public class UserDAO {
         return false;
     }
 
-    /**
-     * Update user
-     */
     public boolean updateUser(User user) {
         String sql = "UPDATE user SET username = ?, email = ?, nama_lengkap = ?, " +
                 "id_role = ?, is_active = ? WHERE id_user = ?";
@@ -189,9 +168,6 @@ public class UserDAO {
         return false;
     }
 
-    /**
-     * Update password
-     */
     public boolean updatePassword(int userId, String newPasswordHash) {
         String sql = "UPDATE user SET password_hash = ? WHERE id_user = ?";
 
@@ -211,9 +187,6 @@ public class UserDAO {
         return false;
     }
 
-    /**
-     * Get total users count
-     */
     public int getTotalUsers() {
         String sql = "SELECT COUNT(*) as total FROM user";
 
@@ -233,19 +206,14 @@ public class UserDAO {
         return 0;
     }
 
-    /**
-     * Helper method untuk mapping ResultSet ke User object
-     */
     private User mapResultSetToUser(ResultSet rs) throws SQLException {
         User user = new User();
         user.setIdUser(rs.getInt("id_user"));
         user.setUsername(rs.getString("username"));
 
-        // Password hash hanya diambil jika ada di SELECT (untuk login)
         try {
             user.setPasswordHash(rs.getString("password_hash"));
         } catch (SQLException e) {
-            // Column tidak ada, skip (normal untuk query tanpa password)
         }
 
         user.setNamaLengkap(rs.getString("nama_lengkap"));
@@ -253,7 +221,6 @@ public class UserDAO {
         user.setIdRole(rs.getInt("id_role"));
         user.setActive(rs.getBoolean("is_active"));
 
-        // Optional fields
         Timestamp lastLogin = rs.getTimestamp("last_login");
         if (lastLogin != null) {
             user.setLastLogin(lastLogin.toLocalDateTime());

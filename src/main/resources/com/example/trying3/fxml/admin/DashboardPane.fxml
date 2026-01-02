@@ -4,8 +4,6 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.Region?>
@@ -42,14 +40,11 @@
                         <!-- Card 1: Total Pesanan -->
                         <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
                             <children>
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <HBox alignment="CENTER_LEFT">
                                     <children>
-                                        <Label styleClass="stat-title" text="Total Pesanan" HBox.hgrow="ALWAYS" />
-                                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" styleClass="stat-icon">
-                                            <image>
-                                                <Image url="@../../pictures/shopping-cartDark.png" />
-                                            </image>
-                                        </ImageView>
+                                        <Label styleClass="stat-title" text="Total Pesanan"/>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label text="🛒" style="-fx-font-size: 16px; -fx-text-fill: #999;"/>
                                     </children>
                                 </HBox>
                                 <Label fx:id="totalPesananLabel" styleClass="stat-value" text="0" />
@@ -60,14 +55,11 @@
                         <!-- Card 2: Pesanan Selesai -->
                         <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
                             <children>
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <HBox alignment="CENTER_LEFT">
                                     <children>
-                                        <Label styleClass="stat-title" text="Pesanan Selesai" HBox.hgrow="ALWAYS" />
-                                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" styleClass="stat-icon">
-                                            <image>
-                                                <Image url="@../../pictures/shopping-cartDark.png" />
-                                            </image>
-                                        </ImageView>
+                                        <Label styleClass="stat-title" text="Pesanan Selesai"/>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label text="✅" style="-fx-font-size: 16px; -fx-text-fill: #999;"/>
                                     </children>
                                 </HBox>
                                 <Label fx:id="pesananSelesaiLabel" styleClass="stat-value" text="0" />
@@ -78,14 +70,11 @@
                         <!-- Card 3: Pembayaran Pending -->
                         <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
                             <children>
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <HBox alignment="CENTER_LEFT">
                                     <children>
-                                        <Label styleClass="stat-title" text="Pembayaran Pending" HBox.hgrow="ALWAYS" />
-<!--                                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" styleClass="stat-icon">-->
-<!--                                            <image>-->
-<!--                                                <Image url="@../../pictures/clockDark.png" />-->
-<!--                                            </image>-->
-<!--                                        </ImageView>-->
+                                        <Label styleClass="stat-title" text="Pembayaran Pending"/>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label text="⏰" style="-fx-font-size: 16px; -fx-text-fill: #999;"/>
                                     </children>
                                 </HBox>
                                 <Label fx:id="pembayaranPendingLabel" styleClass="stat-value" text="0" />
@@ -96,14 +85,11 @@
                         <!-- Card 4: Total Pendapatan -->
                         <VBox styleClass="stat-box" HBox.hgrow="ALWAYS">
                             <children>
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <HBox alignment="CENTER_LEFT">
                                     <children>
-                                        <Label styleClass="stat-title" text="Total Pendapatan" HBox.hgrow="ALWAYS" />
-<!--                                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" styleClass="stat-icon">-->
-<!--                                            <image>-->
-<!--                                                <Image url="@../../pictures/dollarDark.png" />-->
-<!--                                            </image>-->
-<!--                                        </ImageView>-->
+                                        <Label styleClass="stat-title" text="Total Pendapatan"/>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label text="💰" style="-fx-font-size: 16px; -fx-text-fill: #999;"/>
                                     </children>
                                 </HBox>
                                 <Label fx:id="totalPendapatanLabel" styleClass="stat-value-currency" text="Rp 0" />

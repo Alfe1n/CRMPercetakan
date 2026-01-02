@@ -19,11 +19,9 @@ public class Pembayaran {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // Additional fields for display
     private String jenisLayanan;
     private int jumlahItem;
 
-    // Constructors
     public Pembayaran() {
     }
 
@@ -41,7 +39,6 @@ public class Pembayaran {
         this.tanggalPembayaran = tanggalPembayaran;
     }
 
-    // Getters and Setters
     public int getIdPembayaran() {
         return idPembayaran;
     }
