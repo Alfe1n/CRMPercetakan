@@ -16,10 +16,6 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.time.Duration;
 
-/**
- * Controller untuk halaman login aplikasi CRM Percetakan.
- * Menangani autentikasi pengguna dan redirect ke dashboard sesuai role.
- */
 public class LoginController {
 
     @FXML private TextField txtUsername;
@@ -55,10 +51,6 @@ public class LoginController {
             return;
         }
 
-        System.out.println("✅ Login berhasil! User: " + user.getNamaLengkap());
-        System.out.println("   Role ID: " + user.getIdRole());
-        System.out.println("   Is Active: " + user.isActive());
-
         redirectToDashboard(e, user);
     }
 
@@ -87,12 +79,6 @@ public class LoginController {
         txtUsername.requestFocus();
     }
 
-    /**
-     * Redirect user ke dashboard yang sesuai dengan role-nya.
-     *
-     * @param e Event dari button login
-     * @param user User yang berhasil login
-     */
     private void redirectToDashboard(ActionEvent e, User user){
         try {
             String fxmlPath = switch (user.getIdRole()) {
@@ -114,10 +100,7 @@ public class LoginController {
             stage.setResizable(false);
             stage.centerOnScreen();
             stage.show();
-
-            System.out.println("✅ Dashboard loaded successfully!");
         } catch (IOException ex) {
-            System.err.println("❌ Error loading dashboard!");
             ex.printStackTrace();
             AlertUtil.showError("Error", "Gagal memuat dashboard: " + ex.getMessage());
         }
@@ -133,7 +116,6 @@ public class LoginController {
     @FXML
     private void handleGoToSignup(javafx.scene.input.MouseEvent event) {
         try {
-            System.out.println("🔄 Navigasi ke halaman signup...");
             FXMLLoader loader = new FXMLLoader(
                     MainApplication.class.getResource("fxml/auth/Signup.fxml")
             );
@@ -144,7 +126,6 @@ public class LoginController {
             stage.setTitle("CRM Percetakan - Buat Akun Testing");
             stage.show();
         } catch (Exception e) {
-            System.err.println("❌ Error navigasi ke signup: " + e.getMessage());
             e.printStackTrace();
             AlertUtil.showError("Error", "Gagal membuka halaman signup: " + e.getMessage());
         }
@@ -152,7 +133,6 @@ public class LoginController {
 
     @FXML
     private void initialize() {
-        System.out.println("LoginController initialized");
 
         if (txtUsername != null) {
             txtUsername.requestFocus();

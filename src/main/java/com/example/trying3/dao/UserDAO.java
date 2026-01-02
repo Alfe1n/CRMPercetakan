@@ -156,7 +156,6 @@ public class UserDAO {
 
             int affected = pstmt.executeUpdate();
             if (affected > 0) {
-                System.out.println("✅ User berhasil diupdate: " + user.getUsername());
                 return true;
             }
 

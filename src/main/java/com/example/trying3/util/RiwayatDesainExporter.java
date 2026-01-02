@@ -17,24 +17,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 /**
- * Utility class untuk ekspor data Riwayat Desain ke Excel.
- * Memisahkan logic ekspor dari controller sesuai Single Responsibility
- * Principle.
- *
- * Mengikuti prinsip:
- * - Single Responsibility: Hanya menangani ekspor Excel
- * - Clean Code: Method yang jelas dan terdokumentasi
- * - Defensive Programming: Validasi input dan error handling
- *
- * @author Tim Development
- * @version 1.0
- * @since 2024
+ * Utility untuk ekspor data Riwayat Desain ke Excel.
  */
 public class RiwayatDesainExporter {
-
-    // ==================================================================================
-    // CONSTANTS
-    // ==================================================================================
 
     private static final String[] HEADERS = {
             "No", "ID Desain", "Nama Pelanggan", "Email",
@@ -45,19 +30,7 @@ public class RiwayatDesainExporter {
     private static final String SHEET_NAME = "Riwayat Desain";
     private static final String REPORT_TITLE = "LAPORAN RIWAYAT DESAIN";
 
-    // ==================================================================================
-    // PUBLIC METHODS
-    // ==================================================================================
-
-    /**
-     * Menampilkan dialog simpan dan ekspor data ke Excel.
-     *
-     * @param data  Data riwayat desain untuk diekspor
-     * @param stage Stage untuk FileChooser
-     * @return true jika berhasil, false jika gagal atau dibatalkan
-     */
     public static boolean exportWithDialog(ObservableList<RiwayatDesain> data, Stage stage) {
-        // Defensive: validasi input
         if (data == null || data.isEmpty()) {
             AlertUtil.showWarning("Peringatan", "Tidak ada data untuk diekspor.");
             return false;
@@ -68,25 +41,15 @@ public class RiwayatDesainExporter {
             return false;
         }
 
-        // Show file chooser
         File file = showSaveDialog(stage);
         if (file == null) {
-            return false; // User cancelled
+            return false;
         }
 
-        // Export to Excel
         return exportToExcel(data, file);
     }
 
-    /**
-     * Ekspor data ke file Excel.
-     *
-     * @param data Data untuk diekspor
-     * @param file File tujuan
-     * @return true jika berhasil
-     */
     public static boolean exportToExcel(ObservableList<RiwayatDesain> data, File file) {
-        // Defensive: validasi input
         if (data == null || data.isEmpty()) {
             return false;
         }
@@ -128,13 +91,6 @@ public class RiwayatDesainExporter {
         }
     }
 
-    // ==================================================================================
-    // PRIVATE METHODS - File Dialog
-    // ==================================================================================
-
-    /**
-     * Menampilkan dialog untuk menyimpan file.
-     */
     private static File showSaveDialog(Stage stage) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Simpan File Excel");
@@ -145,13 +101,6 @@ public class RiwayatDesainExporter {
         return fileChooser.showSaveDialog(stage);
     }
 
-    // ==================================================================================
-    // PRIVATE METHODS - Excel Creation
-    // ==================================================================================
-
-    /**
-     * Membuat section title di Excel.
-     */
     private static void createTitleSection(Sheet sheet, ExcelStyles styles) {
         // Title row
         Row titleRow = sheet.createRow(0);
@@ -169,9 +118,6 @@ public class RiwayatDesainExporter {
         sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 8));
     }
 
-    /**
-     * Membuat header row.
-     */
     private static void createHeaderRow(Sheet sheet, ExcelStyles styles, int rowIndex) {
         Row headerRow = sheet.createRow(rowIndex);
         for (int i = 0; i < HEADERS.length; i++) {
@@ -181,11 +127,6 @@ public class RiwayatDesainExporter {
         }
     }
 
-    /**
-     * Membuat data rows.
-     *
-     * @return grand total dari semua data
-     */
     private static double createDataRows(Sheet sheet, ExcelStyles styles,
                                          ObservableList<RiwayatDesain> data, int startRow) {
         int rowNum = startRow;
@@ -219,9 +160,6 @@ public class RiwayatDesainExporter {
         return grandTotal;
     }
 
-    /**
-     * Membuat total row.
-     */
     private static void createTotalRow(Workbook workbook, Sheet sheet, int rowIndex, double grandTotal) {
         Row totalRow = sheet.createRow(rowIndex);
 
@@ -246,27 +184,18 @@ public class RiwayatDesainExporter {
         totalValueCell.setCellStyle(totalValueStyle);
     }
 
-    /**
-     * Helper method untuk membuat cell dengan value string.
-     */
     private static void createCell(Row row, int column, String value, CellStyle style) {
         Cell cell = row.createCell(column);
         cell.setCellValue(value != null ? value : "-");
         cell.setCellStyle(style);
     }
 
-    /**
-     * Helper method untuk membuat cell dengan value numeric.
-     */
     private static void createCell(Row row, int column, int value, CellStyle style) {
         Cell cell = row.createCell(column);
         cell.setCellValue(value);
         cell.setCellStyle(style);
     }
 
-    /**
-     * Mendapatkan style berdasarkan status.
-     */
     private static CellStyle getStatusStyle(String status, ExcelStyles styles) {
         if (status == null)
             return styles.statusLainnyaStyle;
@@ -278,9 +207,6 @@ public class RiwayatDesainExporter {
         };
     }
 
-    /**
-     * Auto-size semua kolom.
-     */
     private static void autoSizeColumns(Sheet sheet) {
         for (int i = 0; i < HEADERS.length; i++) {
             sheet.autoSizeColumn(i);
@@ -294,22 +220,12 @@ public class RiwayatDesainExporter {
         sheet.setColumnWidth(8, Math.max(sheet.getColumnWidth(8), 4000)); // Total Biaya
     }
 
-    /**
-     * Simpan workbook ke file.
-     */
     private static void saveWorkbook(Workbook workbook, File file) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(file)) {
             workbook.write(fos);
         }
     }
 
-    // ==================================================================================
-    // INNER CLASS - Excel Styles
-    // ==================================================================================
-
-    /**
-     * Container untuk semua styles yang digunakan dalam Excel.
-     */
     private static ExcelStyles createStyles(Workbook workbook) {
         ExcelStyles styles = new ExcelStyles();
 
@@ -360,9 +276,6 @@ public class RiwayatDesainExporter {
         return styles;
     }
 
-    /**
-     * Membuat status style dengan warna background.
-     */
     private static CellStyle createStatusStyle(Workbook workbook, CellStyle baseStyle, IndexedColors bgColor) {
         CellStyle style = workbook.createCellStyle();
         style.cloneStyleFrom(baseStyle);
@@ -372,9 +285,6 @@ public class RiwayatDesainExporter {
         return style;
     }
 
-    /**
-     * Container class untuk Excel styles.
-     */
     private static class ExcelStyles {
         CellStyle headerStyle;
         CellStyle titleStyle;

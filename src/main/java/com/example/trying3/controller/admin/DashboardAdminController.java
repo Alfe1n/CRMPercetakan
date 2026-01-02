@@ -67,7 +67,7 @@ public class DashboardAdminController implements Initializable {
 
     /**
      * Load panel secara dinamis dengan caching untuk performa optimal
-     * 
+     *
      * @param fxmlFile Nama file FXML yang akan dimuat
      */
     private void loadPane(String fxmlFile) {
@@ -108,7 +108,7 @@ public class DashboardAdminController implements Initializable {
 
     /**
      * Mengatur tombol navigasi yang sedang aktif
-     * 
+     *
      * @param button Tombol yang akan diset sebagai aktif
      */
     private void setActiveButton(Label button) {
