@@ -85,14 +85,10 @@ public class NotifikasiController implements Initializable {
      * Memuat data notifikasi dan statistik dari database
      */
     private void loadData() {
-        System.out.println("🔄 Loading notifikasi data...");
-
         int revisiCount = notifikasiDAO.getRevisiDesainCount();
         int kendalaCount = notifikasiDAO.getKendalaProduksiCount();
         int siapDikirimCount = notifikasiDAO.getSiapDikirimCount();
         int totalCount = revisiCount + kendalaCount + siapDikirimCount;
-
-        System.out.println("📊 Stats - Revisi: " + revisiCount + ", Kendala: " + kendalaCount + ", Siap Dikirim: " + siapDikirimCount);
 
         if (totalNotifikasiLabel != null) totalNotifikasiLabel.setText(String.valueOf(totalCount));
         if (revisiDesainLabel != null) revisiDesainLabel.setText(String.valueOf(revisiCount));
@@ -100,14 +96,11 @@ public class NotifikasiController implements Initializable {
         if (siapDikirimLabel != null) siapDikirimLabel.setText(String.valueOf(siapDikirimCount));
 
         allNotifikasiList = notifikasiDAO.getAllNotifikasi();
-        System.out.println("📋 Loaded " + allNotifikasiList.size() + " notifikasi from DAO");
-
         applyFilter();
     }
 
     @FXML
     private void handleRefresh() {
-        System.out.println("🔄 Refresh button clicked");
         loadData();
     }
 
@@ -116,8 +109,6 @@ public class NotifikasiController implements Initializable {
      */
     private void applyFilter() {
         String filter = filterComboBox.getValue();
-        System.out.println("🔍 Applying filter: " + filter);
-
         List<Notifikasi> filtered;
 
         if (filter == null || "Semua Notifikasi".equals(filter)) {
@@ -135,7 +126,6 @@ public class NotifikasiController implements Initializable {
                 filtered = allNotifikasiList.stream()
                         .filter(n -> {
                             boolean match = finalTipeFilter.equals(n.getTipe());
-                            System.out.println("  - " + n.getJudul() + " (tipe: " + n.getTipe() + ") -> match: " + match);
                             return match;
                         })
                         .collect(Collectors.toList());
@@ -144,13 +134,8 @@ public class NotifikasiController implements Initializable {
             }
         }
 
-        System.out.println("🔍 Filtered result: " + filtered.size() + " items");
-
         notifikasiList.clear();
         notifikasiList.addAll(filtered);
-
-        System.out.println("🔍 notifikasiList size after filter: " + notifikasiList.size());
-
         updateListInfo();
     }
 
@@ -160,7 +145,6 @@ public class NotifikasiController implements Initializable {
     private void updateListInfo() {
         int count = notifikasiList.size();
         notifikasiCountLabel.setText("(" + count + " notifikasi)");
-        System.out.println("📋 Updating list info, count: " + count);
 
         if (count == 0) {
             notifikasiSubtitle.setText("Tidak ada notifikasi baru");
@@ -175,7 +159,6 @@ public class NotifikasiController implements Initializable {
      * Menampilkan atau menyembunyikan empty state
      */
     private void showEmptyState(boolean show) {
-        System.out.println("👁 showEmptyState: " + show);
         if (emptyStateBox != null) {
             emptyStateBox.setVisible(show);
             emptyStateBox.setManaged(show);

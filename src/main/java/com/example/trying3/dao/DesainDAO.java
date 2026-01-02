@@ -52,7 +52,7 @@ public class DesainDAO {
 
             boolean success = ps.executeUpdate() > 0;
             if (success) {
-                System.out.println("✅ Desain berhasil disimpan untuk pesanan: " + idPesanan);
+                System.out.println("Desain berhasil disimpan untuk pesanan: " + idPesanan);
             }
             return success;
 
@@ -291,10 +291,7 @@ public class DesainDAO {
             ps.setInt(4, STATUS_DALAM_PENGERJAAN);
             ps.setInt(5, idDesain);
             int rows = ps.executeUpdate();
-            System.out.println("🔍 DEBUG: UPDATE desain rows affected: " + rows);
         }
-
-        System.out.println("✅ Desain berhasil diupdate. Revisi ke-" + revisiKe);
     }
 
     private DesainInfo mapResultSetToDesainInfo(ResultSet rs) throws SQLException {

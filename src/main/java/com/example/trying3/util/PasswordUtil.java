@@ -37,13 +37,4 @@ public class PasswordUtil {
         }
         return password.toString();
     }
-
-    // TESTING
-    public static void main(String[] args) {
-        String password = "admin123";
-        String hashed = hashPassword(password);
-        System.out.println("Password: " + password);
-        System.out.println("Hashed: " + hashed);
-        System.out.println("Verify: " + verifyPassword(password, hashed));
-    }
 }

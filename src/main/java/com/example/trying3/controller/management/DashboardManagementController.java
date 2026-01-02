@@ -48,7 +48,6 @@ public class DashboardManagementController implements Initializable {
             contentArea.getChildren().setAll(pane);
 
         } catch (IOException e) {
-            System.err.println("=== ERROR SAAT MEMBUKA " + fxmlFile + " ===");
             e.printStackTrace();
 
             Alert alert = new Alert(Alert.AlertType.ERROR);

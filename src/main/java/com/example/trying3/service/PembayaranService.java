@@ -41,7 +41,6 @@ public class PembayaranService {
             updateStatusPesanan(conn, idPesanan, STATUS_SEDANG_DIKERJAKAN);
 
             conn.commit();
-            System.out.println("✅ Pembayaran verified untuk pesanan: " + idPesanan);
             return true;
 
         } catch (Exception e) {
@@ -69,7 +68,6 @@ public class PembayaranService {
             updateStatusPesanan(conn, idPesanan, STATUS_PENDING);
 
             conn.commit();
-            System.out.println("✅ Pembayaran ditolak untuk pesanan: " + idPesanan);
             return true;
 
         } catch (Exception e) {

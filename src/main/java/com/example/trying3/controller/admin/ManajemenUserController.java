@@ -103,7 +103,6 @@ public class ManajemenUserController implements Initializable {
 
         try {
             userList.addAll(userDAO.getAllUsers());
-            System.out.println("✅ Loaded " + userList.size() + " users");
         } catch (Exception e) {
             e.printStackTrace();
             showErrorAlert("Gagal memuat data user: " + e.getMessage());
