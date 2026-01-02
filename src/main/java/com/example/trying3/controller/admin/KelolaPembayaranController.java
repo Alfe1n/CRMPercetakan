@@ -41,8 +41,6 @@ public class KelolaPembayaranController {
 
     @FXML
     public void initialize() {
-        System.out.println("✅ KelolaPembayaranController initialized");
-
         setupLists();
         setupButtons();
         Platform.runLater(this::loadData);
@@ -53,7 +51,6 @@ public class KelolaPembayaranController {
         if (pendingListView.getParent() != null) {
             pendingListView.getParent().visibleProperty().addListener((obs, wasVisible, isNowVisible) -> {
                 if (isNowVisible) {
-                    System.out.println("🔄 Pane visible, refreshing data...");
                     loadData();
                 }
             });

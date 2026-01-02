@@ -116,8 +116,6 @@ public class RiwayatDesainPaneController implements Initializable {
                         totalBiaya));
             }
 
-            System.out.println("✅ Loaded " + masterData.size() + " riwayat desain dari database");
-
         } catch (SQLException e) {
             System.err.println("❌ Error loading riwayat desain: " + e.getMessage());
             e.printStackTrace();

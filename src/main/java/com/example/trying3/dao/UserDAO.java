@@ -156,7 +156,6 @@ public class UserDAO {
 
             int affected = pstmt.executeUpdate();
             if (affected > 0) {
-                System.out.println("✅ User berhasil diupdate: " + user.getUsername());
                 return true;
             }
 
@@ -244,5 +243,173 @@ public class UserDAO {
         }
 
         return user;
+    }
+
+    public String canDeleteUser(int userId) {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+
+            // Cek relasi dengan tabel pesanan (sebagai admin yang input)
+            String sqlPesanan = "SELECT COUNT(*) as total FROM pesanan WHERE id_user_admin = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(sqlPesanan)) {
+                pstmt.setInt(1, userId);
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next() && rs.getInt("total") > 0) {
+                    return "User masih memiliki " + rs.getInt("total") + " pesanan yang terkait. " +
+                            "Hapus atau pindahkan pesanan terlebih dahulu.";
+                }
+            }
+
+            // Cek relasi dengan tabel produksi (sebagai operator)
+            String sqlProduksi = "SELECT COUNT(*) as total FROM produksi WHERE id_operator = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(sqlProduksi)) {
+                pstmt.setInt(1, userId);
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next() && rs.getInt("total") > 0) {
+                    return "User masih memiliki " + rs.getInt("total") + " data produksi yang terkait.";
+                }
+            }
+
+            // Cek relasi dengan tabel desain (sebagai desainer)
+            String sqlDesain = "SELECT COUNT(*) as total FROM desain WHERE id_designer = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(sqlDesain)) {
+                pstmt.setInt(1, userId);
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next() && rs.getInt("total") > 0) {
+                    return "User masih memiliki " + rs.getInt("total") + " data desain yang terkait.";
+                }
+            }
+
+            // Cek relasi dengan tabel pembayaran (sebagai verifikator)
+            String sqlPembayaran = "SELECT COUNT(*) as total FROM pembayaran WHERE verified_by = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(sqlPembayaran)) {
+                pstmt.setInt(1, userId);
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next() && rs.getInt("total") > 0) {
+                    return "User masih memiliki " + rs.getInt("total") + " verifikasi pembayaran yang terkait.";
+                }
+            }
+
+            // Cek relasi dengan tabel laporan
+            String sqlLaporan = "SELECT COUNT(*) as total FROM laporan WHERE generated_by = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(sqlLaporan)) {
+                pstmt.setInt(1, userId);
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next() && rs.getInt("total") > 0) {
+                    return "User masih memiliki " + rs.getInt("total") + " laporan yang terkait.";
+                }
+            }
+
+            // Cek relasi dengan tabel kendala_produksi (sebagai pelapor)
+            String sqlKendala = "SELECT COUNT(*) as total FROM kendala_produksi WHERE dilaporkan_oleh = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(sqlKendala)) {
+                pstmt.setInt(1, userId);
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next() && rs.getInt("total") > 0) {
+                    return "User masih memiliki " + rs.getInt("total") + " laporan kendala yang terkait.";
+                }
+            }
+
+            // Cek relasi dengan tabel revisi_desain
+            String sqlRevisi = "SELECT COUNT(*) as total FROM revisi_desain WHERE direvisi_oleh = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(sqlRevisi)) {
+                pstmt.setInt(1, userId);
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next() && rs.getInt("total") > 0) {
+                    return "User masih memiliki " + rs.getInt("total") + " revisi desain yang terkait.";
+                }
+            }
+
+            // Semua cek berhasil, user bisa dihapus
+            return null;
+
+        } catch (SQLException e) {
+            System.err.println("Error canDeleteUser: " + e.getMessage());
+            e.printStackTrace();
+            return "Error saat mengecek relasi user: " + e.getMessage();
+        }
+    }
+
+    public boolean deleteUser(int userId) {
+        String sqlDeleteLog = "DELETE FROM log_aktivitas WHERE id_user = ?";
+        String sqlDeleteSyncQueue = "DELETE FROM sync_queue WHERE created_by = ?";
+        String sqlDeleteUser = "DELETE FROM user WHERE id_user = ?";
+
+        Connection conn = null;
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            // Hapus log aktivitas user (jika ada)
+            try (PreparedStatement pstmt = conn.prepareStatement(sqlDeleteLog)) {
+                pstmt.setInt(1, userId);
+                int deleted = pstmt.executeUpdate();
+                System.out.println("Log aktivitas dihapus: " + deleted + " record");
+            }
+
+            // Hapus sync queue user (jika ada)
+            try (PreparedStatement pstmt = conn.prepareStatement(sqlDeleteSyncQueue)) {
+                pstmt.setInt(1, userId);
+                int deleted = pstmt.executeUpdate();
+                System.out.println("Sync queue dihapus: " + deleted + " record");
+            }
+
+            // Hapus user
+            try (PreparedStatement pstmt = conn.prepareStatement(sqlDeleteUser)) {
+                pstmt.setInt(1, userId);
+                int affected = pstmt.executeUpdate();
+
+                if (affected > 0) {
+                    conn.commit();
+                    System.out.println("✅ User dengan ID " + userId + " berhasil dihapus");
+                    return true;
+                } else {
+                    conn.rollback();
+                    System.out.println("❌ User dengan ID " + userId + " tidak ditemukan");
+                    return false;
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error deleteUser: " + e.getMessage());
+            e.printStackTrace();
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            return false;
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public User getUserById(int userId) {
+        String sql = "SELECT * FROM user WHERE id_user = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return mapResultSetToUser(rs);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error getUserById: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

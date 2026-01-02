@@ -18,19 +18,15 @@ public class UserService {
      */
     public User createUser(User user) {
         try {
-            // Hash password sebelum disimpan
-            String plainPassword = user.getPasswordHash(); // Sementara ambil dari passwordHash
+            String plainPassword = user.getPasswordHash();
             String hashedPassword = PasswordUtil.hashPassword(plainPassword);
             user.setPasswordHash(hashedPassword);
 
-            // Simpan ke database menggunakan method yang sudah ada
             boolean success = userDAO.insertUser(user);
 
             if (success) {
-                System.out.println("✅ User berhasil dibuat: " + user.getUsername());
                 return user;
             } else {
-                System.err.println("❌ Gagal membuat user");
                 return null;
             }
         } catch (Exception e) {

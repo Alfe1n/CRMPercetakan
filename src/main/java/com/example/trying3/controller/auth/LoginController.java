@@ -4,22 +4,19 @@ import com.example.trying3.MainApplication;
 import com.example.trying3.model.User;
 import com.example.trying3.service.AuthService;
 import com.example.trying3.util.AlertUtil;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Optional;
 
-/**
- * Controller untuk halaman login aplikasi CRM Percetakan.
- * Menangani autentikasi pengguna dan redirect ke dashboard sesuai role.
- */
 public class LoginController {
 
     @FXML private TextField txtUsername;
@@ -55,10 +52,6 @@ public class LoginController {
             return;
         }
 
-        System.out.println("✅ Login berhasil! User: " + user.getNamaLengkap());
-        System.out.println("   Role ID: " + user.getIdRole());
-        System.out.println("   Is Active: " + user.isActive());
-
         redirectToDashboard(e, user);
     }
 
@@ -87,12 +80,6 @@ public class LoginController {
         txtUsername.requestFocus();
     }
 
-    /**
-     * Redirect user ke dashboard yang sesuai dengan role-nya.
-     *
-     * @param e Event dari button login
-     * @param user User yang berhasil login
-     */
     private void redirectToDashboard(ActionEvent e, User user){
         try {
             String fxmlPath = switch (user.getIdRole()) {
@@ -114,10 +101,7 @@ public class LoginController {
             stage.setResizable(false);
             stage.centerOnScreen();
             stage.show();
-
-            System.out.println("✅ Dashboard loaded successfully!");
         } catch (IOException ex) {
-            System.err.println("❌ Error loading dashboard!");
             ex.printStackTrace();
             AlertUtil.showError("Error", "Gagal memuat dashboard: " + ex.getMessage());
         }
@@ -133,7 +117,6 @@ public class LoginController {
     @FXML
     private void handleGoToSignup(javafx.scene.input.MouseEvent event) {
         try {
-            System.out.println("🔄 Navigasi ke halaman signup...");
             FXMLLoader loader = new FXMLLoader(
                     MainApplication.class.getResource("fxml/auth/Signup.fxml")
             );
@@ -144,15 +127,32 @@ public class LoginController {
             stage.setTitle("CRM Percetakan - Buat Akun Testing");
             stage.show();
         } catch (Exception e) {
-            System.err.println("❌ Error navigasi ke signup: " + e.getMessage());
             e.printStackTrace();
             AlertUtil.showError("Error", "Gagal membuka halaman signup: " + e.getMessage());
         }
     }
 
     @FXML
+    private void handleExitSystem(ActionEvent event) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Konfirmasi Keluar");
+        alert.setHeaderText("Keluar dari Sistem");
+        alert.setContentText("Apakah Anda yakin ingin keluar dari aplikasi CRM Percetakan?");
+
+        ButtonType btnYa = new ButtonType("Ya, Keluar");
+        ButtonType btnBatal = new ButtonType("Batal");
+        alert.getButtonTypes().setAll(btnYa, btnBatal);
+
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if (result.isPresent() && result.get() == btnYa) {
+            Platform.exit();
+            System.exit(0);
+        }
+    }
+
+    @FXML
     private void initialize() {
-        System.out.println("LoginController initialized");
 
         if (txtUsername != null) {
             txtUsername.requestFocus();

@@ -15,7 +15,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.Optional;
 
 public class KelolaPesananController {
 
@@ -39,6 +38,7 @@ public class KelolaPesananController {
     @FXML private ComboBox<String> jenisLayananComboBox;
     @FXML private TextField jumlahField;
     @FXML private TextField totalHargaField;
+    @FXML private TextArea alamatField;
     @FXML private TextArea spesifikasiArea;
     @FXML private Button simpanPesananButton;
     @FXML private Button batalTambahButton;
@@ -49,6 +49,7 @@ public class KelolaPesananController {
     @FXML private TextField editNamaPelangganField;
     @FXML private TextField editNoTeleponField;
     @FXML private TextField editEmailField;
+    @FXML private TextArea editAlamatField;
     @FXML private ComboBox<String> editJenisLayananComboBox;
     @FXML private TextField editJumlahField;
     @FXML private TextField editTotalHargaField;
@@ -163,11 +164,6 @@ public class KelolaPesananController {
     private void handleUbahStatus(Pesanan pesanan, String statusBaru) {
         String statusLama = pesanan.getStatus();
 
-        if (statusBaru.equalsIgnoreCase("Pembayaran Verified")) {
-            showPembayaranVerifiedDialog(pesanan);
-            return;
-        }
-
         boolean confirmed = AlertUtil.showConfirmation(
                 "Ubah Status Pesanan",
                 "Ubah status pesanan dari " + pesanan.getNamaPelanggan() +
@@ -187,7 +183,7 @@ public class KelolaPesananController {
 
         StringBuilder query = new StringBuilder(
                 "SELECT p.*, " +
-                        "pel.nama, pel.no_telepon, pel.email, " +
+                        "pel.nama, pel.no_telepon, pel.email, pel.alamat, " +
                         "sp.nama_status, " +
                         "dp.id_layanan, dp.jumlah, dp.subtotal, dp.spesifikasi " +
                         "FROM pesanan p " +
@@ -219,6 +215,7 @@ public class KelolaPesananController {
                 pesanan.setNamaPelanggan(rs.getString("nama"));
                 pesanan.setNoTelepon(rs.getString("no_telepon"));
                 pesanan.setEmail(rs.getString("email"));
+                pesanan.setAlamat(rs.getString("alamat"));
                 pesanan.setStatus(rs.getString("nama_status"));
                 pesanan.setJumlah(rs.getInt("jumlah"));
                 pesanan.setTotalBiaya(rs.getDouble("total_biaya"));
@@ -251,6 +248,7 @@ public class KelolaPesananController {
 
         forceNumericInput(jumlahField);
         forceNumericInput(totalHargaField);
+        forceNumericInput(noTeleponField);
     }
 
     /**
@@ -283,13 +281,14 @@ public class KelolaPesananController {
         String namaPelanggan = namaPelangganField.getText().trim();
         String noTelepon = noTeleponField.getText().trim();
         String email = emailField.getText().trim();
+        String alamat = alamatField.getText().trim();
         String jenisLayanan = jenisLayananComboBox.getValue();
         String jumlahStr = jumlahField.getText().trim();
         String totalHargaStr = totalHargaField.getText().trim();
         String spesifikasi = spesifikasiArea.getText().trim();
 
         // Validasi input kosong
-        if (namaPelanggan.isEmpty() || noTelepon.isEmpty() || jenisLayanan == null ||
+        if (namaPelanggan.isEmpty() || noTelepon.isEmpty() || alamat.isEmpty() || jenisLayanan == null ||
                 jumlahStr.isEmpty() || totalHargaStr.isEmpty()) {
             AlertUtil.showWarning("Data Tidak Lengkap", "Mohon isi semua field wajib (bertanda *).");
             return;
@@ -300,7 +299,7 @@ public class KelolaPesananController {
             double totalHarga = Double.parseDouble(totalHargaStr);
 
             boolean isSuccess = pesananDAO.createPesanan(
-                    namaPelanggan, noTelepon, email, jenisLayanan, jumlah, totalHarga, spesifikasi);
+                    namaPelanggan, noTelepon, email, alamat, jenisLayanan, jumlah, totalHarga, spesifikasi);
 
             if (isSuccess) {
                 AlertUtil.showSuccess("Berhasil", "Pesanan berhasil dibuat!");
@@ -323,6 +322,7 @@ public class KelolaPesananController {
         namaPelangganField.clear();
         noTeleponField.clear();
         emailField.clear();
+        alamatField.clear();
         jenisLayananComboBox.getSelectionModel().clearSelection();
         jumlahField.clear();
         totalHargaField.clear();
@@ -341,6 +341,7 @@ public class KelolaPesananController {
 
         forceNumericInput(editJumlahField);
         forceNumericInput(editTotalHargaField);
+        forceNumericInput(editNoTeleponField);
     }
 
     /**
@@ -355,6 +356,7 @@ public class KelolaPesananController {
         editNamaPelangganField.setText(pesanan.getNamaPelanggan());
         editNoTeleponField.setText(pesanan.getNoTelepon());
         editEmailField.setText(pesanan.getEmail() != null ? pesanan.getEmail() : "");
+        editAlamatField.setText(pesanan.getAlamat() != null ? pesanan.getAlamat() : "");
         editJenisLayananComboBox.setValue(pesanan.getJenisLayanan());
         editJumlahField.setText(String.valueOf(pesanan.getJumlah()));
         editTotalHargaField.setText(String.valueOf((int) pesanan.getTotalBiaya()));
@@ -375,12 +377,13 @@ public class KelolaPesananController {
         String namaPelanggan = editNamaPelangganField.getText().trim();
         String noTelepon = editNoTeleponField.getText().trim();
         String email = editEmailField.getText().trim();
+        String alamat = editAlamatField.getText().trim();
         String jenisLayanan = editJenisLayananComboBox.getValue();
         String jumlahStr = editJumlahField.getText().trim();
         String totalHargaStr = editTotalHargaField.getText().trim();
         String spesifikasi = editSpesifikasiArea.getText().trim();
 
-        if (namaPelanggan.isEmpty() || noTelepon.isEmpty() || jenisLayanan == null ||
+        if (namaPelanggan.isEmpty() || alamat.isEmpty() || noTelepon.isEmpty() || jenisLayanan == null ||
                 jumlahStr.isEmpty() || totalHargaStr.isEmpty()) {
             AlertUtil.showWarning("Data Tidak Lengkap", "Mohon isi semua field wajib.");
             return;
@@ -395,13 +398,14 @@ public class KelolaPesananController {
             conn.setAutoCommit(false);
 
             try {
-                String updatePelangganSql = "UPDATE pelanggan SET nama = ?, no_telepon = ?, email = ? " +
+                String updatePelangganSql = "UPDATE pelanggan SET nama = ?, no_telepon = ?, email = ?, alamat = ? " +
                         "WHERE id_pelanggan = (SELECT id_pelanggan FROM pesanan WHERE id_pesanan = ?)";
                 PreparedStatement psPelanggan = conn.prepareStatement(updatePelangganSql);
                 psPelanggan.setString(1, namaPelanggan);
                 psPelanggan.setString(2, noTelepon);
                 psPelanggan.setString(3, email);
-                psPelanggan.setInt(4, idPesanan);
+                psPelanggan.setString(4, alamat);
+                psPelanggan.setInt(5, idPesanan);
                 psPelanggan.executeUpdate();
 
                 String updatePesananSql = "UPDATE pesanan SET total_biaya = ?, catatan = ? WHERE id_pesanan = ?";
@@ -453,6 +457,7 @@ public class KelolaPesananController {
         editNamaPelangganField.clear();
         editNoTeleponField.clear();
         editEmailField.clear();
+        editAlamatField.clear();
         editJenisLayananComboBox.getSelectionModel().clearSelection();
         editJumlahField.clear();
         editTotalHargaField.clear();
@@ -552,25 +557,6 @@ public class KelolaPesananController {
         }
     }
 
-    @SuppressWarnings("unused")
-    private void handleUbahStatus(Pesanan pesanan, String statusBaru, ComboBox<String> statusComboBox) {
-        String statusLama = pesanan.getStatus();
-
-        if (statusBaru.equalsIgnoreCase("Pembayaran Verified")) {
-            showPembayaranVerifiedDialog(pesanan);
-            return;
-        }
-
-        boolean confirmed = AlertUtil.showConfirmation(
-                "Ubah Status Pesanan",
-                "Ubah status pesanan dari " + pesanan.getNamaPelanggan() +
-                        "\ndari '" + statusLama + "' ke '" + statusBaru + "'?");
-
-        if (confirmed) {
-            updateStatusPesanan(pesanan.getIdPesanan(), statusBaru);
-        }
-    }
-
     /**
      * Update status pesanan di database
      */
@@ -594,93 +580,6 @@ public class KelolaPesananController {
         } catch (Exception e) {
             e.printStackTrace();
             AlertUtil.showError("Error: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Menampilkan dialog verifikasi pembayaran dengan input nominal dan metode
-     */
-    private void showPembayaranVerifiedDialog(Pesanan pesanan) {
-
-        Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Verifikasi Pembayaran");
-        dialog.setHeaderText("Tunggu dulu! Masukkan nominal uang yang diterima dan metode pembayarannya.");
-
-        GridPane grid = new GridPane();
-        grid.setHgap(15);
-        grid.setVgap(15);
-        grid.setPadding(new javafx.geometry.Insets(20));
-
-        TextField nominalField = new TextField();
-        nominalField.setPromptText("Contoh: 2500000");
-        Label nominalLabel = new Label("Nominal Diterima (Rp):");
-        nominalLabel.getStyleClass().add("form-label");
-
-        ComboBox<String> metodeComboBox = new ComboBox<>();
-        metodeComboBox.getItems().addAll("Cash", "Transfer Bank", "E-Wallet", "Kartu Kredit/Debit");
-        metodeComboBox.setPromptText("Pilih metode pembayaran");
-        Label metodeLabel = new Label("Metode Pembayaran:");
-        metodeLabel.getStyleClass().add("form-label");
-
-        Label infoLabel = new Label(
-                "Pesanan: " + pesanan.getNamaPelanggan() +
-                        "\nTotal Tagihan: Rp" + String.format("%,.2f", pesanan.getTotalBiaya()));
-        infoLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666;");
-
-        grid.add(infoLabel, 0, 0, 2, 1);
-        grid.add(nominalLabel, 0, 1);
-        grid.add(nominalField, 1, 1);
-        grid.add(metodeLabel, 0, 2);
-        grid.add(metodeComboBox, 1, 2);
-
-        dialog.getDialogPane().setContent(grid);
-
-        ButtonType simpanButtonType = new ButtonType("Simpan", ButtonBar.ButtonData.OK_DONE);
-        ButtonType batalButtonType = new ButtonType("Batal", ButtonBar.ButtonData.CANCEL_CLOSE);
-        dialog.getDialogPane().getButtonTypes().addAll(simpanButtonType, batalButtonType);
-
-        javafx.scene.Node simpanButton = dialog.getDialogPane().lookupButton(simpanButtonType);
-        simpanButton.setDisable(true);
-
-        nominalField.textProperty().addListener((obs, old, newVal) -> simpanButton
-                .setDisable(newVal.trim().isEmpty() || metodeComboBox.getValue() == null));
-
-        metodeComboBox.valueProperty().addListener((obs, old, newVal) -> simpanButton
-                .setDisable(nominalField.getText().trim().isEmpty() || newVal == null));
-
-        nominalField.textProperty().addListener((obs, old, newVal) -> {
-            if (!newVal.matches("\\d*")) {
-                nominalField.setText(newVal.replaceAll("\\D", ""));
-            }
-        });
-
-        Optional<ButtonType> result = dialog.showAndWait();
-
-        if (result.isPresent() && result.get() == simpanButtonType) {
-            String nominal = nominalField.getText();
-            String metode = metodeComboBox.getValue();
-
-            try {
-                double nominalValue = Double.parseDouble(nominal);
-                boolean success = pembayaranService.verifikasiPembayaran(
-                        pesanan.getIdPesanan(),
-                        nominalValue,
-                        metode);
-
-                if (success) {
-                    AlertUtil.showInfo("Berhasil",
-                            "Pembayaran berhasil diverifikasi!\n\n" +
-                                    "Data pembayaran:\n" +
-                                    "Nominal: Rp" + String.format("%,.0f", nominalValue) + "\n" +
-                                    "Metode: " + metode + "\n\n" +
-                                    "Status pesanan telah diubah menjadi 'Sedang Dikerjakan'.");
-                    loadPesananData();
-                } else {
-                    AlertUtil.showError("Gagal", "Gagal memverifikasi pembayaran. Silakan coba lagi.");
-                }
-            } catch (NumberFormatException e) {
-                AlertUtil.showError("Error", "Nominal tidak valid: " + e.getMessage());
-            }
         }
     }
 }

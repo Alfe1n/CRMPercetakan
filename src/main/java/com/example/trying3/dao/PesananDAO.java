@@ -27,7 +27,7 @@ public class PesananDAO {
     /**
      * Membuat pesanan baru dengan data pelanggan dan detail pesanan.
      */
-    public boolean createPesanan(String namaPelanggan, String noTelepon, String email,
+    public boolean createPesanan(String namaPelanggan, String noTelepon, String email, String alamat,
                                  String jenisLayanan, int jumlah, double totalHarga,
                                  String spesifikasi) {
         if (namaPelanggan == null || namaPelanggan.trim().isEmpty()) {
@@ -49,7 +49,7 @@ public class PesananDAO {
             conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
 
-            int idPelanggan = getOrCreatePelanggan(conn, namaPelanggan, noTelepon, email);
+            int idPelanggan = getOrCreatePelanggan(conn, namaPelanggan, noTelepon, email, alamat);
             if (idPelanggan == -1) {
                 throw new SQLException("Gagal membuat/mengambil data pelanggan.");
             }
@@ -80,7 +80,7 @@ public class PesananDAO {
 
     public List<Pesanan> getAllPesanan() {
         return executeQueryToList("""
-            SELECT p.id_pesanan, p.nomor_pesanan, pl.nama AS nama_pelanggan, pl.no_telepon, pl.email,
+            SELECT p.id_pesanan, p.nomor_pesanan, pl.nama AS nama_pelanggan, pl.no_telepon, pl.email, pl.alamat,
                    jl.nama_layanan, dp.jumlah, p.total_biaya AS total_harga, dp.spesifikasi,
                    sp.nama_status AS status, p.tanggal_pesanan, p.updated_at, p.catatan
             FROM pesanan p
@@ -329,7 +329,7 @@ public class PesananDAO {
         return laporanDAO.getPesananForExport(periode);
     }
 
-    private int getOrCreatePelanggan(Connection conn, String nama, String noTelepon, String email) throws SQLException {
+    private int getOrCreatePelanggan(Connection conn, String nama, String noTelepon, String email, String alamat) throws SQLException {
         String checkSql = "SELECT id_pelanggan FROM pelanggan WHERE no_telepon = ?";
         try (PreparedStatement ps = conn.prepareStatement(checkSql)) {
             ps.setString(1, noTelepon);
@@ -340,11 +340,12 @@ public class PesananDAO {
             }
         }
 
-        String insertSql = "INSERT INTO pelanggan (nama, no_telepon, email) VALUES (?, ?, ?)";
+        String insertSql = "INSERT INTO pelanggan (nama, no_telepon, email, alamat) VALUES (?, ?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, nama);
             ps.setString(2, noTelepon);
             ps.setString(3, email);
+            ps.setString(4, alamat);
             ps.executeUpdate();
 
             try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -421,7 +422,7 @@ public class PesananDAO {
 
         try { pesanan.setNoTelepon(rs.getString("no_telepon")); } catch (SQLException ignored) {}
         try { pesanan.setEmail(rs.getString("email")); } catch (SQLException ignored) {}
-
+        try { pesanan.setAlamat(rs.getString("alamat")); } catch (SQLException ignored) {}
         try { pesanan.setJenisLayanan(rs.getString("nama_layanan")); } catch (SQLException ignored) {}
         try { pesanan.setJumlah(rs.getInt("jumlah")); } catch (SQLException ignored) {}
         try { pesanan.setTotalBiaya(rs.getDouble("total_harga")); } catch (SQLException ignored) {}

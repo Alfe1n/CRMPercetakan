@@ -19,6 +19,7 @@ public class Pesanan {
     private String spesifikasi;
     private String catatan;
     private String status;
+    private String alamat;
     private LocalDateTime tanggalPesanan;
     private LocalDateTime updatedAt;
     private String fileDesainPath;
@@ -80,6 +81,9 @@ public class Pesanan {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String getAlamat() { return alamat; }
+    public void setAlamat(String alamat) { this.alamat = alamat; }
 
     public LocalDateTime getTanggalPesanan() { return tanggalPesanan; }
     public void setTanggalPesanan(LocalDateTime tanggalPesanan) { this.tanggalPesanan = tanggalPesanan; }

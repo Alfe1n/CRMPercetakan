@@ -174,9 +174,6 @@ public class KelolaDesignController implements Initializable {
         return card;
     }
 
-    /**
-     * Menambahkan baris detail ke GridPane.
-     */
     private void addDetailRow(GridPane grid, int row, String label, String value) {
         Label l = new Label(label);
         l.setStyle("-fx-font-weight: bold; -fx-text-fill: #555; -fx-font-size: 12px;");
@@ -189,9 +186,6 @@ public class KelolaDesignController implements Initializable {
         grid.add(v, 1, row);
     }
 
-    // =======================================================
-    // ACTION HANDLERS
-    // =======================================================
 
     private void handleUpload(Pesanan p) {
         FileChooser fileChooser = new FileChooser();

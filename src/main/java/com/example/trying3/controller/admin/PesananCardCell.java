@@ -232,12 +232,12 @@ public class PesananCardCell extends ListCell<Pesanan> {
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(
                      "SELECT nama_status FROM status_pesanan " +
-                             "WHERE nama_status IN ('Baru Dibuat', 'Menunggu Pembayaran', 'Pembayaran Verified', 'Dibatalkan') " +
+                             "WHERE nama_status IN ('Baru Dibuat', 'Menunggu Pembayaran', 'Dibatalkan') " +
                              "ORDER BY urutan ASC")) {
             while (rs.next())
                 statusOptions.add(rs.getString("nama_status"));
         } catch (Exception e) {
-            statusOptions.addAll("Baru Dibuat", "Menunggu Pembayaran", "Pembayaran Verified", "Dibatalkan");
+            statusOptions.addAll("Baru Dibuat", "Menunggu Pembayaran", "Dibatalkan");
         }
         ubahStatusComboBox.setItems(statusOptions);
 

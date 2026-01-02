@@ -103,7 +103,6 @@ public class ManajemenUserController implements Initializable {
 
         try {
             userList.addAll(userDAO.getAllUsers());
-            System.out.println("✅ Loaded " + userList.size() + " users");
         } catch (Exception e) {
             e.printStackTrace();
             showErrorAlert("Gagal memuat data user: " + e.getMessage());
@@ -239,25 +238,109 @@ public class ManajemenUserController implements Initializable {
     private void handleDeleteUser(User user) {
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmAlert.setTitle("Konfirmasi Hapus");
-        confirmAlert.setHeaderText("Hapus User");
-        confirmAlert.setContentText("Apakah Anda yakin ingin menghapus user '" + user.getNamaLengkap() + "'?");
+        confirmAlert.setHeaderText("Hapus User Permanen");
+        confirmAlert.setContentText(
+                "Apakah Anda yakin ingin menghapus user '" + user.getNamaLengkap() + "' secara PERMANEN?\n\n" +
+                        "Tindakan ini tidak dapat dibatalkan!"
+        );
+
+        ButtonType btnHapusPermanen = new ButtonType("Hapus Permanen", ButtonBar.ButtonData.OK_DONE);
+        ButtonType btnNonaktifkan = new ButtonType("Nonaktifkan Saja", ButtonBar.ButtonData.LEFT);
+        ButtonType btnBatal = new ButtonType("Batal", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        confirmAlert.getButtonTypes().setAll(btnHapusPermanen, btnNonaktifkan, btnBatal);
 
         Optional<ButtonType> result = confirmAlert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            try {
-                user.setActive(false);
-                boolean success = userDAO.updateUser(user);
+
+        if (result.isPresent()) {
+            if (result.get() == btnHapusPermanen) {
+                performHardDelete(user);
+            } else if (result.get() == btnNonaktifkan) {
+                performSoftDelete(user);
+            }
+        }
+    }
+
+    /**
+     * Melakukan hard delete (hapus permanen dari database)
+     */
+    private void performHardDelete(User user) {
+        try {
+            String cannotDeleteReason = userDAO.canDeleteUser(user.getIdUser());
+
+            if (cannotDeleteReason != null) {
+                Alert warningAlert = new Alert(Alert.AlertType.WARNING);
+                warningAlert.setTitle("Tidak Dapat Menghapus");
+                warningAlert.setHeaderText("User tidak dapat dihapus");
+                warningAlert.setContentText(
+                        cannotDeleteReason + "\n\n" +
+                                "Alternatif: Anda dapat menonaktifkan user ini."
+                );
+
+                ButtonType btnNonaktifkan = new ButtonType("Nonaktifkan User", ButtonBar.ButtonData.OK_DONE);
+                ButtonType btnBatal = new ButtonType("Batal", ButtonBar.ButtonData.CANCEL_CLOSE);
+                warningAlert.getButtonTypes().setAll(btnNonaktifkan, btnBatal);
+
+                Optional<ButtonType> warningResult = warningAlert.showAndWait();
+                if (warningResult.isPresent() && warningResult.get() == btnNonaktifkan) {
+                    performSoftDelete(user);
+                }
+                return;
+            }
+
+            // Konfirmasi terakhir sebelum hapus permanen
+            Alert finalConfirm = new Alert(Alert.AlertType.WARNING);
+            finalConfirm.setTitle("Konfirmasi Terakhir");
+            finalConfirm.setHeaderText("⚠️ PERINGATAN");
+            finalConfirm.setContentText(
+                    "User '" + user.getNamaLengkap() + "' akan dihapus SECARA PERMANEN.\n\n" +
+                            "Data yang akan dihapus:\n" +
+                            "• Akun user\n" +
+                            "• Log aktivitas user\n\n" +
+                            "Apakah Anda benar-benar yakin?"
+            );
+
+            ButtonType btnYakin = new ButtonType("Ya, Hapus Sekarang", ButtonBar.ButtonData.OK_DONE);
+            ButtonType btnBatal = new ButtonType("Batal", ButtonBar.ButtonData.CANCEL_CLOSE);
+            finalConfirm.getButtonTypes().setAll(btnYakin, btnBatal);
+
+            Optional<ButtonType> finalResult = finalConfirm.showAndWait();
+
+            if (finalResult.isPresent() && finalResult.get() == btnYakin) {
+                // Lakukan hard delete
+                boolean success = userDAO.deleteUser(user.getIdUser());
 
                 if (success) {
-                    showSuccessAlert("User berhasil dihapus!");
+                    showSuccessAlert("User '" + user.getNamaLengkap() + "' berhasil dihapus secara permanen!");
                     loadUserData();
                 } else {
-                    showErrorAlert("Gagal menghapus user.");
+                    showErrorAlert("Gagal menghapus user. Silakan coba lagi.");
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                showErrorAlert("Terjadi kesalahan: " + e.getMessage());
             }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showErrorAlert("Terjadi kesalahan: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Melakukan soft delete (nonaktifkan user)
+     */
+    private void performSoftDelete(User user) {
+        try {
+            user.setActive(false);
+            boolean success = userDAO.updateUser(user);
+
+            if (success) {
+                showSuccessAlert("User '" + user.getNamaLengkap() + "' berhasil dinonaktifkan!");
+                loadUserData();
+            } else {
+                showErrorAlert("Gagal menonaktifkan user.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showErrorAlert("Terjadi kesalahan: " + e.getMessage());
         }
     }
 
